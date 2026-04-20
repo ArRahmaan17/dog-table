@@ -2,6 +2,14 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
  
+## [1.2.3] — 2026-04-20
+### Changed
+* **Architectural Refactor:** Memisahkan fitur Persistence, Selection, dan Export ke dalam sistem plugin di folder `src/plugin`.
+* **Code Cleanliness:** Menguraikan logika engine utama menjadi modul yang lebih kecil dan maintainable.
+* **Utilities:** Memindahkan fungsi bantuan (`escapeHtml`, `debounce`) ke file `src/utils.js`.
+
+---
+
 ## [1.2.0] — 2026-04-20
 ### Added
 * **Phase 1: State Persistence & URL Sync:** Menambahkan dukungan penyimpanan state tabel ke `localStorage`, `sessionStorage`, atau URL Query Parameters.

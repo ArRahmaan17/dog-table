@@ -1,39 +1,13 @@
 import { DataFetcher } from "./data-fetcher.js";
 import { ThemeManager } from "./theme-manager.js";
+import { escapeHtml, debounce } from "./utils.js";
+
+// Plugins
+import { PersistencePlugin } from "./plugin/persistence.js";
+import { SelectionPlugin } from "./plugin/selection.js";
+import { ExportPlugin } from "./plugin/export.js";
 
 const DEFAULT_PAGE_SIZE = 5;
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function debounce(callback, wait) {
-  let timeoutId = null;
-
-  const debounced = (...args) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    timeoutId = window.setTimeout(() => {
-      callback(...args);
-    }, wait);
-  };
-
-  debounced.cancel = () => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
-    }
-  };
-
-  return debounced;
-}
 
 export class DataTable {
   constructor(container, options = {}) {
@@ -120,8 +94,13 @@ export class DataTable {
     this.rowIds = new WeakMap();
     this.rowIdCounter = 0;
 
+    // Initialize Plugins
+    this.persistence = new PersistencePlugin(this);
+    this.selection = new SelectionPlugin(this);
+    this.exporter = new ExportPlugin(this);
+
     if (this.options.persistence) {
-      this.loadState();
+      this.persistence.load();
     }
   }
 
@@ -153,71 +132,11 @@ export class DataTable {
   }
 
   loadState() {
-    if (!this.options.persistence) return;
-    const key = this.options.persistenceKey || `dt-${this.container.id || "state"}`;
-    let saved = null;
-
-    try {
-      if (this.options.persistence === "local") {
-        saved = JSON.parse(localStorage.getItem(key));
-      } else if (this.options.persistence === "session") {
-        saved = JSON.parse(sessionStorage.getItem(key));
-      } else if (this.options.persistence === "url") {
-        const params = new URLSearchParams(window.location.search);
-        saved = {
-          searchQuery: params.get(`${key}-q`) || "",
-          currentPage: Number(params.get(`${key}-p`)) || 1,
-          sortKey: params.get(`${key}-sk`),
-          sortDirection: params.get(`${key}-sd`) || "asc",
-          pageSize: Number(params.get(`${key}-ps`)) || undefined,
-        };
-      }
-    } catch (e) {
-      console.warn("DataTable: Failed to load state", e);
-    }
-
-    if (saved) {
-      if (saved.searchQuery !== undefined) this.state.searchQuery = saved.searchQuery;
-      if (saved.currentPage !== undefined) this.state.currentPage = saved.currentPage;
-      if (saved.sortKey !== undefined) this.state.sortKey = saved.sortKey;
-      if (saved.sortDirection !== undefined) this.state.sortDirection = saved.sortDirection;
-      if (saved.pageSize !== undefined) this.state.pageSize = saved.pageSize;
-    }
+    this.persistence.load();
   }
 
   saveState() {
-    if (!this.options.persistence) return;
-    const key = this.options.persistenceKey || `dt-${this.container.id || "state"}`;
-    const toSave = {
-      searchQuery: this.state.searchQuery,
-      currentPage: this.state.currentPage,
-      sortKey: this.state.sortKey,
-      sortDirection: this.state.sortDirection,
-      pageSize: this.state.pageSize,
-    };
-
-    if (this.options.persistence === "local") {
-      localStorage.setItem(key, JSON.stringify(toSave));
-    } else if (this.options.persistence === "session") {
-      sessionStorage.setItem(key, JSON.stringify(toSave));
-    } else if (this.options.persistence === "url") {
-      const url = new URL(window.location);
-      if (toSave.searchQuery) url.searchParams.set(`${key}-q`, toSave.searchQuery);
-      else url.searchParams.delete(`${key}-q`);
-
-      url.searchParams.set(`${key}-p`, toSave.currentPage);
-
-      if (toSave.sortKey) {
-        url.searchParams.set(`${key}-sk`, toSave.sortKey);
-        url.searchParams.set(`${key}-sd`, toSave.sortDirection);
-      } else {
-        url.searchParams.delete(`${key}-sk`);
-        url.searchParams.delete(`${key}-sd`);
-      }
-
-      url.searchParams.set(`${key}-ps`, toSave.pageSize);
-      window.history.replaceState({}, "", url);
-    }
+    this.persistence.save();
   }
 
   getRowId(row) {
@@ -415,13 +334,13 @@ export class DataTable {
     this.boundHandlers.onBulkCheck = (event) => {
       const checkbox = event.target.closest("input[data-bulk-checkbox]");
       if (!checkbox) return;
-      this.selectAll(checkbox.checked);
+      this.selection.selectAll(checkbox.checked);
     };
 
     this.boundHandlers.onRowCheck = (event) => {
       const checkbox = event.target.closest("input[data-row-checkbox]");
       if (!checkbox) return;
-      this.toggleRowSelection(checkbox.dataset.rowCheckbox, checkbox.checked);
+      this.selection.toggleRow(checkbox.dataset.rowCheckbox, checkbox.checked);
     };
 
     this.elements.thead.addEventListener("click", this.boundHandlers.onHeadClick);
@@ -630,40 +549,15 @@ export class DataTable {
   }
 
   getSelectedData() {
-    const selectedIds = this.state.selectedRows;
-    return this.state.rawData.filter((row) => selectedIds.has(this.getRowId(row)));
+    return this.selection.getSelectedData();
   }
 
   toggleRowSelection(rowId, isSelected) {
-    if (isSelected) {
-      this.state.selectedRows.add(rowId);
-    } else {
-      this.state.selectedRows.delete(rowId);
-    }
-
-    if (typeof this.options.hooks.onSelectionChange === "function") {
-      this.options.hooks.onSelectionChange(this.getSelectedData());
-    }
-
-    this.update({ skipFetch: true });
+    this.selection.toggleRow(rowId, isSelected);
   }
 
   selectAll(isSelected) {
-    const processed = this.getProcessedData();
-    processed.rows.forEach((row) => {
-      const id = this.getRowId(row);
-      if (isSelected) {
-        this.state.selectedRows.add(id);
-      } else {
-        this.state.selectedRows.delete(id);
-      }
-    });
-
-    if (typeof this.options.hooks.onSelectionChange === "function") {
-      this.options.hooks.onSelectionChange(this.getSelectedData());
-    }
-
-    this.update({ skipFetch: true });
+    this.selection.selectAll(isSelected);
   }
 
   toggleColumnVisibility(columnKey, isVisible) {
@@ -674,39 +568,8 @@ export class DataTable {
     }
   }
 
-  exportCSV(filename = "table-export.csv") {
-    const columns = this.state.columns.filter((c) => c.visible !== false);
-    const headers = columns
-      .map((c) => `"${(c.label || c.key).replace(/"/g, '""')}"`)
-      .join(",");
-
-    const rows = this.state.rawData
-      .map((row) => {
-        return columns
-          .map((c) => {
-            let value = row[c.key];
-            if (typeof c.render === "function") {
-              const rendered = c.render(value, row);
-              if (rendered instanceof Node) {
-                value = rendered.textContent;
-              } else {
-                value = rendered;
-              }
-            }
-            return `"${String(value ?? "").replace(/"/g, '""')}"`;
-          })
-          .join(",");
-      })
-      .join("\n");
-
-    const csvContent = `${headers}\n${rows}`;
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", filename);
-    link.click();
-    URL.revokeObjectURL(url);
+  exportCSV(filename) {
+    this.exporter.toCSV(filename);
   }
 
   setLoading(isLoading) {
@@ -807,8 +670,7 @@ export class DataTable {
   }
 
   isAllSelected(rows) {
-    if (!rows || rows.length === 0) return false;
-    return rows.every((row) => this.state.selectedRows.has(this.getRowId(row)));
+    return this.selection.isAllSelected(rows);
   }
 
   renderHeader(rows = []) {

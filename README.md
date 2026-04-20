@@ -13,6 +13,7 @@ Lightweight vanilla JavaScript data table with:
 - **Multi-selection** and bulk actions
 - **Column Visibility** management
 - **CSV Export** support
+- **Modular Architecture** with internal plugin system
 - lifecycle hooks
 - public API methods
 
