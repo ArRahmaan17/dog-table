@@ -13,6 +13,7 @@ Lightweight vanilla JavaScript data table with:
 - **Multi-selection** and bulk actions
 - **Column Visibility** management
 - **CSV Export** support
+- **Inline Editing** directly in table cells
 - **Formatter Engine** (Money, Date, Number) via `Intl` API
 - **Modular Architecture** with internal plugin system
 - lifecycle hooks
@@ -214,6 +215,7 @@ Each column object supports:
 - `format`: options object passed to `Intl` API
 - `currency`: currency code for `"money"` type (e.g., `"USD"`, `"IDR"`)
 - `locale`: specific locale for this column (e.g., `"id-ID"`)
+- `editable`: set to `true` to enable inline editing for this column
 - `sortable`: set to `false` to disable sorting for that column
 - `searchable`: set to `false` to exclude a column from built-in search
 - `sortValue(value, row)`: map cell data before sorting
@@ -254,6 +256,8 @@ Each column object supports:
 - `onPageChange(page)`: runs when the current page changes
 - `onSortChange({ sortKey, sortDirection })`: runs when sorting changes
 - `onSearchChange(query)`: runs when the search query changes
+- `onCellSave(id, field, value)`: triggered when an inline edit is saved
+- `onSelectionChange(selectedData)`: triggered when row selection changes
 - `onUpdate(payload)`: runs after each render with processed table metadata
 - `onDestroy()`: runs when `destroy()` is called
 

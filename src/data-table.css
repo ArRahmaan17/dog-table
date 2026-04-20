@@ -208,3 +208,41 @@
     justify-content: center;
   }
 }
+
+/* Inline Editor */
+.dt-editable {
+  cursor: pointer;
+  position: relative;
+}
+
+.dt-editable:hover {
+  background-color: rgba(15, 118, 110, 0.05) !important;
+}
+
+.dt-editable::after {
+  content: "✎";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  font-size: 0.8rem;
+}
+
+.dt-editable:hover::after {
+  opacity: 0.4;
+}
+
+.dt-editor-input {
+  border: 2px solid #0f766e !important;
+  border-radius: 6px !important;
+  padding: 4px 8px !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  outline: none !important;
+  background: white !important;
+  color: #102a43 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}

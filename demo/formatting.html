@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -11,7 +11,11 @@
         min-height: 100vh;
         padding: 32px 20px;
         background:
-          radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 35%),
+          radial-gradient(
+            circle at top left,
+            rgba(15, 118, 110, 0.18),
+            transparent 35%
+          ),
           linear-gradient(135deg, #f8fbff, #f1f5f9);
         font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
       }
@@ -47,7 +51,7 @@
         border-radius: 16px;
         border: 1px solid #e2e8f0;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        margin-bottom: 20px;
+        margin: 20px 0;
       }
 
       .code-snippet {
@@ -55,7 +59,8 @@
         color: #f8fafc;
         padding: 16px;
         border-radius: 8px;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         font-size: 0.9rem;
         overflow-x: auto;
         margin-top: 12px;
@@ -66,15 +71,20 @@
     <main>
       <a class="nav" href="./index.html">← Back to gallery</a>
       <h1>Formatter Engine</h1>
-      <p>Transforming raw data into human-readable formats using the native <code>Intl</code> API.</p>
+      <p>
+        Transforming raw data into human-readable formats using the native
+        <code>Intl</code> API.
+      </p>
 
-      <div class="card">
-        <div id="app"></div>
-      </div>
+      <div id="app"></div>
 
       <div class="card">
         <h3>Configuration Used</h3>
-        <p>Notice how <code>type: 'money'</code> and <code>type: 'datetime'</code> handle the complexity of localization automatically.</p>
+        <p>
+          Notice how <code>type: 'money'</code> and
+          <code>type: 'datetime'</code> handle the complexity of localization
+          automatically.
+        </p>
         <pre class="code-snippet">
 columns: [
   { label: 'Dog Name', accessor: 'name' },
@@ -98,7 +108,8 @@ columns: [
     currency: 'IDR',
     locale: 'id-ID' 
   },
-]</pre>
+]</pre
+        >
       </div>
     </main>
 
@@ -106,37 +117,67 @@ columns: [
       import { DataTable } from "../src/data-table.js";
 
       const data = [
-        { name: "Mochi", breed: "Shiba Inu", adopted_at: "2024-01-12T10:30:00Z", fee: 250, donation: 500000 },
-        { name: "Pepper", breed: "Beagle", adopted_at: "2023-11-04T15:45:00Z", fee: 175.50, donation: 250000 },
-        { name: "Nori", breed: "Corgi", adopted_at: "2024-03-21T09:00:00Z", fee: 300, donation: 1000000 },
-        { name: "Biscuit", breed: "Golden Retriever", adopted_at: "2022-09-30T14:20:00Z", fee: 225, donation: 750000 },
-        { name: "Suki", breed: "Pomeranian", adopted_at: "2024-02-18T11:15:00Z", fee: 200.75, donation: 300000 },
+        {
+          name: "Mochi",
+          breed: "Shiba Inu",
+          adopted_at: "2024-01-12T10:30:00Z",
+          fee: 250,
+          donation: 500000,
+        },
+        {
+          name: "Pepper",
+          breed: "Beagle",
+          adopted_at: "2023-11-04T15:45:00Z",
+          fee: 175.5,
+          donation: 250000,
+        },
+        {
+          name: "Nori",
+          breed: "Corgi",
+          adopted_at: "2024-03-21T09:00:00Z",
+          fee: 300,
+          donation: 1000000,
+        },
+        {
+          name: "Biscuit",
+          breed: "Golden Retriever",
+          adopted_at: "2022-09-30T14:20:00Z",
+          fee: 225,
+          donation: 750000,
+        },
+        {
+          name: "Suki",
+          breed: "Pomeranian",
+          adopted_at: "2024-02-18T11:15:00Z",
+          fee: 200.75,
+          donation: 300000,
+        },
       ];
 
       const table = new DataTable("#app", {
         data,
         pageSize: 5,
         columns: [
-          { label: 'Dog Name', accessor: 'name' },
-          { label: 'Breed', accessor: 'breed' },
-          { 
-            label: 'Adoption Date', 
-            accessor: 'adopted_at', 
-            type: 'datetime', 
-            format: { dateStyle: 'long' } 
+          { label: "Dog Name", accessor: "name" },
+          { label: "Breed", accessor: "breed" },
+          {
+            label: "Adoption Date",
+            accessor: "adopted_at",
+            type: "datetime",
+            format: { dateStyle: "long" },
           },
-          { 
-            label: 'Fee', 
-            accessor: 'fee', 
-            type: 'money', 
-            currency: 'USD' 
+          {
+            label: "Fee",
+            accessor: "fee",
+            type: "money",
+            currency: "USD",
           },
-          { 
-            label: 'Donation (IDR)', 
-            accessor: 'donation', 
-            type: 'money', 
-            currency: 'IDR',
-            locale: 'id-ID' 
+          {
+            label: "Donation (IDR)",
+            accessor: "donation",
+            type: "money",
+            currency: "IDR",
+            locale: "id-ID",
           },
         ],
       });

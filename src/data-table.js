@@ -7,6 +7,7 @@ import { PersistencePlugin } from "./plugin/persistence.js";
 import { SelectionPlugin } from "./plugin/selection.js";
 import { ExportPlugin } from "./plugin/export.js";
 import { FormatterPlugin } from "./plugin/formatter.js";
+import { EditorPlugin } from "./plugin/editor.js";
 
 const DEFAULT_PAGE_SIZE = 5;
 
@@ -100,6 +101,7 @@ export class DataTable {
     this.selection = new SelectionPlugin(this);
     this.exporter = new ExportPlugin(this);
     this.formatter = new FormatterPlugin(this);
+    this.editor = new EditorPlugin(this);
 
     if (this.options.persistence) {
       this.persistence.load();
@@ -345,6 +347,22 @@ export class DataTable {
       this.selection.toggleRow(checkbox.dataset.rowCheckbox, checkbox.checked);
     };
 
+    this.boundHandlers.onCellClick = (event) => {
+      const td = event.target.closest("td[data-field]");
+      if (!td) return;
+
+      const rowId = td.closest("tr")?.dataset.rowId;
+      const field = td.dataset.field;
+      const column = this.state.columns.find(
+        (c) => (c.accessor || c.key) === field
+      );
+
+      if (column?.editable && rowId) {
+        const row = this.state.rawData.find((r) => this.getRowId(r) === rowId);
+        this.editor.startEditing(td, rowId, field, row ? row[field] : "");
+      }
+    };
+
     this.elements.thead.addEventListener("click", this.boundHandlers.onHeadClick);
     this.elements.thead.addEventListener(
       "keydown",
@@ -352,7 +370,10 @@ export class DataTable {
     );
     this.elements.thead.addEventListener("change", this.boundHandlers.onBulkCheck);
     this.elements.tbody.addEventListener("change", this.boundHandlers.onRowCheck);
-    this.elements.tbody.addEventListener("click", this.boundHandlers.onBodyClick);
+    this.elements.tbody.addEventListener("click", (e) => {
+      this.boundHandlers.onBodyClick(e);
+      this.boundHandlers.onCellClick(e);
+    });
     this.elements.pagination.addEventListener(
       "click",
       this.boundHandlers.onPaginationClick
@@ -853,6 +874,12 @@ export class DataTable {
         const td = document.createElement("td");
         td.className = this.theme.get("bodyCell");
         const key = column.accessor || column.key;
+        td.dataset.field = key;
+
+        if (column.editable) {
+          td.classList.add("dt-editable");
+        }
+
         const value = row[key];
         const formatted = this.formatter.format(value, column, row);
         const rendered =

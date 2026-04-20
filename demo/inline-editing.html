@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Inline Editing</title>
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(15, 118, 110, 0.18),
+            transparent 35%
+          ),
+          linear-gradient(135deg, #f8fbff, #f1f5f9);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #0d9488;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .card {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        margin: 20px 0;
+      }
+
+      .event-log {
+        background: #1e293b;
+        color: #10b981;
+        padding: 16px;
+        border-radius: 8px;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.85rem;
+        height: 150px;
+        overflow-y: auto;
+        margin-top: 12px;
+      }
+
+      .event-log-entry {
+        margin-bottom: 4px;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 4px;
+      }
+
+      .tag {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: #0f766e;
+        color: white;
+        margin-left: 8px;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="nav" href="./index.html">← Back to gallery</a>
+      <h1>Inline Editing</h1>
+      <p>
+        Click on any cell with the <span class="tag">Editable</span> tag to
+        edit its value directly.
+      </p>
+
+      <div id="app"></div>
+
+      <div class="card">
+        <h3>⚡ Real-time Save Log</h3>
+        <p>
+          This log captures the <code>onCellSave</code> callback events triggered
+          when you press <b>Enter</b> or click away.
+        </p>
+        <div id="log" class="event-log">
+          <div class="event-log-entry" style="color: #64748b">
+            Waiting for edits...
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { DataTable } from "../src/data-table.js";
+
+      const log = document.getElementById("log");
+      const addLog = (msg) => {
+        const entry = document.createElement("div");
+        entry.className = "event-log-entry";
+        entry.innerHTML = `<span style="color: #94a3b8">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+        log.prepend(entry);
+      };
+
+      const data = [
+        { id: 1, name: "Mochi", age: 3, status: "Ready" },
+        { id: 2, name: "Pepper", age: 5, status: "Pending" },
+        { id: 3, name: "Nori", age: 2, status: "Ready" },
+        { id: 4, name: "Biscuit", age: 6, status: "Adopted" },
+      ];
+
+      const table = new DataTable("#app", {
+        data,
+        rowKey: "id",
+        columns: [
+          { label: "ID", accessor: "id" },
+          { label: "Name (Editable)", accessor: "name", editable: true },
+          { label: "Age (Editable)", accessor: "age", editable: true },
+          { label: "Status (Read-only)", accessor: "status" },
+        ],
+        onCellSave: async (id, field, value) => {
+          addLog(
+            `Saved row <b>#${id}</b>: set <u>${field}</u> to "<b>${value}</b>"`
+          );
+        },
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

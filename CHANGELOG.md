@@ -5,8 +5,9 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 ## [1.3.0] — 2026-04-20
 ### Added
 * **Formatter Engine (Phase 1):** Menambahkan sistem formatting cerdas berbasis **Intl API** untuk otomatisasi tampilan mata uang (`money`), tanggal (`datetime`), dan angka (`number`).
+* **Inline Editor (Phase 2):** Implementasi plugin `EditorPlugin` yang memungkinkan pengeditan data langsung di sel tabel dengan dukungan callback `onCellSave`.
 * **Column Accessor Support:** Mendukung properti `accessor` pada kolom (semua metode engine sekarang kompatibel dengan `key` maupun `accessor`).
-* **Demo Formatting:** Menambahkan demo baru di `demo/formatting.html` untuk memamerkan fitur visual formatting.
+* **Demo Updates:** Menambahkan demo `demo/formatting.html` dan `demo/inline-editing.html`.
 
 ---
 
