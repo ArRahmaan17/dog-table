@@ -254,6 +254,8 @@ Each column object supports:
 - `onFetchStart(state)`: runs right before a remote request starts
 - `onFetchSuccess(payload)`: runs after a successful remote response
 - `onFetchError(error)`: runs when a remote request fails
+- `onBeforeRefresh()`: runs right before an auto-refresh polling request
+- `onDataUpdated(rawData)`: runs whenever the underlying data changes (fetch/edit)
 - `onRowToggle({ rowId, expanded })`: runs when a detail row is expanded or collapsed
 - `onPageChange(page)`: runs when the current page changes
 - `onSortChange({ sortKey, sortDirection })`: runs when sorting changes

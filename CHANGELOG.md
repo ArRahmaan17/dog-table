@@ -7,6 +7,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Formatter Engine (Phase 1):** Menambahkan sistem formatting cerdas berbasis **Intl API** untuk otomatisasi tampilan mata uang (`money`), tanggal (`datetime`), dan angka (`number`).
 * **Inline Editor (Phase 2):** Implementasi plugin `EditorPlugin` yang memungkinkan pengeditan data langsung di sel tabel dengan dukungan callback `onCellSave`.
 * **Live Sync (Phase 3):** Menambahkan fitur `autoRefresh` untuk sinkronisasi data otomatis secara berkala (polling) dilengkapi dengan UI indicator "Live/Paused" yang interaktif.
+* **Hook Lifecycle (Phase 4):** Penambahan hook baru `onBeforeRefresh` (sebelum polling) dan `onDataUpdated` (saat data mentah berubah melalui fetch atau edit).
 * **Column Accessor Support:** Mendukung properti `accessor` pada kolom (semua metode engine sekarang kompatibel dengan `key` maupun `accessor`).
 * **Demo Updates:** Menambahkan demo `demo/formatting.html`, `demo/inline-editing.html`, dan `demo/live-sync.html`.
 

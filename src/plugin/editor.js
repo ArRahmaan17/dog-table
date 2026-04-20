@@ -42,6 +42,11 @@ export class EditorPlugin {
             // Optional: Rollback logic could go here
           }
         }
+
+        if (typeof this.table.options.hooks.onDataUpdated === "function") {
+          this.table.options.hooks.onDataUpdated(this.table.state.rawData);
+        }
+
         this.table.update({ skipFetch: true });
       } else {
         td.innerHTML = originalContent;

@@ -19,6 +19,9 @@ export class LivePlugin {
     this.active = true;
     this.intervalId = setInterval(() => {
       if (this.active && !this.table.state.loading) {
+        if (typeof this.table.options.hooks.onBeforeRefresh === "function") {
+          this.table.options.hooks.onBeforeRefresh();
+        }
         this.table.update();
       }
     }, ms);

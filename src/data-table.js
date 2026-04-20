@@ -1051,6 +1051,10 @@ export class DataTable {
       if (typeof this.options.hooks.onFetchSuccess === "function") {
         this.options.hooks.onFetchSuccess(payload);
       }
+
+      if (typeof this.options.hooks.onDataUpdated === "function") {
+        this.options.hooks.onDataUpdated(this.state.rawData);
+      }
     } catch (error) {
       if (error.name === "AbortError") {
         return;
