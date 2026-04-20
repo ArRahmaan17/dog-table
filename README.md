@@ -4,18 +4,17 @@ Lightweight vanilla JavaScript data table with:
 
 - constructor-based initialization
 - theme presets with overridable class maps
-- sorting
-- search filtering
+- sorting and filtering
 - debounced search input
 - pagination
 - remote data loading with abortable `fetch()`
-- row grouping
-- expandable row detail panels
-- loading skeletons for remote data
-- column render callbacks
-- custom filter and sort accessors per column
+- row grouping and expandable details
+- **State Persistence** (URL or LocalStorage)
+- **Multi-selection** and bulk actions
+- **Column Visibility** management
+- **CSV Export** support
 - lifecycle hooks
-- public API methods for data and state updates
+- public API methods
 
 ## Installation
 
@@ -155,6 +154,19 @@ const table = new DataTable("#app", {
 
 Placeholders like `{start}`, `{end}`, `{total}`, and `{page}` are automatically replaced with current metadata.
 
+## State Persistence
+
+Keep the table state (page, search, sort) synchronized with the URL or `localStorage`:
+
+```js
+const table = new DataTable("#app", {
+  persistence: "url", // or "local"
+  persistenceKey: "user-table"
+});
+```
+
+When using `"url"`, the table parameters are appended to the query string, allowing users to share links to specific filtered/sorted views.
+
 ### Predefined Locales
 
 The library includes several predefined locale objects that you can import:
@@ -184,6 +196,9 @@ Available locales: `en`, `es`, `fr`, `de`, `zh-CN`, `id`.
 | `groupLabel` | `function \| null` | `null` | Custom label builder for each group header row. |
 | `rowKey` | `string \| function \| null` | `null` | Stable identifier used for row detail expansion state. |
 | `rowDetail` | `object \| null` | `null` | Enables expandable detail rows with lazy content rendering. |
+| `persistence` | `string \| null` | `null` | Sync state with `"url"`, `"local"`, or `"session"`. |
+| `persistenceKey` | `string \| null` | `null` | Unique key for storage or URL prefix. |
+| `selectable` | `boolean` | `false` | Enable row selection with checkboxes. |
 | `hooks` | `object` | `{}` | Event callbacks for table lifecycle updates. |
 
 ## Column Definition
@@ -196,7 +211,8 @@ Each column object supports:
 - `searchable`: set to `false` to exclude a column from built-in search
 - `sortValue(value, row)`: map cell data before sorting
 - `filter({ value, row, query })`: custom per-column search matcher
-- `render(value, row)`: custom cell formatter, may return text or a DOM `Node`
+- `render(value, row)`: custom cell formatter
+- `visible`: set to `false` to hide column by default
 
 ## Remote Config
 
@@ -249,7 +265,12 @@ Each column object supports:
 - `toggleRowDetail(rowId)`: expand or collapse a row detail panel
 - `expandRowDetail(rowId)`: expand a specific row detail panel
 - `collapseRowDetail(rowId)`: collapse a specific row detail panel
-- `setTheme(theme, classNames?)`: swap the active theme mapping and re-render
+- `getSelectedData()`: return array of currently selected rows
+- `selectAll(checked)`: select or deselect all visible rows
+- `toggleRowSelection(rowId, checked)`: toggle selection for a specific row
+- `toggleColumnVisibility(key, visible)`: show or hide a column
+- `exportCSV(filename?)`: download the current data as a CSV file
+- `setTheme(theme, classNames?)`: swap the active theme mapping
 - `getProcessedData()`: return the current filtered, sorted, paginated result
 - `getState()`: return a shallow copy of current internal state
 - `reset()`: clear search, sort, and return to page 1

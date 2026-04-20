@@ -77,6 +77,9 @@ export class DataTable {
       groupLabel: null,
       rowKey: null,
       rowDetail: null,
+      persistence: null,
+      persistenceKey: null,
+      selectable: false,
       hooks: {},
       ...options,
     };
@@ -93,6 +96,7 @@ export class DataTable {
       columns: Array.isArray(this.options.columns)
         ? [...this.options.columns]
         : [],
+      selectedRows: new Set(),
       searchQuery: "",
       sortKey: initialSort ? initialSort.key : null,
       sortDirection:
@@ -115,6 +119,10 @@ export class DataTable {
     this.debouncedSearch = null;
     this.rowIds = new WeakMap();
     this.rowIdCounter = 0;
+
+    if (this.options.persistence) {
+      this.loadState();
+    }
   }
 
   init() {
@@ -137,7 +145,79 @@ export class DataTable {
   }
 
   getVisibleColumnCount() {
-    return this.state.columns.length + (this.hasRowDetail() ? 1 : 0);
+    return (
+      this.state.columns.length +
+      (this.hasRowDetail() ? 1 : 0) +
+      (this.options.selectable ? 1 : 0)
+    );
+  }
+
+  loadState() {
+    if (!this.options.persistence) return;
+    const key = this.options.persistenceKey || `dt-${this.container.id || "state"}`;
+    let saved = null;
+
+    try {
+      if (this.options.persistence === "local") {
+        saved = JSON.parse(localStorage.getItem(key));
+      } else if (this.options.persistence === "session") {
+        saved = JSON.parse(sessionStorage.getItem(key));
+      } else if (this.options.persistence === "url") {
+        const params = new URLSearchParams(window.location.search);
+        saved = {
+          searchQuery: params.get(`${key}-q`) || "",
+          currentPage: Number(params.get(`${key}-p`)) || 1,
+          sortKey: params.get(`${key}-sk`),
+          sortDirection: params.get(`${key}-sd`) || "asc",
+          pageSize: Number(params.get(`${key}-ps`)) || undefined,
+        };
+      }
+    } catch (e) {
+      console.warn("DataTable: Failed to load state", e);
+    }
+
+    if (saved) {
+      if (saved.searchQuery !== undefined) this.state.searchQuery = saved.searchQuery;
+      if (saved.currentPage !== undefined) this.state.currentPage = saved.currentPage;
+      if (saved.sortKey !== undefined) this.state.sortKey = saved.sortKey;
+      if (saved.sortDirection !== undefined) this.state.sortDirection = saved.sortDirection;
+      if (saved.pageSize !== undefined) this.state.pageSize = saved.pageSize;
+    }
+  }
+
+  saveState() {
+    if (!this.options.persistence) return;
+    const key = this.options.persistenceKey || `dt-${this.container.id || "state"}`;
+    const toSave = {
+      searchQuery: this.state.searchQuery,
+      currentPage: this.state.currentPage,
+      sortKey: this.state.sortKey,
+      sortDirection: this.state.sortDirection,
+      pageSize: this.state.pageSize,
+    };
+
+    if (this.options.persistence === "local") {
+      localStorage.setItem(key, JSON.stringify(toSave));
+    } else if (this.options.persistence === "session") {
+      sessionStorage.setItem(key, JSON.stringify(toSave));
+    } else if (this.options.persistence === "url") {
+      const url = new URL(window.location);
+      if (toSave.searchQuery) url.searchParams.set(`${key}-q`, toSave.searchQuery);
+      else url.searchParams.delete(`${key}-q`);
+
+      url.searchParams.set(`${key}-p`, toSave.currentPage);
+
+      if (toSave.sortKey) {
+        url.searchParams.set(`${key}-sk`, toSave.sortKey);
+        url.searchParams.set(`${key}-sd`, toSave.sortDirection);
+      } else {
+        url.searchParams.delete(`${key}-sk`);
+        url.searchParams.delete(`${key}-sd`);
+      }
+
+      url.searchParams.set(`${key}-ps`, toSave.pageSize);
+      window.history.replaceState({}, "", url);
+    }
   }
 
   getRowId(row) {
@@ -251,6 +331,7 @@ export class DataTable {
               class="${this.theme.get("searchInput")}"
               type="search"
               placeholder="${escapeHtml(this.options.language.searchPlaceholder)}"
+              value="${escapeHtml(this.state.searchQuery)}"
               aria-label="${escapeHtml(this.options.language.search)}"
             />
           </label>
@@ -321,18 +402,21 @@ export class DataTable {
       this.setPage(Number(button.dataset.page));
     };
 
-    this.boundHandlers.onBodyClick = (event) => {
-      const button = event.target.closest("button[data-detail-toggle]");
+    this.boundHandlers.onBulkCheck = (event) => {
+      const checkbox = event.target.closest("input[data-bulk-checkbox]");
+      if (!checkbox) return;
+      this.selectAll(checkbox.checked);
+    };
 
-      if (!button || this.state.loading) {
-        return;
-      }
-
-      this.toggleRowDetail(button.dataset.detailToggle);
+    this.boundHandlers.onRowCheck = (event) => {
+      const checkbox = event.target.closest("input[data-row-checkbox]");
+      if (!checkbox) return;
+      this.toggleRowSelection(checkbox.dataset.rowCheckbox, checkbox.checked);
     };
 
     this.elements.thead.addEventListener("click", this.boundHandlers.onHeadClick);
-    this.elements.thead.addEventListener("keydown", this.boundHandlers.onHeadKeydown);
+    this.elements.thead.addEventListener("change", this.boundHandlers.onBulkCheck);
+    this.elements.tbody.addEventListener("change", this.boundHandlers.onRowCheck);
     this.elements.tbody.addEventListener("click", this.boundHandlers.onBodyClick);
     this.elements.pagination.addEventListener(
       "click",
@@ -398,6 +482,7 @@ export class DataTable {
     this.state.sortKey = sortKey;
     this.state.sortDirection = direction === "desc" ? "desc" : "asc";
     this.state.currentPage = 1;
+    this.saveState();
     this.update();
   }
 
@@ -405,6 +490,7 @@ export class DataTable {
     this.state.sortKey = null;
     this.state.sortDirection = "asc";
     this.state.currentPage = 1;
+    this.saveState();
     this.update();
   }
 
@@ -443,6 +529,7 @@ export class DataTable {
 
   setPage(pageNumber) {
     this.state.currentPage = Number(pageNumber) || 1;
+    this.saveState();
     this.update();
   }
 
@@ -454,6 +541,7 @@ export class DataTable {
       this.elements.searchInput.value = query ?? "";
     }
 
+    this.saveState();
     this.update();
   }
 
@@ -466,6 +554,7 @@ export class DataTable {
 
     this.state.pageSize = Math.max(1, nextPageSize);
     this.state.currentPage = 1;
+    this.saveState();
     this.update();
   }
 
@@ -522,7 +611,88 @@ export class DataTable {
       rawData: [...this.state.rawData],
       columns: [...this.state.columns],
       expandedRowIds: [...this.state.expandedRowIds],
+      selectedRows: [...this.state.selectedRows],
     };
+  }
+
+  getSelectedData() {
+    const selectedIds = this.state.selectedRows;
+    return this.state.rawData.filter((row) => selectedIds.has(this.getRowId(row)));
+  }
+
+  toggleRowSelection(rowId, isSelected) {
+    if (isSelected) {
+      this.state.selectedRows.add(rowId);
+    } else {
+      this.state.selectedRows.delete(rowId);
+    }
+
+    if (typeof this.options.hooks.onSelectionChange === "function") {
+      this.options.hooks.onSelectionChange(this.getSelectedData());
+    }
+
+    this.update({ skipFetch: true });
+  }
+
+  selectAll(isSelected) {
+    const processed = this.getProcessedData();
+    processed.rows.forEach((row) => {
+      const id = this.getRowId(row);
+      if (isSelected) {
+        this.state.selectedRows.add(id);
+      } else {
+        this.state.selectedRows.delete(id);
+      }
+    });
+
+    if (typeof this.options.hooks.onSelectionChange === "function") {
+      this.options.hooks.onSelectionChange(this.getSelectedData());
+    }
+
+    this.update({ skipFetch: true });
+  }
+
+  toggleColumnVisibility(columnKey, isVisible) {
+    const column = this.state.columns.find((c) => c.key === columnKey);
+    if (column) {
+      column.visible = isVisible;
+      this.update({ skipFetch: true });
+    }
+  }
+
+  exportCSV(filename = "table-export.csv") {
+    const columns = this.state.columns.filter((c) => c.visible !== false);
+    const headers = columns
+      .map((c) => `"${(c.label || c.key).replace(/"/g, '""')}"`)
+      .join(",");
+
+    const rows = this.state.rawData
+      .map((row) => {
+        return columns
+          .map((c) => {
+            let value = row[c.key];
+            if (typeof c.render === "function") {
+              const rendered = c.render(value, row);
+              if (rendered instanceof Node) {
+                value = rendered.textContent;
+              } else {
+                value = rendered;
+              }
+            }
+            return `"${String(value ?? "").replace(/"/g, '""')}"`;
+          })
+          .join(",");
+      })
+      .join("\n");
+
+    const csvContent = `${headers}\n${rows}`;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   setLoading(isLoading) {
@@ -622,8 +792,15 @@ export class DataTable {
     };
   }
 
-  renderHeader() {
+  isAllSelected(rows) {
+    if (!rows || rows.length === 0) return false;
+    return rows.every((row) => this.state.selectedRows.has(this.getRowId(row)));
+  }
+
+  renderHeader(rows = []) {
+    const isAllSelected = this.options.selectable && this.isAllSelected(rows);
     const headers = this.state.columns
+      .filter((column) => column.visible !== false)
       .map((column) => {
         const isSorted = this.state.sortKey === column.key;
         const direction = isSorted ? this.state.sortDirection : "none";
@@ -654,11 +831,19 @@ export class DataTable {
 
     const detailHeader = this.hasRowDetail()
       ? `<th scope="col" class="${this.theme.get("headerCell")}">${escapeHtml(
-        this.options.language.details
-      )}</th>`
+          this.options.language.details
+        )}</th>`
       : "";
 
-    this.elements.thead.innerHTML = `<tr>${detailHeader}${headers}</tr>`;
+    const selectionHeader = this.options.selectable
+      ? `<th scope="col" class="${this.theme.get("headerCell")}">
+           <input type="checkbox" data-bulk-checkbox ${
+             isAllSelected ? "checked" : ""
+           } aria-label="Select all rows" />
+         </th>`
+      : "";
+
+    this.elements.thead.innerHTML = `<tr>${selectionHeader}${detailHeader}${headers}</tr>`;
   }
 
   renderLoading() {
@@ -770,7 +955,23 @@ export class DataTable {
         tr.appendChild(detailToggleCell);
       }
 
+      if (this.options.selectable) {
+        const selectionCell = document.createElement("td");
+        selectionCell.className = this.theme.get("bodyCell");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.dataset.rowCheckbox = rowId;
+        checkbox.checked = this.state.selectedRows.has(rowId);
+        checkbox.setAttribute("aria-label", `Select row ${rowId}`);
+
+        selectionCell.appendChild(checkbox);
+        tr.appendChild(selectionCell);
+      }
+
       this.state.columns.forEach((column) => {
+        if (column.visible === false) return;
+
         const td = document.createElement("td");
         td.className = this.theme.get("bodyCell");
         const value = row[column.key];
@@ -912,7 +1113,7 @@ export class DataTable {
 
     this.setLoading(true);
     this.state.error = null;
-    this.renderHeader();
+    this.renderHeader(this.getProcessedData().rows);
     this.renderLoading();
 
     if (typeof this.options.hooks.onFetchStart === "function") {
@@ -996,7 +1197,9 @@ export class DataTable {
       await this.fetchData();
     }
 
-    this.renderHeader();
+    const processed = this.getProcessedData();
+
+    this.renderHeader(processed.rows);
 
     if (this.state.error) {
       this.renderError();
@@ -1008,8 +1211,7 @@ export class DataTable {
       return;
     }
 
-    const processed = this.getProcessedData();
-
+    this.saveState();
     this.renderBody(processed.displayRows);
     this.renderMeta(processed);
     this.renderPagination(processed);

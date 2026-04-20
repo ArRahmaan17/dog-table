@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Advanced Features</title>
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background:
+          radial-gradient(circle at top left, rgba(45, 125, 154, 0.18), transparent 35%),
+          linear-gradient(135deg, #f4f7fb, #e6ecf3);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 1024px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #0f766e;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .toolbar-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 20px;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        align-items: center;
+      }
+
+      .btn {
+        padding: 10px 18px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        background: white;
+        color: #102a43;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+      }
+
+      .btn-primary {
+        background: #0f766e;
+        color: white;
+        border-color: #0f766e;
+      }
+
+      .btn-primary:hover {
+        background: #0d9488;
+      }
+
+      .visibility-toggles {
+        display: flex;
+        gap: 15px;
+        font-size: 0.9rem;
+        color: #475569;
+      }
+
+      .toggle-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+      }
+
+      .stats {
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: #64748b;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="nav" href="./index.html">← Back to gallery</a>
+      <h1>Advanced Features</h1>
+      <p>Demonstrating URL persistence, row selection, column visibility, and CSV export.</p>
+      
+      <div class="toolbar-actions">
+        <button type="button" id="export-csv" class="btn btn-primary">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Export CSV
+        </button>
+        
+        <button type="button" id="get-selected" class="btn">
+          Get Selected Data
+        </button>
+
+        <div class="visibility-toggles">
+          <label class="toggle-item">
+            <input type="checkbox" data-column="breed" checked> Breed
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" data-column="age" checked> Age
+          </label>
+          <label class="toggle-item">
+            <input type="checkbox" data-column="adopted" checked> Adopted
+          </label>
+        </div>
+      </div>
+
+      <div id="app"></div>
+      
+      <div id="stats" class="stats">Selected: 0 rows</div>
+    </main>
+
+    <script type="module">
+      import { DataTable } from "../src/data-table.js";
+
+      const data = [
+        { id: 101, name: "Mochi", breed: "Shiba Inu", age: 3, adopted: "2024-01-12", region: "North" },
+        { id: 102, name: "Pepper", breed: "Beagle", age: 5, adopted: "2023-11-04", region: "South" },
+        { id: 103, name: "Nori", breed: "Corgi", age: 2, adopted: "2024-03-21", region: "North" },
+        { id: 104, name: "Biscuit", breed: "Golden Retriever", age: 6, adopted: "2022-09-30", region: "East" },
+        { id: 105, name: "Suki", breed: "Pomeranian", age: 4, adopted: "2024-02-18", region: "South" },
+        { id: 106, name: "Atlas", breed: "German Shepherd", age: 7, adopted: "2021-08-08", region: "West" },
+        { id: 107, name: "Olive", breed: "Mixed", age: 1, adopted: "2024-04-01", region: "North" },
+        { id: 108, name: "Luna", breed: "Husky", age: 2, adopted: "2024-05-10", region: "West" },
+        { id: 109, name: "Rex", breed: "Rotweiler", age: 4, adopted: "2023-12-15", region: "South" },
+        { id: 110, name: "Daisy", breed: "Poodle", age: 3, adopted: "2024-01-05", region: "East" },
+      ];
+
+      const table = new DataTable("#app", {
+        data,
+        rowKey: "id",
+        pageSize: 5,
+        selectable: true,
+        persistence: "url",
+        persistenceKey: "adv",
+        columns: [
+          { key: "name", label: "Name" },
+          { key: "breed", label: "Breed" },
+          { key: "age", label: "Age" },
+          { 
+            key: "adopted", 
+            label: "Adopted",
+            render: (val) => new Date(val).toLocaleDateString()
+          },
+          { key: "region", label: "Region" },
+        ],
+        hooks: {
+          onSelectionChange: (selectedRows) => {
+            document.getElementById("stats").textContent = `Selected: ${selectedRows.length} rows`;
+          }
+        }
+      });
+
+      table.init();
+
+      // Export CSV
+      document.getElementById("export-csv").addEventListener("click", () => {
+        table.exportCSV("dog-data-export.csv");
+      });
+
+      // Get Selected
+      document.getElementById("get-selected").addEventListener("click", () => {
+        const selected = table.getSelectedData();
+        if (selected.length === 0) {
+          alert("No rows selected!");
+        } else {
+          alert(`Selected Dogs: ${selected.map(d => d.name).join(", ")}`);
+          console.log("Selected Data:", selected);
+        }
+      });
+
+      // Column Visibility
+      document.querySelectorAll(".visibility-toggles input").forEach(checkbox => {
+        checkbox.addEventListener("change", (e) => {
+          table.toggleColumnVisibility(e.target.dataset.column, e.target.checked);
+        });
+      });
+    </script>
+  </body>
+</html>
