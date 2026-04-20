@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Live Sync</title>
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(15, 118, 110, 0.18),
+            transparent 35%
+          ),
+          linear-gradient(135deg, #f8fbff, #f1f5f9);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #0d9488;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .card {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        margin: 20px 0;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .stat-card {
+        background: #f8fafc;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+      }
+
+      .stat-value {
+        display: block;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f766e;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="nav" href="./index.html">← Back to gallery</a>
+      <h1>Advanced Data & Live Sync</h1>
+      <p>
+        The table automatically refreshes every 5 seconds. Watch the prices update
+        live!
+      </p>
+
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-value" id="total-updates">0</span>
+          <span class="stat-label">System Updates</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="last-refresh">Never</span>
+          <span class="stat-label">Last Refresh</span>
+        </div>
+      </div>
+
+      <div id="app"></div>
+
+      <div class="card">
+        <h3>How it works</h3>
+        <p>
+          By setting <code>autoRefresh: 5000</code>, the table initializes a
+          polling engine. A "Live" toggle is automatically added to the toolbar
+          with a pulse animation to indicate background activity.
+        </p>
+      </div>
+    </main>
+
+    <script type="module">
+      import { DataTable } from "../src/data-table.js";
+
+      // Mock data generator
+      const generateData = () => {
+        return [
+          {
+            id: 1,
+            pair: "BTC/USDT",
+            price: 65000 + (Math.random() - 0.5) * 1000,
+            change: (Math.random() - 0.4) * 5,
+          },
+          {
+            id: 2,
+            pair: "ETH/USDT",
+            price: 3500 + (Math.random() - 0.5) * 100,
+            change: (Math.random() - 0.4) * 4,
+          },
+          {
+            id: 3,
+            pair: "SOL/USDT",
+            price: 140 + (Math.random() - 0.5) * 10,
+            change: (Math.random() - 0.4) * 10,
+          },
+          {
+            id: 4,
+            pair: "DOGE/USDT",
+            price: 0.15 + (Math.random() - 0.5) * 0.02,
+            change: (Math.random() - 0.4) * 15,
+          },
+        ];
+      };
+
+      let updateCount = 0;
+      const totalUpdatesEl = document.getElementById("total-updates");
+      const lastRefreshEl = document.getElementById("last-refresh");
+
+      const table = new DataTable("#app", {
+        // We use a custom fetcher to simulate remote data updates
+        remote: {
+          url: "mock-api",
+          mapResponse: () => {
+            updateCount++;
+            totalUpdatesEl.textContent = updateCount;
+            lastRefreshEl.textContent = new Date().toLocaleTimeString();
+            return { rows: generateData(), totalItems: 4 };
+          },
+        },
+        autoRefresh: 5000,
+        columns: [
+          { label: "Trading Pair", accessor: "pair" },
+          {
+            label: "Price",
+            accessor: "price",
+            type: "money",
+            currency: "USD",
+            format: { maximumFractionDigits: 4 },
+          },
+          {
+            label: "24h Change",
+            accessor: "change",
+            render: (val) => {
+              const color = val >= 0 ? "#059669" : "#dc2626";
+              const prefix = val >= 0 ? "+" : "";
+              return `<span style="color: ${color}; font-weight: 600">${prefix}${val.toFixed(2)}%</span>`;
+            },
+          },
+        ],
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

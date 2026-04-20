@@ -246,3 +246,66 @@
   color: #102a43 !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
+
+.dt-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dt-live-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #4a5568;
+}
+
+.dt-live-button:hover {
+  background: #e2e8f0;
+}
+
+.dt-live-button.is-active {
+  color: #059669;
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.dt-live-button.is-paused {
+  color: #718096;
+  opacity: 0.8;
+}
+
+.dt-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.is-active .dt-live-dot {
+  animation: dt-pulse 2s infinite;
+}
+
+@keyframes dt-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}

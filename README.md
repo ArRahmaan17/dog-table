@@ -13,6 +13,7 @@ Lightweight vanilla JavaScript data table with:
 - **Multi-selection** and bulk actions
 - **Column Visibility** management
 - **CSV Export** support
+- **Auto-refresh** with Live/Paused status indicator
 - **Inline Editing** directly in table cells
 - **Formatter Engine** (Money, Date, Number) via `Intl` API
 - **Modular Architecture** with internal plugin system
@@ -190,6 +191,7 @@ Available locales: `en`, `es`, `fr`, `de`, `zh-CN`, `id`.
 | `pageSize` | `number` | `5` | Number of rows per page. |
 | `searchable` | `boolean` | `true` | Show or hide the built-in search input. |
 | `searchDebounce` | `number` | `250` | Delay in milliseconds before search triggers an update. |
+| `autoRefresh` | `number \| null` | `null` | Polling interval (ms) for remote data. |
 | `language` | `object` | `{...}` | Custom text for all UI elements (i18n). |
 | `initialSort` | `object \| null` | `null` | Initial sort config like `{ key, direction }`. |
 | `theme` | `string \| object` | `"default"` | Theme preset name or custom theme map. |

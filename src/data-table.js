@@ -8,6 +8,7 @@ import { SelectionPlugin } from "./plugin/selection.js";
 import { ExportPlugin } from "./plugin/export.js";
 import { FormatterPlugin } from "./plugin/formatter.js";
 import { EditorPlugin } from "./plugin/editor.js";
+import { LivePlugin } from "./plugin/live.js";
 
 const DEFAULT_PAGE_SIZE = 5;
 
@@ -102,6 +103,7 @@ export class DataTable {
     this.exporter = new ExportPlugin(this);
     this.formatter = new FormatterPlugin(this);
     this.editor = new EditorPlugin(this);
+    this.live = new LivePlugin(this);
 
     if (this.options.persistence) {
       this.persistence.load();
@@ -111,6 +113,7 @@ export class DataTable {
   init() {
     this.renderStructure();
     this.bindEvents();
+    this.live.init();
     this.update();
 
     if (typeof this.options.hooks.onInit === "function") {
@@ -258,7 +261,10 @@ export class DataTable {
               aria-label="${escapeHtml(this.options.language.search)}"
             />
           </label>
-          <div class="${this.theme.get("meta")}" aria-live="polite"></div>
+          <div class="dt-toolbar-actions">
+            <div class="${this.theme.get("meta")}" aria-live="polite"></div>
+            <div class="dt-live-status"></div>
+          </div>
         </div>
         <div class="${this.theme.get("tableWrap")}">
           <table class="${this.theme.get("table")}">
@@ -378,6 +384,13 @@ export class DataTable {
       "click",
       this.boundHandlers.onPaginationClick
     );
+
+    this.boundHandlers.onLiveToggle = (event) => {
+      const button = event.target.closest("[data-live-toggle]");
+      if (button) this.live.toggle();
+    };
+
+    this.container.addEventListener("click", this.boundHandlers.onLiveToggle);
 
     if (this.options.searchable) {
       const handleSearch = (value) => {
@@ -1169,6 +1182,7 @@ export class DataTable {
       this.fetcher.abort();
     }
 
+    this.live.stop();
     this.container.innerHTML = "";
     this.elements = {};
     this.boundHandlers = {};
