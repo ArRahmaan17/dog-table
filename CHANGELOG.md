@@ -2,6 +2,14 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
  
+## [1.3.0] — 2026-04-20
+### Added
+* **Formatter Engine (Phase 1):** Menambahkan sistem formatting cerdas berbasis **Intl API** untuk otomatisasi tampilan mata uang (`money`), tanggal (`datetime`), dan angka (`number`).
+* **Column Accessor Support:** Mendukung properti `accessor` pada kolom (semua metode engine sekarang kompatibel dengan `key` maupun `accessor`).
+* **Demo Formatting:** Menambahkan demo baru di `demo/formatting.html` untuk memamerkan fitur visual formatting.
+
+---
+
 ## [1.2.3] — 2026-04-20
 ### Changed
 * **Architectural Refactor:** Memisahkan fitur Persistence, Selection, dan Export ke dalam sistem plugin di folder `src/plugin`.

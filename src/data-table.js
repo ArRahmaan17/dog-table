@@ -6,6 +6,7 @@ import { escapeHtml, debounce } from "./utils.js";
 import { PersistencePlugin } from "./plugin/persistence.js";
 import { SelectionPlugin } from "./plugin/selection.js";
 import { ExportPlugin } from "./plugin/export.js";
+import { FormatterPlugin } from "./plugin/formatter.js";
 
 const DEFAULT_PAGE_SIZE = 5;
 
@@ -98,6 +99,7 @@ export class DataTable {
     this.persistence = new PersistencePlugin(this);
     this.selection = new SelectionPlugin(this);
     this.exporter = new ExportPlugin(this);
+    this.formatter = new FormatterPlugin(this);
 
     if (this.options.persistence) {
       this.persistence.load();
@@ -850,9 +852,11 @@ export class DataTable {
 
         const td = document.createElement("td");
         td.className = this.theme.get("bodyCell");
-        const value = row[column.key];
+        const key = column.accessor || column.key;
+        const value = row[key];
+        const formatted = this.formatter.format(value, column, row);
         const rendered =
-          typeof column.render === "function" ? column.render(value, row) : value;
+          typeof column.render === "function" ? column.render(formatted, row) : formatted;
 
         if (rendered instanceof Node) {
           td.appendChild(rendered);

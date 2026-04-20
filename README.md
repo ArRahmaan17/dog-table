@@ -13,6 +13,7 @@ Lightweight vanilla JavaScript data table with:
 - **Multi-selection** and bulk actions
 - **Column Visibility** management
 - **CSV Export** support
+- **Formatter Engine** (Money, Date, Number) via `Intl` API
 - **Modular Architecture** with internal plugin system
 - lifecycle hooks
 - public API methods
@@ -206,8 +207,13 @@ Available locales: `en`, `es`, `fr`, `de`, `zh-CN`, `id`.
 
 Each column object supports:
 
-- `key`: property name to read from each row
-- `label`: header text, defaults to `key`
+- `accessor`: property name to read from each row (preferred over `key`)
+- `key`: legacy property name for data retrieval
+- `label`: header text, defaults to `accessor`
+- `type`: data type for automatic formatting (`"money"`, `"datetime"`, `"number"`)
+- `format`: options object passed to `Intl` API
+- `currency`: currency code for `"money"` type (e.g., `"USD"`, `"IDR"`)
+- `locale`: specific locale for this column (e.g., `"id-ID"`)
 - `sortable`: set to `false` to disable sorting for that column
 - `searchable`: set to `false` to exclude a column from built-in search
 - `sortValue(value, row)`: map cell data before sorting

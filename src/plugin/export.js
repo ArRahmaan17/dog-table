@@ -6,14 +6,15 @@ export class ExportPlugin {
   toCSV(filename = "table-export.csv") {
     const columns = this.table.state.columns.filter((c) => c.visible !== false);
     const headers = columns
-      .map((c) => `"${(c.label || c.key).replace(/"/g, '""')}"`)
+      .map((c) => `"${(c.label || c.accessor || c.key).replace(/"/g, '""')}"`)
       .join(",");
 
     const rows = this.table.state.rawData
       .map((row) => {
         return columns
           .map((c) => {
-            let value = row[c.key];
+            const key = c.accessor || c.key;
+            let value = row[key];
             if (typeof c.render === "function") {
               const rendered = c.render(value, row);
               if (rendered instanceof Node) {
