@@ -2,6 +2,24 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
  
+## [1.2.0] — 2026-04-20
+### Added
+* **Phase 1: State Persistence & URL Sync:** Menambahkan dukungan penyimpanan state tabel ke `localStorage`, `sessionStorage`, atau URL Query Parameters.
+* **Phase 2: Selection & Bulk Actions:** Menambahkan fitur multi-select dengan kolom checkbox otomatis dan API `getSelectedData()`.
+* **Phase 3: Column Visibility & Export:** Menambahkan API `toggleColumnVisibility` dan fitur ekspor data ke format CSV (`exportCSV`).
+* **Advanced Features Demo:** Menambahkan demo baru di `demo/advanced-features.html` yang menggabungkan fitur persistence, selection, dan export.
+
+### Changed
+* **Internal:** Sinkronisasi state sekarang memicu `saveState` otomatis di setiap siklus `update()`.
+
+### Fixed
+* **Selection Sync:** Memperbaiki sinkronisasi *Select All* checkbox di header agar akurat terhadap data yang tampil.
+* **Search Persistence:** Memperbaiki input pencarian agar terisi otomatis saat memuat state dari URL/Storage.
+* **Row Detail Visibility:** Memperbaiki konflik event listener yang sempat menyebabkan *detail row* tidak bisa dibuka.
+* **Colspan Calculation:** Memperbaiki perhitungan lebar kolom pada *detail row* dan *empty state* saat fitur seleksi aktif.
+
+---
+
 ## [1.2.0-beta.3] — 2026-04-20
 ### Added
 * **Localization Support:** Menambahkan opsi `language` untuk menyesuaikan semua teks yang tampil di UI (search placeholder, empty state, pagination, dll).

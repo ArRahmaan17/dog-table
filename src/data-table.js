@@ -146,7 +146,7 @@ export class DataTable {
 
   getVisibleColumnCount() {
     return (
-      this.state.columns.length +
+      this.state.columns.filter((c) => c.visible !== false).length +
       (this.hasRowDetail() ? 1 : 0) +
       (this.options.selectable ? 1 : 0)
     );
@@ -402,6 +402,16 @@ export class DataTable {
       this.setPage(Number(button.dataset.page));
     };
 
+    this.boundHandlers.onBodyClick = (event) => {
+      const button = event.target.closest("button[data-detail-toggle]");
+
+      if (!button || this.state.loading) {
+        return;
+      }
+
+      this.toggleRowDetail(button.dataset.detailToggle);
+    };
+
     this.boundHandlers.onBulkCheck = (event) => {
       const checkbox = event.target.closest("input[data-bulk-checkbox]");
       if (!checkbox) return;
@@ -415,6 +425,10 @@ export class DataTable {
     };
 
     this.elements.thead.addEventListener("click", this.boundHandlers.onHeadClick);
+    this.elements.thead.addEventListener(
+      "keydown",
+      this.boundHandlers.onHeadKeydown
+    );
     this.elements.thead.addEventListener("change", this.boundHandlers.onBulkCheck);
     this.elements.tbody.addEventListener("change", this.boundHandlers.onRowCheck);
     this.elements.tbody.addEventListener("click", this.boundHandlers.onBodyClick);
