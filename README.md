@@ -11,6 +11,7 @@ Lightweight vanilla JavaScript data table with:
 - remote data loading with abortable `fetch()`
 - row grouping
 - expandable row detail panels
+- loading skeletons for remote data
 - column render callbacks
 - custom filter and sort accessors per column
 - lifecycle hooks
@@ -127,6 +128,44 @@ Grouping inserts separator rows inside `<tbody>`, and row detail renders lazily 
 
 Bootstrap and Tailwind presets only provide class mappings. You still need to load the actual framework CSS in your app.
 
+## Localization
+
+Use the `language` object to customize or translate any text displayed by the table:
+
+```js
+const table = new DataTable("#app", {
+  language: {
+    search: "Search",
+    searchPlaceholder: "Search...",
+    emptyState: "No data to display.",
+    noResults: "No matching rows",
+    loading: "Loading data...",
+    error: "Something went wrong while loading data.",
+    next: "Next",
+    previous: "Prev",
+    showing: "Showing {start}-{end} of {total}",
+    page: "Page {page} of {total}",
+    details: "Details",
+    showDetails: "Show details",
+    hideDetails: "Hide details",
+    ungrouped: "Ungrouped",
+  }
+});
+```
+
+Placeholders like `{start}`, `{end}`, `{total}`, and `{page}` are automatically replaced with current metadata.
+
+### Predefined Locales
+
+The library includes several predefined locale objects that you can import:
+
+```js
+import { es } from 'dog-table/locale/es';
+const table = new DataTable("#app", { language: es });
+```
+
+Available locales: `en`, `es`, `fr`, `de`, `zh-CN`, `id`.
+
 ## Options
 
 | Option | Type | Default | Description |
@@ -136,11 +175,7 @@ Bootstrap and Tailwind presets only provide class mappings. You still need to lo
 | `pageSize` | `number` | `5` | Number of rows per page. |
 | `searchable` | `boolean` | `true` | Show or hide the built-in search input. |
 | `searchDebounce` | `number` | `250` | Delay in milliseconds before search triggers an update. |
-| `searchPlaceholder` | `string` | `"Search..."` | Placeholder text for the search input. |
-| `emptyStateText` | `string` | `"No data to display."` | Message shown when the data source is empty. |
-| `noResultsText` | `string` | `"No matching rows"` | Message shown when search returns no rows. |
-| `loadingText` | `string` | `"Loading data..."` | Message shown while remote data is loading. |
-| `errorText` | `string` | `"Something went wrong while loading data."` | Fallback message for remote fetch errors. |
+| `language` | `object` | `{...}` | Custom text for all UI elements (i18n). |
 | `initialSort` | `object \| null` | `null` | Initial sort config like `{ key, direction }`. |
 | `theme` | `string \| object` | `"default"` | Theme preset name or custom theme map. |
 | `classNames` | `object` | `{}` | Additional class mappings merged into the active theme. |
@@ -210,6 +245,7 @@ Each column object supports:
 - `setPageSize(pageSize)`: update pagination size
 - `setSort(sortKey, direction)`: programmatically change sorting
 - `clearSort()`: remove active sorting
+- `setLanguage(language)`: update the UI text dynamically
 - `toggleRowDetail(rowId)`: expand or collapse a row detail panel
 - `expandRowDetail(rowId)`: expand a specific row detail panel
 - `collapseRowDetail(rowId)`: collapse a specific row detail panel
@@ -230,3 +266,4 @@ Additional examples:
 - [demo/themes.html](./demo/themes.html): live theme switching across `default`, `bootstrap`, and `tailwind`
 - [demo/remote.html](./demo/remote.html): mocked remote API with loading, abortable fetch requests, and server-side pagination
 - [demo/grouping-detail.html](./demo/grouping-detail.html): grouped rows plus lazily rendered expandable detail panels
+- [demo/localization.html](./demo/localization.html): examples of translating and customizing table labels

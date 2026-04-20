@@ -1,0 +1,16 @@
+export const id = {
+  search: "Cari",
+  searchPlaceholder: "Cari...",
+  emptyState: "Tidak ada data untuk ditampilkan.",
+  noResults: "Tidak ada baris yang cocok",
+  loading: "Memuat data...",
+  error: "Terjadi kesalahan saat memuat data.",
+  next: "Berikutnya",
+  previous: "Sebelumnya",
+  showing: "Menampilkan {start}-{end} dari {total}",
+  page: "Halaman {page} dari {total}",
+  details: "Detail",
+  showDetails: "Tampilkan detail",
+  hideDetails: "Sembunyikan detail",
+  ungrouped: "Tidak terkelompok",
+};

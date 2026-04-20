@@ -1,0 +1,16 @@
+export const fr = {
+  search: "Rechercher",
+  searchPlaceholder: "Rechercher...",
+  emptyState: "Aucune donnée à afficher.",
+  noResults: "Aucune ligne correspondante",
+  loading: "Chargement des données...",
+  error: "Une erreur est survenue lors du chargement des données.",
+  next: "Suivant",
+  previous: "Précédent",
+  showing: "Affichage de {start}-{end} sur {total}",
+  page: "Page {page} sur {total}",
+  details: "Détails",
+  showDetails: "Afficher les détails",
+  hideDetails: "Masquer les détails",
+  ungrouped: "Non groupé",
+};

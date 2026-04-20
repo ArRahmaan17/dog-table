@@ -1,0 +1,16 @@
+export const es = {
+  search: "Buscar",
+  searchPlaceholder: "Buscar...",
+  emptyState: "No hay datos para mostrar.",
+  noResults: "No se encontraron filas coincidentes",
+  loading: "Cargando datos...",
+  error: "Algo salió mal al cargar los datos.",
+  next: "Siguiente",
+  previous: "Anterior",
+  showing: "Mostrando {start}-{end} de {total}",
+  page: "Página {page} de {total}",
+  details: "Detalles",
+  showDetails: "Mostrar detalles",
+  hideDetails: "Ocultar detalles",
+  ungrouped: "Sin agrupar",
+};

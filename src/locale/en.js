@@ -1,0 +1,16 @@
+export const en = {
+  search: "Search",
+  searchPlaceholder: "Search...",
+  emptyState: "No data to display.",
+  noResults: "No matching rows",
+  loading: "Loading data...",
+  error: "Something went wrong while loading data.",
+  next: "Next",
+  previous: "Prev",
+  showing: "Showing {start}-{end} of {total}",
+  page: "Page {page} of {total}",
+  details: "Details",
+  showDetails: "Show details",
+  hideDetails: "Hide details",
+  ungrouped: "Ungrouped",
+};

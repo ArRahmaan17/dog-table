@@ -28,6 +28,7 @@ const baseTheme = {
   paginationGap: "dt-pagination__gap",
   paginationStatus: "dt-pagination__status",
   button: "dt-button",
+  skeleton: "dt-skeleton",
 };
 
 const presets = {
@@ -50,6 +51,7 @@ const presets = {
     paginationPage: "dt-pagination__page btn btn-light btn-sm",
     paginationPageActive: "is-active btn-primary text-white",
     button: "dt-button btn btn-info btn-sm text-white",
+    skeleton: "dt-skeleton placeholder col-12",
   },
   tailwind: {
     ...baseTheme,
@@ -76,6 +78,7 @@ const presets = {
       "is-active bg-slate-900 text-white",
     button:
       "dt-button rounded-full bg-cyan-700 px-4 py-2 text-white disabled:opacity-50",
+    skeleton: "dt-skeleton animate-pulse bg-slate-200",
   },
 };
 

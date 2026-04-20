@@ -1,0 +1,16 @@
+export const zhCN = {
+  search: "搜索",
+  searchPlaceholder: "搜索...",
+  emptyState: "没有可显示的数据。",
+  noResults: "没有匹配的行",
+  loading: "正在加载数据...",
+  error: "加载数据时出错。",
+  next: "下一页",
+  previous: "上一页",
+  showing: "显示第 {start}-{end} 条，共 {total} 条",
+  page: "第 {page} 页，共 {total} 页",
+  details: "详情",
+  showDetails: "显示详情",
+  hideDetails: "隐藏详情",
+  ungrouped: "未分组",
+};

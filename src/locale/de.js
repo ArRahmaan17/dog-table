@@ -1,0 +1,16 @@
+export const de = {
+  search: "Suche",
+  searchPlaceholder: "Suchen...",
+  emptyState: "Keine Daten zum Anzeigen.",
+  noResults: "Keine passenden Zeilen",
+  loading: "Daten werden geladen...",
+  error: "Beim Laden der Daten ist ein Fehler aufgetreten.",
+  next: "Weiter",
+  previous: "Zurück",
+  showing: "Anzeige {start}-{end} von {total}",
+  page: "Seite {page} von {total}",
+  details: "Details",
+  showDetails: "Details anzeigen",
+  hideDetails: "Details ausblenden",
+  ungrouped: "Nicht gruppiert",
+};

@@ -9,7 +9,8 @@
     ".": {
       "import": "./src/data-table.js"
     },
-    "./css": "./src/data-table.css"
+    "./css": "./src/data-table.min.css",
+    "./locale/*": "./src/locale/*.js"
   },
   "files": [
     "src",

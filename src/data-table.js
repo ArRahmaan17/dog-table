@@ -51,11 +51,23 @@ export class DataTable {
       columns: [],
       pageSize: DEFAULT_PAGE_SIZE,
       searchable: true,
-      searchPlaceholder: "Search...",
-      emptyStateText: "No data to display.",
-      noResultsText: "No matching rows",
-      loadingText: "Loading data...",
-      errorText: "Something went wrong while loading data.",
+      language: {
+        search: "Search",
+        searchPlaceholder: "Search...",
+        emptyState: "No data to display.",
+        noResults: "No matching rows",
+        loading: "Loading data...",
+        error: "Something went wrong while loading data.",
+        next: "Next",
+        previous: "Prev",
+        showing: "Showing {start}-{end} of {total}",
+        page: "Page {page} of {total}",
+        details: "Details",
+        showDetails: "Show details",
+        hideDetails: "Hide details",
+        ungrouped: "Ungrouped",
+        ...(options.language || {}),
+      },
       initialSort: null,
       searchDebounce: 250,
       theme: "default",
@@ -166,7 +178,7 @@ export class DataTable {
       return this.options.groupLabel(groupValue, rows);
     }
 
-    return `${groupValue ?? "Ungrouped"} (${rows.length})`;
+    return `${groupValue ?? this.options.language.ungrouped} (${rows.length})`;
   }
 
   getRowDetailLabel(row, isExpanded) {
@@ -174,7 +186,9 @@ export class DataTable {
       return this.options.rowDetail.toggleLabel(row, isExpanded);
     }
 
-    return isExpanded ? "Hide details" : "Show details";
+    return isExpanded
+      ? this.options.language.hideDetails
+      : this.options.language.showDetails;
   }
 
   buildDisplayRows(rows) {
@@ -194,7 +208,7 @@ export class DataTable {
 
       if (!groups.has(groupKey)) {
         groups.set(groupKey, {
-          value: groupValue ?? "Ungrouped",
+          value: groupValue ?? this.options.language.ungrouped,
           rows: [],
         });
       }
@@ -230,12 +244,14 @@ export class DataTable {
       <div class="${this.theme.get("shell")}">
         <div class="${this.theme.get("toolbar")}">
           <label class="${this.theme.get("search")}">
-            <span class="${this.theme.get("searchLabel")}">Search</span>
+            <span class="${this.theme.get("searchLabel")}">${escapeHtml(
+              this.options.language.search
+            )}</span>
             <input
               class="${this.theme.get("searchInput")}"
               type="search"
-              placeholder="${escapeHtml(this.options.searchPlaceholder)}"
-              aria-label="Search table"
+              placeholder="${escapeHtml(this.options.language.searchPlaceholder)}"
+              aria-label="${escapeHtml(this.options.language.search)}"
             />
           </label>
           <div class="${this.theme.get("meta")}" aria-live="polite"></div>
@@ -475,6 +491,16 @@ export class DataTable {
     this.update({ skipFetch: true });
   }
 
+  setLanguage(language) {
+    this.options.language = {
+      ...this.options.language,
+      ...language,
+    };
+    this.renderStructure();
+    this.bindEvents();
+    this.update({ skipFetch: true });
+  }
+
   reset() {
     this.state.searchQuery = "";
     this.state.sortKey = null;
@@ -627,21 +653,33 @@ export class DataTable {
       .join("");
 
     const detailHeader = this.hasRowDetail()
-      ? `<th scope="col" class="${this.theme.get("headerCell")}">Details</th>`
+      ? `<th scope="col" class="${this.theme.get("headerCell")}">${escapeHtml(
+        this.options.language.details
+      )}</th>`
       : "";
 
     this.elements.thead.innerHTML = `<tr>${detailHeader}${headers}</tr>`;
   }
 
   renderLoading() {
-    this.elements.tbody.innerHTML = `
-      <tr>
-        <td colspan="${this.getVisibleColumnCount()}" class="${this.theme.get("loadingCell")}">
-          ${escapeHtml(this.options.loadingText)}
-        </td>
-      </tr>
-    `;
-    this.elements.meta.textContent = this.options.loadingText;
+    const rowsCount = this.state.pageSize;
+    const colsCount = this.getVisibleColumnCount();
+    let rowsHtml = "";
+
+    for (let i = 0; i < rowsCount; i++) {
+      let colsHtml = "";
+      for (let j = 0; j < colsCount; j++) {
+        colsHtml += `
+          <td class="${this.theme.get("bodyCell")}">
+            <div class="${this.theme.get("skeleton")}"></div>
+          </td>
+        `;
+      }
+      rowsHtml += `<tr class="${this.theme.get("bodyRow")}">${colsHtml}</tr>`;
+    }
+
+    this.elements.tbody.innerHTML = rowsHtml;
+    this.elements.meta.textContent = this.options.language.loading;
     this.elements.pagination.innerHTML = "";
   }
 
@@ -649,11 +687,11 @@ export class DataTable {
     this.elements.tbody.innerHTML = `
       <tr>
         <td colspan="${this.getVisibleColumnCount()}" class="${this.theme.get("emptyCell")}">
-          ${escapeHtml(this.state.error?.message || this.options.errorText)}
+          ${escapeHtml(this.state.error?.message || this.options.language.error)}
         </td>
       </tr>
     `;
-    this.elements.meta.textContent = this.options.errorText;
+    this.elements.meta.textContent = this.options.language.error;
     this.elements.pagination.innerHTML = "";
   }
 
@@ -677,8 +715,8 @@ export class DataTable {
           <td colspan="${this.getVisibleColumnCount()}" class="${this.theme.get("emptyCell")}">
             ${escapeHtml(
               this.state.searchQuery
-                ? this.options.noResultsText
-                : this.options.emptyStateText
+                ? this.options.language.noResults
+                : this.options.language.emptyState
             )}
           </td>
         </tr>
@@ -778,12 +816,15 @@ export class DataTable {
   renderMeta(processed) {
     if (processed.totalItems === 0) {
       this.elements.meta.textContent = this.state.searchQuery
-        ? this.options.noResultsText
-        : this.options.emptyStateText;
+        ? this.options.language.noResults
+        : this.options.language.emptyState;
       return;
     }
 
-    this.elements.meta.textContent = `Showing ${processed.startIndex}-${processed.endIndex} of ${processed.totalItems}`;
+    this.elements.meta.textContent = this.options.language.showing
+      .replace("{start}", processed.startIndex)
+      .replace("{end}", processed.endIndex)
+      .replace("{total}", processed.totalItems);
   }
 
   getVisiblePageNumbers(currentPage, totalPages) {
@@ -843,11 +884,15 @@ export class DataTable {
         data-page="${processed.currentPage - 1}"
         ${prevDisabled ? "disabled" : ""}
       >
-        Prev
+        ${escapeHtml(this.options.language.previous)}
       </button>
       <div class="${this.theme.get("paginationPages")}">${numberedButtons}</div>
       <span class="${this.theme.get("paginationStatus")}">
-        Page ${processed.currentPage} of ${processed.totalPages}
+        ${escapeHtml(
+          this.options.language.page
+            .replace("{page}", processed.currentPage)
+            .replace("{total}", processed.totalPages)
+        )}
       </span>
       <button
         type="button"
@@ -855,7 +900,7 @@ export class DataTable {
         data-page="${processed.currentPage + 1}"
         ${nextDisabled ? "disabled" : ""}
       >
-        Next
+        ${escapeHtml(this.options.language.next)}
       </button>
     `;
   }

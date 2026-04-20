@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Localization Demo</title>
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(45, 125, 154, 0.18),
+            transparent 35%
+          ),
+          linear-gradient(135deg, #f4f7fb, #e6ecf3);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #0f766e;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+        padding: 20px;
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      }
+
+      .controls button {
+        border: none;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .controls button:hover {
+        background: #e2e8f0;
+      }
+
+      .controls button.active {
+        background: #0f766e;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="nav" href="./index.html">← Back to gallery</a>
+      <h1>Localization & Customization</h1>
+      <p>
+        Switch between predefined languages or provide custom text for all UI
+        elements.
+      </p>
+
+      <div class="controls">
+        <button type="button" data-lang="en" class="active">English</button>
+        <button type="button" data-lang="es">Español</button>
+        <button type="button" data-lang="fr">Français</button>
+        <button type="button" data-lang="de">Deutsch</button>
+        <button type="button" data-lang="zhCN">中文</button>
+        <button type="button" data-lang="id">Bahasa Indonesia</button>
+      </div>
+
+      <div id="app"></div>
+    </main>
+
+    <script type="module">
+      import { DataTable } from "../src/data-table.js";
+      import { en } from "../src/locale/en.js";
+      import { es } from "../src/locale/es.js";
+      import { fr } from "../src/locale/fr.js";
+      import { de } from "../src/locale/de.js";
+      import { zhCN } from "../src/locale/zh-CN.js";
+      import { id } from "../src/locale/id.js";
+
+      const languages = { en, es, fr, de, zhCN, id };
+
+      const data = [
+        { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3, region: "North" },
+        { id: 2, name: "Pepper", breed: "Beagle", age: 5, region: "South" },
+        { id: 3, name: "Nori", breed: "Corgi", age: 2, region: "North" },
+        {
+          id: 4,
+          name: "Biscuit",
+          breed: "Golden Retriever",
+          age: 6,
+          region: "East",
+        },
+        { id: 5, name: "Suki", breed: "Pomeranian", age: 4, region: "South" },
+        {
+          id: 6,
+          name: "Atlas",
+          breed: "German Shepherd",
+          age: 7,
+          region: "West",
+        },
+        { id: 7, name: "Olive", breed: "Mixed", age: 1, region: "North" },
+      ];
+
+      const table = new DataTable("#app", {
+        data,
+        pageSize: 4,
+        rowKey: "id",
+        groupBy: "region",
+        rowDetail: {
+          render(row) {
+            const div = document.createElement("div");
+            div.style.padding = "20px";
+            div.style.background = "#f8fafc";
+            div.style.borderRadius = "8px";
+            div.textContent = `Detailed view for ${row.name}. This is a ${row.breed} from the ${row.region} region.`;
+            return div;
+          },
+        },
+        language: en,
+        columns: [
+          { key: "name", label: "Name" },
+          { key: "breed", label: "Breed" },
+          { key: "age", label: "Age" },
+          { key: "region", label: "Region" },
+        ],
+      });
+
+      table.init();
+
+      const controls = document.querySelector(".controls");
+      controls.addEventListener("click", (e) => {
+        const button = e.target.closest("button[data-lang]");
+        if (!button) return;
+
+        const selectedLang = button.dataset.lang;
+        
+        // Update active state
+        controls.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        table.setLanguage(languages[selectedLang]);
+
+        // Update document lang for accessibility
+        document.documentElement.lang =
+          selectedLang === "zhCN" ? "zh-CN" : selectedLang;
+
+        // Update page header as well just for fun
+        const h1 = document.querySelector("h1");
+        const p = document.querySelector("p");
+
+        if (selectedLang === "es") {
+          h1.textContent = "Traducción y Personalización";
+          p.textContent =
+            "Cambia entre idiomas predefinidos o proporciona texto personalizado.";
+        } else if (selectedLang === "fr") {
+          h1.textContent = "Localisation et Personnalisation";
+          p.textContent =
+            "Basculez entre les langues prédéfinies ou personnalisez tous les textes.";
+        } else if (selectedLang === "de") {
+          h1.textContent = "Lokalisierung & Anpassung";
+          p.textContent =
+            "Wechseln Sie zwischen Sprachen oder passen Sie alle Texte an.";
+        } else if (selectedLang === "zhCN") {
+          h1.textContent = "本地化与自定义";
+          p.textContent =
+            "在预定义语言之间切换或为所有界面元素提供自定义文本。";
+        } else if (selectedLang === "id") {
+          h1.textContent = "Lokalisasi & Kustomisasi";
+          p.textContent =
+            "Ganti antara bahasa yang tersedia atau sesuaikan teks untuk semua elemen UI.";
+        } else {
+          h1.textContent = "Localization & Customization";
+          p.textContent =
+            "Switch between predefined languages or provide custom text for all UI elements.";
+        }
+      });
+    </script>
+  </body>
+</html>

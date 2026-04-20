@@ -1,6 +1,30 @@
 # Changelog - VanillaDataTable
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
+ 
+## [1.2.0-beta.3] — 2026-04-20
+### Added
+* **Localization Support:** Menambahkan opsi `language` untuk menyesuaikan semua teks yang tampil di UI (search placeholder, empty state, pagination, dll).
+* **Predefined Locales:** Menambahkan file lokalisasi bawaan untuk bahasa Inggris, Spanyol, Prancis, Jerman, Mandarin (Sederhana), dan Indonesia di dalam folder `src/locale`.
+* **Dynamic Content Interpolation:** Mendukung placeholder seperti `{start}`, `{end}`, `{total}`, dan `{page}` pada teks lokalisasi.
+* **API setLanguage:** Menambahkan metode `setLanguage(lang)` untuk mengganti bahasa tabel secara dinamis tanpa inisialisasi ulang.
+* **Demo Localization V2:** Memperbarui demo `demo/localization.html` dengan fitur *language switcher* interaktif.
+
+### Changed
+* **Internal Structure:** Memindahkan opsi teks individual (`searchPlaceholder`, `emptyStateText`, dll) ke dalam objek `language` yang terpusat.
+* **Package Exports:** Menambahkan sub-path exports pada `package.json` agar file locale bisa di-import langsung (`dog-table/locale/id`).
+
+---
+
+## [1.2.0-beta.2] — 2026-04-20
+### Added
+* **UX Improvements:** Implementasi *loading skeletons* animatif untuk meningkatkan feedback visual saat data sedang dimuat (remote).
+* **Theme Support:** Menambahkan slot `skeleton` pada `ThemeManager` agar skeleton loading konsisten dengan preset Tailwind dan Bootstrap.
+
+### Changed
+* **Loading State:** `renderLoading()` sekarang merender baris skeleton berdasarkan `pageSize` saat ini, menggantikan teks loading statis.
+
+---
 
 ## [1.2.0-beta.1] — 2026-04-20
 ### Added
@@ -41,7 +65,8 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
 ---
 
-## [Planned] - Next Steps (MVP 2 Ongoing)
-* [ ] **Server-side Adapter (AJAX):** Integrasi Fetch API untuk pengolahan data di sisi server.
+## [Planned] - Next Steps
+* [x] **Server-side Adapter (AJAX):** Integrasi Fetch API untuk pengolahan data di sisi server.
 * [x] **Row Features:** Implementasi *Expandable Row* (Row Detail) dan *Data Grouping*.
-* [ ] **UX Improvements:** Loading skeletons dan *empty state* yang lebih cantik.
+* [x] **UX Improvements:** Loading skeletons dan *empty state* yang lebih cantik.
+* [ ] **Export Utilities:** Dukungan ekspor data ke format CSV atau Excel.

@@ -57,7 +57,8 @@
       }
 
       .card {
-        display: grid;
+        display: flex;
+        flex-direction: column;
         gap: 10px;
         padding: 22px;
         border: 1px solid var(--border);
@@ -78,6 +79,10 @@
       h2 {
         margin: 0;
         font-size: 1.35rem;
+      }
+
+      .card p {
+        flex-grow: 1;
       }
 
       p {
@@ -147,6 +152,13 @@
           <h2><a href="./grouping-detail.html">Grouping and Detail</a></h2>
           <p>Shows grouped sections plus lazy row-detail rendering with expandable content beneath each row.</p>
           <a class="link" href="./grouping-detail.html">Open demo</a>
+        </article>
+
+        <article class="card">
+          <div class="eyebrow">Example 06</div>
+          <h2><a href="./localization.html">Localization</a></h2>
+          <p>Translate all UI labels, search placeholders, and pagination text into any language.</p>
+          <a class="link" href="./localization.html">Open demo</a>
         </article>
       </section>
     </main>
