@@ -1,0 +1,34 @@
+{
+  "name": "dog-table",
+  "version": "1.0.0",
+  "description": "Lightweight vanilla JavaScript data table with sorting, search, pagination, and remote data support.",
+  "type": "module",
+  "main": "./src/data-table.js",
+  "module": "./src/data-table.js",
+  "exports": {
+    ".": {
+      "import": "./src/data-table.js"
+    },
+    "./css": "./src/data-table.css"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "datatable",
+    "table",
+    "grid",
+    "vanilla-js",
+    "pagination",
+    "sorting",
+    "remote-data"
+  ],
+  "author": "doglex",
+  "license": "MIT"
+}

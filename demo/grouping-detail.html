@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Grouping and Detail Demo</title>
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: linear-gradient(160deg, #eefdf3, #eef7ff);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #15803d;
+        font-weight: 600;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        color: #14532d;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: #166534;
+      }
+
+      .detail-card {
+        display: grid;
+        gap: 8px;
+      }
+
+      .detail-title {
+        font-weight: 700;
+        color: #102a43;
+      }
+
+      .detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .detail-chip {
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #d1fae5;
+        color: #065f46;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="nav" href="./index.html">Back to gallery</a>
+      <h1>Grouping and Row Detail</h1>
+      <p>This example groups dogs by adoption region and expands details lazily only when a row is opened.</p>
+      <div id="app"></div>
+    </main>
+
+    <script type="module">
+      import { DataTable } from "../src/data-table.js";
+
+      const dogs = [
+        {
+          id: "austin-1",
+          region: "South",
+          name: "Mochi",
+          foster: "Ava Brooks",
+          age: 3,
+          temperament: ["friendly", "quiet", "playful"],
+          notes: "Best with small families and short daily walks.",
+        },
+        {
+          id: "austin-2",
+          region: "South",
+          name: "Pepper",
+          foster: "Liam Scott",
+          age: 5,
+          temperament: ["active", "smart"],
+          notes: "Would love an adopter who hikes on weekends.",
+        },
+        {
+          id: "chi-1",
+          region: "Midwest",
+          name: "Atlas",
+          foster: "Noah Lane",
+          age: 7,
+          temperament: ["loyal", "calm"],
+          notes: "Knows advanced commands and settles quickly indoors.",
+        },
+        {
+          id: "bos-1",
+          region: "Northeast",
+          name: "Olive",
+          foster: "Emma Reed",
+          age: 1,
+          temperament: ["gentle", "curious"],
+          notes: "Still adjusting, but progressing well with leash work.",
+        },
+      ];
+
+      const table = new DataTable("#app", {
+        data: dogs,
+        pageSize: 6,
+        rowKey: "id",
+        groupBy: "region",
+        groupLabel(region, rows) {
+          return `${region} Region - ${rows.length} dog${rows.length === 1 ? "" : "s"}`;
+        },
+        rowDetail: {
+          toggleLabel(row, expanded) {
+            return expanded ? `Hide ${row.name}` : `About ${row.name}`;
+          },
+          render(row) {
+            const card = document.createElement("div");
+            card.className = "detail-card";
+
+            const title = document.createElement("div");
+            title.className = "detail-title";
+            title.textContent = `${row.name} is fostered by ${row.foster}`;
+
+            const meta = document.createElement("div");
+            meta.className = "detail-meta";
+            row.temperament.forEach((trait) => {
+              const chip = document.createElement("span");
+              chip.className = "detail-chip";
+              chip.textContent = trait;
+              meta.appendChild(chip);
+            });
+
+            const notes = document.createElement("div");
+            notes.textContent = row.notes;
+
+            card.append(title, meta, notes);
+            return card;
+          },
+        },
+        columns: [
+          { key: "name", label: "Name" },
+          { key: "region", label: "Region" },
+          { key: "foster", label: "Foster" },
+          { key: "age", label: "Age" },
+        ],
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

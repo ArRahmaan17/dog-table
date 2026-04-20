@@ -1,0 +1,192 @@
+.dt-shell {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  color: #1f2933;
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+  border: 1px solid #d9e2ec;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.dt-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.dt-search {
+  display: grid;
+  gap: 6px;
+  min-width: min(100%, 280px);
+}
+
+.dt-search__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #486581;
+}
+
+.dt-search__input {
+  width: 100%;
+  border: 1px solid #bcccdc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.dt-meta {
+  font-size: 0.95rem;
+  color: #52606d;
+}
+
+.dt-table-wrap {
+  overflow-x: auto;
+}
+
+.dt-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dt-table th,
+.dt-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e4e7eb;
+  text-align: left;
+}
+
+.dt-table th,
+.dt-header-cell {
+  font-size: 0.88rem;
+  color: #334e68;
+  background: #f0f4f8;
+}
+
+.dt-table th.is-sortable,
+.dt-header-cell.is-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.dt-table tbody tr:hover {
+  background: rgba(45, 125, 154, 0.06);
+}
+
+.dt-group-cell {
+  background: linear-gradient(90deg, #e8f1f8, #f8fbfd);
+  color: #243b53;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dt-detail-toggle-cell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.dt-detail-toggle {
+  border: none;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #d9e2ec;
+  color: #102a43;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dt-detail-row td,
+.dt-detail-cell {
+  background: #f8fbfd;
+  color: #334e68;
+}
+
+.dt-empty,
+.dt-loading {
+  text-align: center;
+  color: #7b8794;
+  padding: 28px 14px;
+}
+
+.dt-loading {
+  font-weight: 600;
+}
+
+.dt-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.dt-pagination button,
+.dt-button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: #2d7d9a;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.dt-pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dt-pagination__page {
+  min-width: 42px;
+  background: #d9e2ec !important;
+  color: #102a43 !important;
+}
+
+.dt-pagination__page.is-active {
+  background: #102a43 !important;
+  color: #ffffff !important;
+}
+
+.dt-pagination__gap {
+  color: #7b8794;
+  font-weight: 600;
+}
+
+.dt-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dt-pagination__status {
+  color: #334e68;
+}
+
+@media (max-width: 640px) {
+  .dt-shell {
+    padding: 16px;
+  }
+
+  .dt-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dt-pagination {
+    justify-content: space-between;
+  }
+
+  .dt-pagination__pages {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+}

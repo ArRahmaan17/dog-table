@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Remote Demo</title>
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: linear-gradient(180deg, #ecfeff, #f8fafc);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #0f766e;
+        font-weight: 600;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        color: #134e4a;
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: #0f766e;
+      }
+
+      .log {
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.8);
+        color: #115e59;
+        font-size: 0.92rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="nav" href="./index.html">Back to gallery</a>
+      <h1>Remote Data with Mocked Fetch</h1>
+      <p>This demo mocks an API endpoint in the browser so you can test loading, server-side pagination, sort, and search without a backend.</p>
+      <div class="log" id="log">Waiting for first request...</div>
+      <div id="app"></div>
+    </main>
+
+    <script type="module">
+      import { DataTable } from "../src/data-table.js";
+
+      const dataset = [
+        { name: "Mochi", city: "Austin", age: 3, status: "ready" },
+        { name: "Pepper", city: "Seattle", age: 5, status: "pending" },
+        { name: "Nori", city: "Denver", age: 2, status: "ready" },
+        { name: "Biscuit", city: "Phoenix", age: 6, status: "pending" },
+        { name: "Suki", city: "Portland", age: 4, status: "ready" },
+        { name: "Atlas", city: "Chicago", age: 7, status: "needs-care" },
+        { name: "Olive", city: "Boston", age: 1, status: "ready" },
+        { name: "Maple", city: "Dallas", age: 2, status: "pending" },
+        { name: "Taro", city: "San Diego", age: 8, status: "ready" },
+        { name: "Junie", city: "Miami", age: 3, status: "needs-care" },
+      ];
+
+      const log = document.getElementById("log");
+      const originalFetch = window.fetch.bind(window);
+
+      window.fetch = (input, init = {}) => {
+        const url = new URL(typeof input === "string" ? input : input.url, window.location.href);
+
+        if (url.pathname !== "/api/dogs") {
+          return originalFetch(input, init);
+        }
+
+        const page = Number(url.searchParams.get("page") || 1);
+        const pageSize = Number(url.searchParams.get("pageSize") || 4);
+        const sort = url.searchParams.get("sort");
+        const order = url.searchParams.get("order") || "asc";
+        const search = (url.searchParams.get("search") || "").toLowerCase();
+        const signal = init.signal;
+
+        log.textContent = `Fetching page ${page}, sort=${sort || "none"}, order=${order}, search="${search}"`;
+
+        return new Promise((resolve, reject) => {
+          const timer = window.setTimeout(() => {
+            let rows = [...dataset];
+
+            if (search) {
+              rows = rows.filter((row) =>
+                `${row.name} ${row.city} ${row.status}`.toLowerCase().includes(search)
+              );
+            }
+
+            if (sort) {
+              rows.sort((a, b) => {
+                const comparison = String(a[sort]).localeCompare(String(b[sort]), undefined, {
+                  numeric: true,
+                  sensitivity: "base",
+                });
+                return order === "desc" ? -comparison : comparison;
+              });
+            }
+
+            const start = (page - 1) * pageSize;
+            const items = rows.slice(start, start + pageSize);
+
+            resolve(
+              new Response(
+                JSON.stringify({
+                  items,
+                  total: rows.length,
+                }),
+                {
+                  status: 200,
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              )
+            );
+          }, 700);
+
+          if (signal) {
+            signal.addEventListener("abort", () => {
+              window.clearTimeout(timer);
+              reject(new DOMException("Request aborted", "AbortError"));
+            });
+          }
+        });
+      };
+
+      const table = new DataTable("#app", {
+        pageSize: 4,
+        loadingText: "Fetching dogs from the mock API...",
+        searchPlaceholder: "Search remote data",
+        remote: {
+          url: "/api/dogs",
+          mapResponse(payload) {
+            return {
+              rows: payload.items,
+              totalItems: payload.total,
+            };
+          },
+        },
+        columns: [
+          { key: "name", label: "Name" },
+          { key: "city", label: "City" },
+          { key: "age", label: "Age" },
+          { key: "status", label: "Status" },
+        ],
+        hooks: {
+          onFetchStart(state) {
+            log.textContent = `Loading page ${state.currentPage}...`;
+          },
+          onFetchSuccess(payload) {
+            log.textContent = `Loaded ${payload.rows.length} rows from mock API`;
+          },
+          onFetchError(error) {
+            log.textContent = `Fetch failed: ${error.message}`;
+          },
+        },
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

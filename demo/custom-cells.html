@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Custom Cells Demo</title>
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: linear-gradient(160deg, #fdf7f0, #eef6ff);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: inline-flex;
+        margin-bottom: 20px;
+        color: #b45309;
+        font-weight: 600;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        color: #7c2d12;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: #9a3412;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      .status-pill.is-ready {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .status-pill.is-pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .status-pill.is-needs-care {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+
+      .owner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .avatar {
+        display: inline-grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #fdba74, #fb7185);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .tag {
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #ffedd5;
+        color: #9a3412;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="nav" href="./index.html">Back to gallery</a>
+      <h1>Custom Cells and Filter Logic</h1>
+      <p>This example uses DOM-node cell rendering, custom column search, and richer metadata formatting.</p>
+      <div id="app"></div>
+    </main>
+
+    <script type="module">
+      import { DataTable } from "../src/data-table.js";
+
+      const projects = [
+        {
+          dog: "Mochi",
+          owner: "Ava Brooks",
+          status: "ready",
+          tags: ["vaccinated", "small", "friendly"],
+          notes: "Great with apartment living",
+        },
+        {
+          dog: "Pepper",
+          owner: "Liam Scott",
+          status: "pending",
+          tags: ["active", "trained"],
+          notes: "Needs a yard for playtime",
+        },
+        {
+          dog: "Nori",
+          owner: "Emma Reed",
+          status: "needs-care",
+          tags: ["shy", "gentle"],
+          notes: "Responds best to calm environments",
+        },
+        {
+          dog: "Atlas",
+          owner: "Noah Lane",
+          status: "ready",
+          tags: ["large", "loyal", "smart"],
+          notes: "Knows advanced commands",
+        },
+      ];
+
+      function makeStatus(status) {
+        const span = document.createElement("span");
+        span.className = `status-pill is-${status}`;
+        span.textContent = status.replace("-", " ");
+        return span;
+      }
+
+      function makeOwner(name) {
+        const wrap = document.createElement("div");
+        wrap.className = "owner";
+
+        const avatar = document.createElement("span");
+        avatar.className = "avatar";
+        avatar.textContent = name
+          .split(" ")
+          .map((part) => part[0])
+          .join("");
+
+        const label = document.createElement("span");
+        label.textContent = name;
+
+        wrap.append(avatar, label);
+        return wrap;
+      }
+
+      function makeTags(tags) {
+        const wrap = document.createElement("div");
+        wrap.className = "tags";
+        tags.forEach((tag) => {
+          const item = document.createElement("span");
+          item.className = "tag";
+          item.textContent = tag;
+          wrap.appendChild(item);
+        });
+        return wrap;
+      }
+
+      const table = new DataTable("#app", {
+        data: projects,
+        pageSize: 4,
+        searchPlaceholder: "Search by dog, owner, notes, or tags",
+        columns: [
+          { key: "dog", label: "Dog" },
+          {
+            key: "owner",
+            label: "Owner",
+            render(value) {
+              return makeOwner(value);
+            },
+          },
+          {
+            key: "status",
+            label: "Status",
+            render(value) {
+              return makeStatus(value);
+            },
+            filter({ value, row, query }) {
+              return `${value} ${row.notes}`.toLowerCase().includes(query);
+            },
+          },
+          {
+            key: "tags",
+            label: "Tags",
+            sortable: false,
+            sortValue(value) {
+              return value.length;
+            },
+            filter({ value, query }) {
+              return value.join(" ").toLowerCase().includes(query);
+            },
+            render(value) {
+              return makeTags(value);
+            },
+          },
+        ],
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>
+

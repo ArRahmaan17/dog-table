@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table Demo Gallery</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f3f7fb;
+        --panel: rgba(255, 255, 255, 0.9);
+        --border: rgba(148, 163, 184, 0.28);
+        --ink: #102a43;
+        --muted: #52606d;
+        --accent: #0f766e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 40px 20px 80px;
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 30%),
+          radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 24%),
+          linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+        color: var(--ink);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2.4rem, 5vw, 4.6rem);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+      }
+
+      .lede {
+        max-width: 760px;
+        margin: 0 0 28px;
+        color: var(--muted);
+        font-size: 1.05rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        display: grid;
+        gap: 10px;
+        padding: 22px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--panel);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      }
+
+      .eyebrow {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #0f766e;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 1.35rem;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .link {
+        display: inline-flex;
+        width: fit-content;
+        margin-top: 6px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: #102a43;
+        color: #fff;
+        font-weight: 600;
+      }
+
+      .link:hover {
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Dog Table Gallery</h1>
+      <p class="lede">
+        Explore focused examples for local data, rich cell rendering, theme presets, and remote fetching with loading states.
+      </p>
+
+      <section class="grid">
+        <article class="card">
+          <div class="eyebrow">Example 01</div>
+          <h2><a href="./basic.html">Basic Local Table</a></h2>
+          <p>Sorting, pagination, debounced search, and formatted dates on top of a local data array.</p>
+          <a class="link" href="./basic.html">Open demo</a>
+        </article>
+
+        <article class="card">
+          <div class="eyebrow">Example 02</div>
+          <h2><a href="./custom-cells.html">Custom Cells</a></h2>
+          <p>Shows `render`, `filter`, and DOM node output for richer status, tags, and owner avatars.</p>
+          <a class="link" href="./custom-cells.html">Open demo</a>
+        </article>
+
+        <article class="card">
+          <div class="eyebrow">Example 03</div>
+          <h2><a href="./themes.html">Theme Presets</a></h2>
+          <p>Switch between `default`, `bootstrap`, and `tailwind`-style theme mappings in one page.</p>
+          <a class="link" href="./themes.html">Open demo</a>
+        </article>
+
+        <article class="card">
+          <div class="eyebrow">Example 04</div>
+          <h2><a href="./remote.html">Remote Fetch</a></h2>
+          <p>Uses mocked `fetch()` responses to demonstrate remote pagination, sorting, search, loading, and abort behavior.</p>
+          <a class="link" href="./remote.html">Open demo</a>
+        </article>
+
+        <article class="card">
+          <div class="eyebrow">Example 05</div>
+          <h2><a href="./grouping-detail.html">Grouping and Detail</a></h2>
+          <p>Shows grouped sections plus lazy row-detail rendering with expandable content beneath each row.</p>
+          <a class="link" href="./grouping-detail.html">Open demo</a>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
+
