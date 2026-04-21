@@ -156,7 +156,7 @@
       const table = new DataTable("#app", {
         // We use a custom fetcher to simulate remote data updates
         remote: {
-          url: "mock-api",
+          url: "https://pokeapi.co/api/v2/pokemon",
           mapResponse: () => {
             updateCount++;
             totalUpdatesEl.textContent = updateCount;

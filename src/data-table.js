@@ -895,11 +895,13 @@ export class DataTable {
 
         const value = row[key];
         const formatted = this.formatter.format(value, column, row);
-        const rendered =
-          typeof column.render === "function" ? column.render(formatted, row) : formatted;
+        const hasCustomRenderer = typeof column.render === "function";
+        const rendered = hasCustomRenderer ? column.render(formatted, row) : formatted;
 
         if (rendered instanceof Node) {
           td.appendChild(rendered);
+        } else if (hasCustomRenderer && typeof rendered === "string") {
+          td.innerHTML = rendered;
         } else if (rendered != null) {
           td.textContent = String(rendered);
         }
