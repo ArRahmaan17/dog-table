@@ -1049,6 +1049,7 @@ export class DataTable {
       this.state.totalItems = Number(payload.totalItems) || 0;
       this.state.error = null;
       this.state.expandedRowIds.clear();
+      this.live.handleFetchSuccess(payload);
 
       if (typeof this.options.hooks.onFetchSuccess === "function") {
         this.options.hooks.onFetchSuccess(payload);
@@ -1063,6 +1064,7 @@ export class DataTable {
       }
 
       this.state.error = error;
+      this.live.handleFetchError(error);
 
       if (typeof this.options.hooks.onFetchError === "function") {
         this.options.hooks.onFetchError(error);
@@ -1189,6 +1191,9 @@ export class DataTable {
     }
 
     this.live.stop();
+    if (typeof this.live.destroy === "function") {
+      this.live.destroy();
+    }
     this.container.innerHTML = "";
     this.elements = {};
     this.boundHandlers = {};

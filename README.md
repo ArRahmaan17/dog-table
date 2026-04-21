@@ -1,24 +1,35 @@
 # Dog Table
 
-Lightweight vanilla JavaScript data table with:
+Lightweight vanilla JavaScript data table for apps that need a clean API, remote data support, and useful built-in behaviors without pulling in a full framework.
 
-- constructor-based initialization
-- theme presets with overridable class maps
-- sorting and filtering
-- debounced search input
-- pagination
-- remote data loading with abortable `fetch()`
-- row grouping and expandable details
-- **State Persistence** (URL or LocalStorage)
-- **Multi-selection** and bulk actions
-- **Column Visibility** management
-- **CSV Export** support
-- **Auto-refresh** with Live/Paused status indicator
-- **Inline Editing** directly in table cells
-- **Formatter Engine** (Money, Date, Number) via `Intl` API
-- **Modular Architecture** with internal plugin system
-- lifecycle hooks
-- public API methods
+## Why Dog Table?
+
+Dog Table is built around a straightforward constructor API and a modular internal architecture. It gives you the essentials out of the box:
+
+- Sorting, filtering, and debounced search
+- Pagination for local or remote data
+- Abortable remote fetching with `fetch()`
+- Row grouping and expandable detail panels
+- State persistence via URL or storage
+- Multi-selection and bulk actions
+- CSV export
+- Inline editing
+- Formatter helpers for money, date, and number values
+- Theme presets with overridable class maps
+- Auto-refresh with adaptive backoff and live status
+- Lifecycle hooks and public API methods
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+- [Guides](#guides)
+- [Configuration Reference](#configuration-reference)
+- [API Reference](#api-reference)
+- [Demos](#demos)
+
+---
 
 ## Installation
 
@@ -26,9 +37,11 @@ Lightweight vanilla JavaScript data table with:
 npm install dog-table
 ```
 
-## Usage
+---
 
-### In a browser (ES Modules)
+## Quick Start
+
+### Browser (ES Modules)
 
 ```html
 <link rel="stylesheet" href="https://unpkg.com/dog-table/src/data-table.css" />
@@ -37,17 +50,26 @@ npm install dog-table
   import { DataTable } from "https://unpkg.com/dog-table/src/data-table.js";
 
   const table = new DataTable("#app", {
-    // ... config
+    data: [
+      { id: 1, name: "Mochi", age: 3, status: "ready" },
+      { id: 2, name: "Pepper", age: 5, status: "pending" },
+    ],
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "age", label: "Age", type: "number" },
+      { key: "status", label: "Status" },
+    ],
   });
+
   table.init();
 </script>
 ```
 
-### With a Bundler (Vite, Webpack, etc.)
+### Bundlers (Vite, Webpack, and others)
 
 ```js
-import { DataTable } from 'dog-table';
-import 'dog-table/css';
+import { DataTable } from "dog-table";
+import "dog-table/css";
 
 const table = new DataTable("#app", {
   data: [
@@ -64,7 +86,31 @@ const table = new DataTable("#app", {
 table.init();
 ```
 
-## Remote Data
+---
+
+## Core Concepts
+
+### Local Data
+
+Pass `data` and `columns` to render a client-side table with built-in sorting, search, and pagination.
+
+### Remote Data
+
+Pass a `remote` config to fetch server data. Page changes, search updates, and sorting will trigger new requests automatically.
+
+### Columns
+
+Columns control how values are read, formatted, searched, sorted, and rendered.
+
+### Hooks
+
+Hooks let you tap into lifecycle events such as fetch start, fetch success, selection changes, and rerenders.
+
+---
+
+## Guides
+
+### Remote Data
 
 ```js
 const table = new DataTable("#app", {
@@ -93,9 +139,9 @@ const table = new DataTable("#app", {
 table.init();
 ```
 
-When `remote` is enabled, page changes, search, and sorting trigger `fetch()` requests. Previous in-flight requests are cancelled with `AbortController` so rapid interaction does not render stale results.
+When `remote` is enabled, Dog Table cancels previous in-flight requests with `AbortController` so rapid interactions do not render stale responses.
 
-## Grouping and Row Detail
+### Grouping and Row Detail
 
 ```js
 const table = new DataTable("#app", {
@@ -120,20 +166,20 @@ const table = new DataTable("#app", {
 });
 ```
 
-Grouping inserts separator rows inside `<tbody>`, and row detail renders lazily only after the user expands a row. Sortable headers also support keyboard activation via `Enter` and `Space`.
+Grouping inserts separator rows inside `<tbody>`, and detail content is only rendered when a row is expanded.
 
-## Themes
+### Themes
 
 - `theme: "default"` uses the bundled stylesheet in [src/data-table.css](/home/mann/Development/dog-table/src/data-table.css:1)
 - `theme: "bootstrap"` maps table elements to Bootstrap-friendly class names
 - `theme: "tailwind"` maps table elements to Tailwind-style utility classes
-- `classNames` lets you append or override specific theme slots
+- `classNames` lets you append or override individual theme slots
 
-Bootstrap and Tailwind presets only provide class mappings. You still need to load the actual framework CSS in your app.
+Bootstrap and Tailwind presets only provide class mappings. You still need to load the framework CSS in your app.
 
-## Localization
+### Localization
 
-Use the `language` object to customize or translate any text displayed by the table:
+Use the `language` object to translate or customize the UI text:
 
 ```js
 const table = new DataTable("#app", {
@@ -152,37 +198,40 @@ const table = new DataTable("#app", {
     showDetails: "Show details",
     hideDetails: "Hide details",
     ungrouped: "Ungrouped",
-  }
+  },
 });
 ```
 
-Placeholders like `{start}`, `{end}`, `{total}`, and `{page}` are automatically replaced with current metadata.
+Placeholders like `{start}`, `{end}`, `{total}`, and `{page}` are replaced automatically.
 
-## State Persistence
-
-Keep the table state (page, search, sort) synchronized with the URL or `localStorage`:
+Predefined locales are available as imports:
 
 ```js
-const table = new DataTable("#app", {
-  persistence: "url", // or "local"
-  persistenceKey: "user-table"
-});
-```
+import { es } from "dog-table/locale/es";
 
-When using `"url"`, the table parameters are appended to the query string, allowing users to share links to specific filtered/sorted views.
-
-### Predefined Locales
-
-The library includes several predefined locale objects that you can import:
-
-```js
-import { es } from 'dog-table/locale/es';
 const table = new DataTable("#app", { language: es });
 ```
 
 Available locales: `en`, `es`, `fr`, `de`, `zh-CN`, `id`.
 
-## Options
+### State Persistence
+
+Keep page, search, and sort state synchronized with the URL or browser storage:
+
+```js
+const table = new DataTable("#app", {
+  persistence: "url", // or "local" / "session"
+  persistenceKey: "user-table",
+});
+```
+
+Using `"url"` makes filtered and sorted views shareable via query string.
+
+---
+
+## Configuration Reference
+
+### Table Options
 
 | Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
@@ -191,9 +240,9 @@ Available locales: `en`, `es`, `fr`, `de`, `zh-CN`, `id`.
 | `pageSize` | `number` | `5` | Number of rows per page. |
 | `searchable` | `boolean` | `true` | Show or hide the built-in search input. |
 | `searchDebounce` | `number` | `250` | Delay in milliseconds before search triggers an update. |
-| `autoRefresh` | `number \| null` | `null` | Polling interval (ms) for remote data. |
-| `language` | `object` | `{...}` | Custom text for all UI elements (i18n). |
-| `initialSort` | `object \| null` | `null` | Initial sort config like `{ key, direction }`. |
+| `autoRefresh` | `number \| null` | `null` | Base polling interval for remote data. Identical API responses back off the next refresh up to `4x`, reset when the payload changes, and pause while the page is hidden. |
+| `language` | `object` | `{...}` | Custom text for all UI elements. |
+| `initialSort` | `object \| null` | `null` | Initial sort config such as `{ key, direction }`. |
 | `theme` | `string \| object` | `"default"` | Theme preset name or custom theme map. |
 | `classNames` | `object` | `{}` | Additional class mappings merged into the active theme. |
 | `remote` | `object \| null` | `null` | Enables server-side data loading through `fetch()`. |
@@ -206,28 +255,28 @@ Available locales: `en`, `es`, `fr`, `de`, `zh-CN`, `id`.
 | `selectable` | `boolean` | `false` | Enable row selection with checkboxes. |
 | `hooks` | `object` | `{}` | Event callbacks for table lifecycle updates. |
 
-## Column Definition
+### Column Definition
 
 Each column object supports:
 
-- `accessor`: property name to read from each row (preferred over `key`)
+- `accessor`: property name to read from each row, preferred over `key`
 - `key`: legacy property name for data retrieval
 - `label`: header text, defaults to `accessor`
-- `type`: data type for automatic formatting (`"money"`, `"datetime"`, `"number"`)
-- `format`: options object passed to `Intl` API
-- `currency`: currency code for `"money"` type (e.g., `"USD"`, `"IDR"`)
-- `locale`: specific locale for this column (e.g., `"id-ID"`)
-- `editable`: set to `true` to enable inline editing for this column
-- `sortable`: set to `false` to disable sorting for that column
-- `searchable`: set to `false` to exclude a column from built-in search
+- `type`: automatic formatting type such as `"money"`, `"datetime"`, or `"number"`
+- `format`: options object passed to the `Intl` formatter
+- `currency`: currency code for `"money"` columns, for example `"USD"` or `"IDR"`
+- `locale`: locale override for this column, for example `"id-ID"`
+- `editable`: set to `true` to enable inline editing
+- `sortable`: set to `false` to disable sorting for the column
+- `searchable`: set to `false` to exclude the column from built-in search
 - `sortValue(value, row)`: map cell data before sorting
 - `filter({ value, row, query })`: custom per-column search matcher
-- `render(value, row)`: custom cell formatter
-- `visible`: set to `false` to hide column by default
+- `render(value, row)`: custom cell renderer
+- `visible`: set to `false` to hide the column by default
 
-## Remote Config
+### Remote Config
 
-`remote` supports:
+The `remote` object supports:
 
 - `url`: endpoint to request
 - `method`: HTTP method, defaults to `GET`
@@ -238,16 +287,16 @@ Each column object supports:
 - `totalKey`: payload property containing total row count when not using `mapResponse`
 - `mapResponse(payload, state)`: transform any API response into `{ rows, totalItems }`
 
-## Row Detail Config
+### Row Detail Config
 
-`rowDetail` supports:
+The `rowDetail` object supports:
 
-- `render(row, helpers)`: required function to build the detail content
+- `render(row, helpers)`: required function that builds the detail content
 - `toggleLabel(row, expanded)`: optional function for the detail button label
 
 `helpers` includes `expand()`, `collapse()`, and `toggle()` methods for the active row.
 
-## Hooks
+### Hooks
 
 - `onInit(state)`: runs after the table is initialized
 - `onLoadingChange(isLoading)`: runs when loading state changes
@@ -255,7 +304,7 @@ Each column object supports:
 - `onFetchSuccess(payload)`: runs after a successful remote response
 - `onFetchError(error)`: runs when a remote request fails
 - `onBeforeRefresh()`: runs right before an auto-refresh polling request
-- `onDataUpdated(rawData)`: runs whenever the underlying data changes (fetch/edit)
+- `onDataUpdated(rawData)`: runs whenever the underlying data changes through fetch or edit
 - `onRowToggle({ rowId, expanded })`: runs when a detail row is expanded or collapsed
 - `onPageChange(page)`: runs when the current page changes
 - `onSortChange({ sortKey, sortDirection })`: runs when sorting changes
@@ -265,7 +314,11 @@ Each column object supports:
 - `onUpdate(payload)`: runs after each render with processed table metadata
 - `onDestroy()`: runs when `destroy()` is called
 
-## Public API
+---
+
+## API Reference
+
+### Public API
 
 - `init()`: render the table and bind events
 - `setData(data)`: replace table rows and re-render
@@ -276,30 +329,39 @@ Each column object supports:
 - `setPageSize(pageSize)`: update pagination size
 - `setSort(sortKey, direction)`: programmatically change sorting
 - `clearSort()`: remove active sorting
-- `setLanguage(language)`: update the UI text dynamically
+- `setLanguage(language)`: update UI text dynamically
 - `toggleRowDetail(rowId)`: expand or collapse a row detail panel
 - `expandRowDetail(rowId)`: expand a specific row detail panel
 - `collapseRowDetail(rowId)`: collapse a specific row detail panel
-- `getSelectedData()`: return array of currently selected rows
+- `getSelectedData()`: return the array of currently selected rows
 - `selectAll(checked)`: select or deselect all visible rows
 - `toggleRowSelection(rowId, checked)`: toggle selection for a specific row
 - `toggleColumnVisibility(key, visible)`: show or hide a column
 - `exportCSV(filename?)`: download the current data as a CSV file
 - `setTheme(theme, classNames?)`: swap the active theme mapping
-- `getProcessedData()`: return the current filtered, sorted, paginated result
+- `getProcessedData()`: return the current filtered, sorted, and paginated result
 - `getState()`: return a shallow copy of current internal state
-- `reset()`: clear search, sort, and return to page 1
+- `reset()`: clear search, sort, and return to page `1`
 - `destroy()`: remove event listeners and clear the container
 
-## Demo
+---
 
-Open [demo/index.html](./demo/index.html) in a browser for the gallery.
+## Demos
+
+Open [demo/index.html](./demo/index.html) in a browser to browse the gallery.
 
 Additional examples:
 
 - [demo/basic.html](./demo/basic.html): local data, sorting, search, pagination, and formatted cells
 - [demo/custom-cells.html](./demo/custom-cells.html): DOM-node rendering, custom filters, and richer cell content
 - [demo/themes.html](./demo/themes.html): live theme switching across `default`, `bootstrap`, and `tailwind`
-- [demo/remote.html](./demo/remote.html): mocked remote API with loading, abortable fetch requests, and server-side pagination
+- [demo/remote.html](./demo/remote.html): mocked remote API with loading, abortable requests, and server-side pagination
 - [demo/grouping-detail.html](./demo/grouping-detail.html): grouped rows plus lazily rendered expandable detail panels
-- [demo/localization.html](./demo/localization.html): examples of translating and customizing table labels
+- [demo/localization.html](./demo/localization.html): translated and customized table labels
+- [demo/live-sync.html](./demo/live-sync.html): adaptive auto-refresh with live status and timeout backoff
+
+---
+
+## License
+
+MIT

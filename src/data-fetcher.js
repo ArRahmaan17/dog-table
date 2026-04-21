@@ -65,7 +65,12 @@ export class DataFetcher {
     const payload = await response.json();
 
     if (typeof this.config.mapResponse === "function") {
-      return this.config.mapResponse(payload, state);
+      const mapped = this.config.mapResponse(payload, state);
+
+      return {
+        ...(mapped || {}),
+        rawPayload: payload,
+      };
     }
 
     const dataKey = this.config.dataKey || "data";
@@ -74,6 +79,7 @@ export class DataFetcher {
     return {
       rows: Array.isArray(payload[dataKey]) ? payload[dataKey] : [],
       totalItems: Number(payload[totalKey]) || 0,
+      rawPayload: payload,
     };
   }
 

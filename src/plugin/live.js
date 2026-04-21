@@ -1,46 +1,157 @@
 export class LivePlugin {
   constructor(table) {
     this.table = table;
-    this.intervalId = null;
+    this.timerId = null;
     this.active = !!this.table.options.autoRefresh;
+    this.baseInterval = this.resolveBaseInterval();
+    this.currentInterval = this.baseInterval;
+    this.maxInterval = this.baseInterval ? this.baseInterval * 4 : 0;
+    this.lastResponseSignature = null;
+    this.unchangedCount = 0;
+    this.boundVisibilityChange = this.handleVisibilityChange.bind(this);
   }
 
   init() {
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", this.boundVisibilityChange);
+    }
+
     if (this.active) {
       this.start();
     }
   }
 
-  start() {
-    const ms = this.table.options.autoRefresh;
-    if (!ms || !this.table.isRemote()) return;
+  resolveBaseInterval() {
+    const value = Number(this.table.options.autoRefresh);
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  }
 
-    this.stop();
+  isDocumentHidden() {
+    return typeof document !== "undefined" && document.hidden;
+  }
+
+  handleVisibilityChange() {
+    if (!this.active) {
+      return;
+    }
+
+    if (this.isDocumentHidden()) {
+      this.clearTimer();
+      this.updateUI();
+      return;
+    }
+
+    this.scheduleNext(this.currentInterval || this.baseInterval);
+    this.updateUI();
+  }
+
+  start() {
+    if (!this.baseInterval || !this.table.isRemote()) return;
+
+    this.clearTimer();
     this.active = true;
-    this.intervalId = setInterval(() => {
-      if (this.active && !this.table.state.loading) {
-        if (typeof this.table.options.hooks.onBeforeRefresh === "function") {
-          this.table.options.hooks.onBeforeRefresh();
-        }
-        this.table.update();
-      }
-    }, ms);
+
+    if (!this.isDocumentHidden()) {
+      this.scheduleNext(this.currentInterval || this.baseInterval);
+    }
 
     this.updateUI();
   }
 
   stop() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
+    this.clearTimer();
     this.active = false;
     this.updateUI();
+  }
+
+  destroy() {
+    this.clearTimer();
+
+    if (typeof document !== "undefined") {
+      document.removeEventListener(
+        "visibilitychange",
+        this.boundVisibilityChange
+      );
+    }
   }
 
   toggle() {
     if (this.active) this.stop();
     else this.start();
+  }
+
+  clearTimer() {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+      this.timerId = null;
+    }
+  }
+
+  scheduleNext(delay = this.baseInterval) {
+    if (!this.active || !this.baseInterval || this.isDocumentHidden()) {
+      this.clearTimer();
+      return;
+    }
+
+    this.clearTimer();
+    this.timerId = window.setTimeout(async () => {
+      this.timerId = null;
+
+      if (!this.active || this.isDocumentHidden() || this.table.state.loading) {
+        this.scheduleNext(this.currentInterval || this.baseInterval);
+        return;
+      }
+
+      if (typeof this.table.options.hooks.onBeforeRefresh === "function") {
+        this.table.options.hooks.onBeforeRefresh();
+      }
+
+      await this.table.update();
+
+      if (this.active && !this.isDocumentHidden()) {
+        this.scheduleNext(this.currentInterval || this.baseInterval);
+      }
+    }, delay);
+  }
+
+  createSignature(payload) {
+    const source = payload?.rawPayload ?? payload;
+
+    try {
+      return JSON.stringify(source);
+    } catch {
+      return String(source);
+    }
+  }
+
+  handleFetchSuccess(payload) {
+    if (!this.active || !this.baseInterval) {
+      return;
+    }
+
+    const nextSignature = this.createSignature(payload);
+
+    if (this.lastResponseSignature == null || this.lastResponseSignature !== nextSignature) {
+      this.lastResponseSignature = nextSignature;
+      this.unchangedCount = 0;
+      this.currentInterval = this.baseInterval;
+    } else {
+      this.unchangedCount += 1;
+      this.currentInterval = Math.min(
+        this.baseInterval * 2 ** this.unchangedCount,
+        this.maxInterval
+      );
+    }
+
+    this.updateUI();
+  }
+
+  handleFetchError() {
+    if (!this.active || !this.baseInterval) {
+      return;
+    }
+
+    this.updateUI();
   }
 
   updateUI() {
@@ -51,12 +162,18 @@ export class LivePlugin {
   }
 
   render() {
-    const active = this.active;
-    const label = active ? "Live" : "Paused";
+    const isHidden = this.isDocumentHidden();
+    const active = this.active && !isHidden;
+    const label = this.active ? (isHidden ? "Auto Paused" : "Live") : "Paused";
     const className = active ? "is-active" : "is-paused";
 
     return `
-      <button type="button" class="dt-live-button ${className}" data-live-toggle>
+      <button
+        type="button"
+        class="dt-live-button ${className}"
+        data-live-toggle
+        title="Refresh every ${this.currentInterval || this.baseInterval}ms"
+      >
         <span class="dt-live-dot"></span>
         <span class="dt-live-label">${label}</span>
       </button>

@@ -89,8 +89,8 @@
       <a class="nav" href="./index.html">← Back to gallery</a>
       <h1>Advanced Data & Live Sync</h1>
       <p>
-        The table automatically refreshes every 5 seconds. Watch the prices update
-        live!
+        The table automatically refreshes every 5 seconds, slows down when the
+        API response stays the same, and pauses itself while this tab is inactive.
       </p>
 
       <div class="stats">
@@ -102,6 +102,10 @@
           <span class="stat-value" id="last-refresh">Never</span>
           <span class="stat-label">Last Refresh</span>
         </div>
+        <div class="stat-card">
+          <span class="stat-value" id="current-timeout">5000 ms</span>
+          <span class="stat-label">Current Timeout</span>
+        </div>
       </div>
 
       <div id="app"></div>
@@ -109,9 +113,11 @@
       <div class="card">
         <h3>How it works</h3>
         <p>
-          By setting <code>autoRefresh: 5000</code>, the table initializes a
-          polling engine. A "Live" toggle is automatically added to the toolbar
-          with a pulse animation to indicate background activity.
+          By setting <code>autoRefresh: 5000</code>, the table initializes an
+          adaptive polling engine. When the API returns the same payload several
+          times in a row, the next refresh interval is backed off automatically.
+          As soon as the response changes again, the timer returns to the base
+          interval. The sync loop also pauses whenever the page is hidden.
         </p>
       </div>
     </main>
@@ -152,6 +158,24 @@
       let updateCount = 0;
       const totalUpdatesEl = document.getElementById("total-updates");
       const lastRefreshEl = document.getElementById("last-refresh");
+      const currentTimeoutEl = document.getElementById("current-timeout");
+
+      const syncTimeoutDisplay = () => {
+        const live = table.live;
+        const timeout = live.currentInterval || live.baseInterval || 0;
+
+        if (!live.active) {
+          currentTimeoutEl.textContent = `${timeout} ms (paused)`;
+          return;
+        }
+
+        if (document.hidden) {
+          currentTimeoutEl.textContent = `${timeout} ms (auto paused)`;
+          return;
+        }
+
+        currentTimeoutEl.textContent = `${timeout} ms`;
+      };
 
       const table = new DataTable("#app", {
         // We use a custom fetcher to simulate remote data updates
@@ -165,6 +189,11 @@
           },
         },
         autoRefresh: 5000,
+        hooks: {
+          onFetchSuccess() {
+            syncTimeoutDisplay();
+          },
+        },
         columns: [
           { label: "Trading Pair", accessor: "pair" },
           {
@@ -187,6 +216,13 @@
       });
 
       table.init();
+      syncTimeoutDisplay();
+      document.addEventListener("visibilitychange", syncTimeoutDisplay);
+      table.container.addEventListener("click", (event) => {
+        if (event.target.closest("[data-live-toggle]")) {
+          window.setTimeout(syncTimeoutDisplay, 0);
+        }
+      });
     </script>
   </body>
 </html>
