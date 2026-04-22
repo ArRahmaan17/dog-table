@@ -85,6 +85,7 @@
 
       .visibility-toggles {
         display: flex;
+        flex-wrap: wrap;
         gap: 15px;
         font-size: 0.9rem;
         color: #475569;
@@ -98,9 +99,67 @@
       }
 
       .stats {
-        margin-top: 10px;
-        font-size: 0.9rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .stat-card {
+        padding: 16px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid #dbe4ee;
+        color: #475569;
+        box-shadow: 0 3px 6px -3px rgb(0 0 0 / 0.08);
+      }
+
+      .stat-label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
         color: #64748b;
+      }
+
+      .stat-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #102a43;
+      }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #dbe4ee;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #102a43;
+        color: #f8fafc;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       }
     </style>
   </head>
@@ -108,16 +167,43 @@
     <main>
       <a class="nav" href="./index.html">← Back to gallery</a>
       <h1>Advanced Features</h1>
-      <p>Demonstrating URL persistence, row selection, column visibility, and CSV export.</p>
-      
+      <p>Demonstrating URL persistence, row selection, column visibility, CSV export, and quick access to the table's live state.</p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Selection, persistence, and export are enabled from the main constructor, then controlled through the table instance.</p>
+        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DataTable } from "../src/data-table.js";
+
+  const table = new DataTable("#app", {
+    data,
+    rowKey: "id",
+    selectable: true,
+    persistence: "url",
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "region", label: "Region" },
+    ],
+  });
+
+  table.init();
+  table.exportCSV("dogs.csv");
+&lt;/script&gt;</code></pre>
+      </section>
+
       <div class="toolbar-actions">
         <button type="button" id="export-csv" class="btn btn-primary">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
           Export CSV
         </button>
-        
+
         <button type="button" id="get-selected" class="btn">
           Get Selected Data
+        </button>
+
+        <button type="button" id="reset-table" class="btn">
+          Reset View
         </button>
 
         <div class="visibility-toggles">
@@ -134,8 +220,21 @@
       </div>
 
       <div id="app"></div>
-      
-      <div id="stats" class="stats">Selected: 0 rows</div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <span class="stat-label">Selected</span>
+          <span class="stat-value" id="selected-count">0 rows</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Visible Columns</span>
+          <span class="stat-value" id="visible-columns">5</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Active View</span>
+          <span class="stat-value" id="view-summary">Page 1</span>
+        </div>
+      </div>
     </main>
 
     <script type="module">
@@ -150,9 +249,13 @@
         { id: 106, name: "Atlas", breed: "German Shepherd", age: 7, adopted: "2021-08-08", region: "West" },
         { id: 107, name: "Olive", breed: "Mixed", age: 1, adopted: "2024-04-01", region: "North" },
         { id: 108, name: "Luna", breed: "Husky", age: 2, adopted: "2024-05-10", region: "West" },
-        { id: 109, name: "Rex", breed: "Rotweiler", age: 4, adopted: "2023-12-15", region: "South" },
+        { id: 109, name: "Rex", breed: "Rottweiler", age: 4, adopted: "2023-12-15", region: "South" },
         { id: 110, name: "Daisy", breed: "Poodle", age: 3, adopted: "2024-01-05", region: "East" },
       ];
+
+      const selectedCountEl = document.getElementById("selected-count");
+      const visibleColumnsEl = document.getElementById("visible-columns");
+      const viewSummaryEl = document.getElementById("view-summary");
 
       const table = new DataTable("#app", {
         data,
@@ -165,40 +268,51 @@
           { key: "name", label: "Name" },
           { key: "breed", label: "Breed" },
           { key: "age", label: "Age" },
-          { 
-            key: "adopted", 
+          {
+            key: "adopted",
             label: "Adopted",
-            render: (val) => new Date(val).toLocaleDateString()
+            render: (val) => new Date(val).toLocaleDateString(),
           },
           { key: "region", label: "Region" },
         ],
         hooks: {
           onSelectionChange: (selectedRows) => {
-            document.getElementById("stats").textContent = `Selected: ${selectedRows.length} rows`;
-          }
-        }
+            selectedCountEl.textContent = `${selectedRows.length} row${selectedRows.length === 1 ? "" : "s"}`;
+          },
+          onUpdate: ({ state, columns }) => {
+            const visible = columns.filter((column) => column.visible !== false).length;
+            visibleColumnsEl.textContent = `${visible}`;
+
+            const sortSummary = state.sortKey
+              ? `, ${state.sortKey} ${state.sortDirection}`
+              : "";
+
+            viewSummaryEl.textContent = `Page ${state.currentPage}${sortSummary}`;
+          },
+        },
       });
 
       table.init();
 
-      // Export CSV
       document.getElementById("export-csv").addEventListener("click", () => {
         table.exportCSV("dog-data-export.csv");
       });
 
-      // Get Selected
       document.getElementById("get-selected").addEventListener("click", () => {
         const selected = table.getSelectedData();
         if (selected.length === 0) {
           alert("No rows selected!");
         } else {
-          alert(`Selected Dogs: ${selected.map(d => d.name).join(", ")}`);
+          alert(`Selected Dogs: ${selected.map((d) => d.name).join(", ")}`);
           console.log("Selected Data:", selected);
         }
       });
 
-      // Column Visibility
-      document.querySelectorAll(".visibility-toggles input").forEach(checkbox => {
+      document.getElementById("reset-table").addEventListener("click", () => {
+        table.reset();
+      });
+
+      document.querySelectorAll(".visibility-toggles input").forEach((checkbox) => {
         checkbox.addEventListener("change", (e) => {
           table.toggleColumnVisibility(e.target.dataset.column, e.target.checked);
         });

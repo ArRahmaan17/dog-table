@@ -95,6 +95,38 @@
         font-size: 0.8rem;
         font-weight: 600;
       }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid rgba(180, 83, 9, 0.16);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(124, 45, 18, 0.07);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #7c2d12;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #431407;
+        color: #fff7ed;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
     </style>
   </head>
   <body>
@@ -102,6 +134,38 @@
       <a class="nav" href="./index.html">Back to gallery</a>
       <h1>Custom Cells and Filter Logic</h1>
       <p>This example uses DOM-node cell rendering, custom column search, and richer metadata formatting.</p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Custom rendering works by returning DOM nodes and optional per-column filter logic.</p>
+        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DataTable } from "../src/data-table.js";
+
+  const table = new DataTable("#app", {
+    data: projects,
+    columns: [
+      { key: "dog", label: "Dog" },
+      {
+        key: "owner",
+        label: "Owner",
+        render(value) {
+          return makeOwner(value);
+        },
+      },
+      {
+        key: "tags",
+        label: "Tags",
+        filter({ value, query }) {
+          return value.join(" ").toLowerCase().includes(query);
+        },
+      },
+    ],
+  });
+
+  table.init();
+&lt;/script&gt;</code></pre>
+      </section>
       <div id="app"></div>
     </main>
 
@@ -220,4 +284,3 @@
     </script>
   </body>
 </html>
-

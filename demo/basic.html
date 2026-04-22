@@ -39,6 +39,38 @@
         color: #0f766e;
         font-weight: 600;
       }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #102a43;
+        color: #f8fafc;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
     </style>
   </head>
   <body>
@@ -46,6 +78,27 @@
       <a class="nav" href="./index.html">Back to gallery</a>
       <h1>Basic Local Table</h1>
       <p>Vanilla JavaScript data table with sorting, search, pagination, render callbacks, and lifecycle hooks.</p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Start with the core stylesheet, import <code>DataTable</code>, and pass local data plus your columns.</p>
+        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DataTable } from "../src/data-table.js";
+
+  const table = new DataTable("#app", {
+    data,
+    pageSize: 3,
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "breed", label: "Breed" },
+      { key: "age", label: "Age" },
+    ],
+  });
+
+  table.init();
+&lt;/script&gt;</code></pre>
+      </section>
       <div id="app"></div>
     </main>
 
@@ -102,4 +155,3 @@
     </script>
   </body>
 </html>
-

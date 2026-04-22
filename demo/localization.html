@@ -77,6 +77,38 @@
         background: #0f766e;
         color: white;
       }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #d1d5db;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #102a43;
+        color: #f8fafc;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
     </style>
   </head>
   <body>
@@ -87,6 +119,29 @@
         Switch between predefined languages or provide custom text for all UI
         elements.
       </p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Localization uses the normal table import plus whichever locale bundles you want to switch between.</p>
+        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DataTable } from "../src/data-table.js";
+  import { en } from "../src/locale/en.js";
+  import { fr } from "../src/locale/fr.js";
+
+  const table = new DataTable("#app", {
+    data,
+    language: en,
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "region", label: "Region" },
+    ],
+  });
+
+  table.init();
+  table.setLanguage(fr);
+&lt;/script&gt;</code></pre>
+      </section>
 
       <div class="controls">
         <button type="button" data-lang="en" class="active">English</button>

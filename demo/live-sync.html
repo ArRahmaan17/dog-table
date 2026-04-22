@@ -89,8 +89,9 @@
       <a class="nav" href="./index.html">← Back to gallery</a>
       <h1>Advanced Data & Live Sync</h1>
       <p>
-        The table automatically refreshes every 5 seconds, slows down when the
-        API response stays the same, and pauses itself while this tab is inactive.
+        The table refreshes every 5 seconds, backs off automatically when the
+        payload is unchanged, and pauses while the tab is inactive. This page
+        uses a mocked endpoint so it stays demo-friendly even without a real API.
       </p>
 
       <div class="stats">
@@ -125,40 +126,69 @@
     <script type="module">
       import { DataTable } from "../src/data-table.js";
 
-      // Mock data generator
-      const generateData = () => {
-        return [
-          {
-            id: 1,
-            pair: "BTC/USDT",
-            price: 65000 + (Math.random() - 0.5) * 1000,
-            change: (Math.random() - 0.4) * 5,
-          },
-          {
-            id: 2,
-            pair: "ETH/USDT",
-            price: 3500 + (Math.random() - 0.5) * 100,
-            change: (Math.random() - 0.4) * 4,
-          },
-          {
-            id: 3,
-            pair: "SOL/USDT",
-            price: 140 + (Math.random() - 0.5) * 10,
-            change: (Math.random() - 0.4) * 10,
-          },
-          {
-            id: 4,
-            pair: "DOGE/USDT",
-            price: 0.15 + (Math.random() - 0.5) * 0.02,
-            change: (Math.random() - 0.4) * 15,
-          },
-        ];
-      };
+      const originalFetch = window.fetch.bind(window);
+      const baseMarkets = [
+        { id: 1, pair: "BTC/USDT", price: 65000, change: 1.42, volume: 18240000 },
+        { id: 2, pair: "ETH/USDT", price: 3500, change: 0.86, volume: 9340000 },
+        { id: 3, pair: "SOL/USDT", price: 140, change: 3.28, volume: 5120000 },
+        { id: 4, pair: "DOGE/USDT", price: 0.15, change: -1.14, volume: 2010000 },
+      ];
 
       let updateCount = 0;
       const totalUpdatesEl = document.getElementById("total-updates");
       const lastRefreshEl = document.getElementById("last-refresh");
       const currentTimeoutEl = document.getElementById("current-timeout");
+
+      const generateData = () => {
+        const unchangedWindow = updateCount !== 0 && updateCount % 3 === 0;
+
+        if (unchangedWindow) {
+          return baseMarkets.map((row) => ({ ...row }));
+        }
+
+        return baseMarkets.map((row) => ({
+          ...row,
+          price: row.price + (Math.random() - 0.5) * (row.price > 1000 ? 1000 : row.price > 1 ? 10 : 0.02),
+          change: row.change + (Math.random() - 0.5) * 2.4,
+          volume: row.volume + Math.round((Math.random() - 0.5) * 650000),
+        }));
+      };
+
+      window.fetch = (input, init = {}) => {
+        const url = new URL(typeof input === "string" ? input : input.url, window.location.href);
+
+        if (url.pathname !== "/api/live-market") {
+          return originalFetch(input, init);
+        }
+
+        const signal = init.signal;
+
+        return new Promise((resolve, reject) => {
+          const timer = window.setTimeout(() => {
+            resolve(
+              new Response(
+                JSON.stringify({
+                  items: generateData(),
+                  total: baseMarkets.length,
+                }),
+                {
+                  status: 200,
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                }
+              )
+            );
+          }, 450);
+
+          if (signal) {
+            signal.addEventListener("abort", () => {
+              window.clearTimeout(timer);
+              reject(new DOMException("Request aborted", "AbortError"));
+            });
+          }
+        });
+      };
 
       const syncTimeoutDisplay = () => {
         const live = table.live;
@@ -178,14 +208,13 @@
       };
 
       const table = new DataTable("#app", {
-        // We use a custom fetcher to simulate remote data updates
         remote: {
-          url: "https://pokeapi.co/api/v2/pokemon",
-          mapResponse: () => {
+          url: "/api/live-market",
+          mapResponse: (payload) => {
             updateCount++;
             totalUpdatesEl.textContent = updateCount;
             lastRefreshEl.textContent = new Date().toLocaleTimeString();
-            return { rows: generateData(), totalItems: 4 };
+            return { rows: payload.items, totalItems: payload.total };
           },
         },
         autoRefresh: 5000,
@@ -211,6 +240,12 @@
               const prefix = val >= 0 ? "+" : "";
               return `<span style="color: ${color}; font-weight: 600">${prefix}${val.toFixed(2)}%</span>`;
             },
+          },
+          {
+            label: "Volume",
+            accessor: "volume",
+            type: "number",
+            format: { notation: "compact", maximumFractionDigits: 1 },
           },
         ],
       });
