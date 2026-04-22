@@ -112,7 +112,3 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 ---
 
 ## [Planned] - Next Steps
-* [x] **Server-side Adapter (AJAX):** Integrasi Fetch API untuk pengolahan data di sisi server.
-* [x] **Row Features:** Implementasi *Expandable Row* (Row Detail) dan *Data Grouping*.
-* [x] **UX Improvements:** Loading skeletons dan *empty state* yang lebih cantik.
-* [ ] **Export Utilities:** Dukungan ekspor data ke format CSV atau Excel.

@@ -2,7 +2,7 @@
 
 Lightweight vanilla JavaScript data table for apps that need a clean API, remote data support, and useful built-in behaviors without pulling in a full framework.
 
-Each standalone demo in [demo/index.html](./demo/index.html) now includes a small "Library setup" panel so you can copy the minimum CSS import, module import, and starter config for that feature area.
+Each standalone demo in [index.html](./index.html) now includes a small "Library setup" panel so you can copy the minimum CSS import, module import, and starter config for that feature area.
 
 ## Why Dog Table?
 
@@ -350,7 +350,7 @@ The `rowDetail` object supports:
 
 ## Demos
 
-Open [demo/index.html](./demo/index.html) in a browser to browse the gallery.
+Open [index.html](./index.html) in a browser to browse the gallery.
 
 Additional examples:
 
