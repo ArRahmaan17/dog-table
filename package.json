@@ -1,6 +1,6 @@
 {
   "name": "dog-table",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Lightweight vanilla JavaScript data table with sorting, search, pagination, and remote data support.",
   "repository": {
     "type": "git",
@@ -11,16 +11,16 @@
   },
   "homepage": "https://github.com/ArRahmaan17/dog-table#readme",
   "type": "module",
-  "main": "./src/data-table.js",
-  "module": "./src/data-table.js",
+  "main": "./src/data-table-min.js",
+  "module": "./src/data-table-min.js",
   "exports": {
     ".": {
-      "import": "./src/data-table.js"
+      "import": "./src/data-table-min.js"
     },
     "./css": "./src/data-table.min.css",
     "./locale/*": "./src/locale/*.js",
     "./plugin/*": "./src/plugin/*.js",
-    "./utils": "./src/utils.js"
+    "./utils": "./src/utils.min.js"
   },
   "files": [
     "src",

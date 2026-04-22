@@ -60,6 +60,38 @@
         font-size: 0.8rem;
         font-weight: 600;
       }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid rgba(21, 128, 61, 0.14);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(20, 83, 45, 0.07);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #14532d;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #052e16;
+        color: #ecfdf5;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
     </style>
   </head>
   <body>
@@ -67,6 +99,32 @@
       <a class="nav" href="./index.html">Back to gallery</a>
       <h1>Grouping and Row Detail</h1>
       <p>This example groups dogs by adoption region and expands details lazily only when a row is opened.</p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Grouping and expandable rows are configured with <code>groupBy</code> and a <code>rowDetail.render()</code> callback.</p>
+        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DataTable } from "../src/data-table.js";
+
+  const table = new DataTable("#app", {
+    data: dogs,
+    rowKey: "id",
+    groupBy: "region",
+    rowDetail: {
+      render(row) {
+        return makeDetailCard(row);
+      },
+    },
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "region", label: "Region" },
+    ],
+  });
+
+  table.init();
+&lt;/script&gt;</code></pre>
+      </section>
       <div id="app"></div>
     </main>
 

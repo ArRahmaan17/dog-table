@@ -7,12 +7,15 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #f3f7fb;
-        --panel: rgba(255, 255, 255, 0.9);
-        --border: rgba(148, 163, 184, 0.28);
-        --ink: #102a43;
-        --muted: #52606d;
-        --accent: #0f766e;
+        --bg: #f4efe6;
+        --panel: rgba(255, 250, 244, 0.88);
+        --panel-strong: rgba(255, 255, 255, 0.94);
+        --border: rgba(136, 92, 62, 0.18);
+        --ink: #23150f;
+        --muted: #6b5648;
+        --accent: #b45309;
+        --accent-deep: #7c2d12;
+        --glow: rgba(180, 83, 9, 0.18);
       }
 
       * {
@@ -22,70 +25,213 @@
       body {
         margin: 0;
         min-height: 100vh;
-        padding: 40px 20px 80px;
+        padding: 36px 18px 80px;
         background:
-          radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 30%),
-          radial-gradient(circle at top right, rgba(59, 130, 246, 0.14), transparent 24%),
-          linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+          radial-gradient(circle at top left, rgba(245, 158, 11, 0.22), transparent 26%),
+          radial-gradient(circle at top right, rgba(251, 191, 36, 0.18), transparent 24%),
+          linear-gradient(180deg, #fffaf2 0%, var(--bg) 52%, #efe2d0 100%);
         color: var(--ink);
-        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        font-family: "Averta Std", "Nunito Sans", "Segoe UI", sans-serif;
       }
 
       main {
-        max-width: 1120px;
+        max-width: 1160px;
         margin: 0 auto;
       }
 
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.95fr);
+        gap: 22px;
+        align-items: stretch;
+        margin-bottom: 24px;
+      }
+
+      .hero-copy,
+      .hero-panel {
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 24px 60px rgba(35, 21, 15, 0.08);
+      }
+
+      .hero-copy {
+        padding: 28px;
+      }
+
+      .hero-panel {
+        padding: 24px;
+        background:
+          linear-gradient(160deg, rgba(255, 255, 255, 0.96), rgba(255, 244, 230, 0.88)),
+          var(--panel-strong);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(180, 83, 9, 0.08);
+        color: var(--accent-deep);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
       h1 {
-        margin: 0 0 12px;
-        font-size: clamp(2.4rem, 5vw, 4.6rem);
-        line-height: 0.95;
-        letter-spacing: -0.04em;
+        margin: 0 0 14px;
+        font-size: clamp(2.7rem, 6vw, 5.5rem);
+        line-height: 0.9;
+        letter-spacing: -0.05em;
       }
 
       .lede {
-        max-width: 760px;
-        margin: 0 0 28px;
+        max-width: 720px;
+        margin: 0 0 18px;
         color: var(--muted);
+        font-size: 1.08rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        min-height: 44px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        color: inherit;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .button-primary {
+        background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+        color: #fff;
+        box-shadow: 0 16px 28px var(--glow);
+      }
+
+      .button-secondary {
+        border-color: rgba(124, 45, 18, 0.18);
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      .hero-panel h2 {
+        margin: 0 0 12px;
         font-size: 1.05rem;
+      }
+
+      .hero-panel p {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .stat {
+        padding: 14px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(124, 45, 18, 0.1);
+      }
+
+      .stat strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 1.45rem;
+        line-height: 1;
+        color: var(--accent-deep);
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0 0 24px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .chips li {
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--muted);
+        font-size: 0.92rem;
       }
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
         gap: 18px;
       }
 
       .card {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
         padding: 22px;
         border: 1px solid var(--border);
         border-radius: 24px;
-        background: var(--panel);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 239, 0.9));
+        box-shadow: 0 20px 44px rgba(35, 21, 15, 0.07);
       }
 
-      .eyebrow {
-        font-size: 0.75rem;
-        font-weight: 700;
+      .card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .card-index {
+        font-size: 0.78rem;
+        font-weight: 800;
         letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: #0f766e;
+        color: var(--accent);
       }
 
-      h2 {
+      .tag {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(124, 45, 18, 0.08);
+        color: var(--accent-deep);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      h3 {
         margin: 0;
-        font-size: 1.35rem;
+        font-size: 1.3rem;
+        line-height: 1.05;
       }
 
       .card p {
         flex-grow: 1;
-      }
-
-      p {
         margin: 0;
         color: var(--muted);
       }
@@ -95,101 +241,210 @@
         text-decoration: none;
       }
 
-      .link {
+      .card-link {
         display: inline-flex;
+        align-items: center;
+        gap: 8px;
         width: fit-content;
         margin-top: 6px;
         padding: 10px 14px;
         border-radius: 999px;
-        background: #102a43;
+        background: #23150f;
         color: #fff;
-        font-weight: 600;
+        font-weight: 700;
       }
 
-      .link:hover {
-        background: var(--accent);
+      .card-link:hover,
+      .button:hover {
+        transform: translateY(-1px);
+      }
+
+      .footer-note {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      code {
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-size: 0.92em;
+      }
+
+      @media (max-width: 880px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        body {
+          padding: 22px 14px 64px;
+        }
+
+        .hero-copy,
+        .hero-panel,
+        .card {
+          border-radius: 22px;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
     <main>
-      <h1>Dog Table Gallery</h1>
-      <p class="lede">
-        Explore focused examples for local data, rich cell rendering, theme presets, and remote fetching with loading states.
-      </p>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Dog Table v1.3 Demo Suite</div>
+          <h1>Explore the table from first render to power-user workflows.</h1>
+          <p class="lede">
+            This gallery is organized as small, focused examples so you can test features in isolation, copy patterns quickly, and compare local, remote, and live-updating behavior side by side.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="./basic.html">Start with basics</a>
+            <a class="button button-secondary" href="./advanced-features.html">Jump to advanced APIs</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel">
+          <h2>What these demos cover</h2>
+          <p>Everything here runs as plain HTML files against the source in <code>../src</code>, so the folder doubles as a lightweight manual test bench.</p>
+          <div class="stats">
+            <div class="stat">
+              <strong>10</strong>
+              <span>Focused demos</span>
+            </div>
+            <div class="stat">
+              <strong>Local + Remote</strong>
+              <span>Both data flows covered</span>
+            </div>
+            <div class="stat">
+              <strong>Self-contained</strong>
+              <span>Mock APIs included where possible</span>
+            </div>
+            <div class="stat">
+              <strong>Copy-ready</strong>
+              <span>Examples map closely to README usage</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <ul class="chips">
+        <li>Sorting and debounced search</li>
+        <li>Grouping and lazy detail rows</li>
+        <li>Localization and formatters</li>
+        <li>Selection, CSV export, persistence</li>
+        <li>Inline editing and live sync</li>
+      </ul>
 
       <section class="grid">
         <article class="card">
-          <div class="eyebrow">Example 01</div>
-          <h2><a href="./basic.html">Basic Local Table</a></h2>
-          <p>Sorting, pagination, debounced search, and formatted dates on top of a local data array.</p>
-          <a class="link" href="./basic.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 01</span>
+            <span class="tag">Core</span>
+          </div>
+          <h3><a href="./basic.html">Basic Local Table</a></h3>
+          <p>Sorting, pagination, debounced search, and clean starter configuration for an in-memory dataset.</p>
+          <a class="card-link" href="./basic.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 02</div>
-          <h2><a href="./custom-cells.html">Custom Cells</a></h2>
-          <p>Shows `render`, `filter`, and DOM node output for richer status, tags, and owner avatars.</p>
-          <a class="link" href="./custom-cells.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 02</span>
+            <span class="tag">Rendering</span>
+          </div>
+          <h3><a href="./custom-cells.html">Custom Cells</a></h3>
+          <p>Mix text, DOM nodes, and custom filtering rules to build richer rows without a framework.</p>
+          <a class="card-link" href="./custom-cells.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 03</div>
-          <h2><a href="./themes.html">Theme Presets</a></h2>
-          <p>Switch between `default`, `bootstrap`, and `tailwind`-style theme mappings in one page.</p>
-          <a class="link" href="./themes.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 03</span>
+            <span class="tag">Styling</span>
+          </div>
+          <h3><a href="./themes.html">Theme Presets</a></h3>
+          <p>Preview the <code>default</code>, <code>bootstrap</code>, and <code>tailwind</code> class maps against the same data model.</p>
+          <a class="card-link" href="./themes.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 04</div>
-          <h2><a href="./remote.html">Remote Fetch</a></h2>
-          <p>Uses mocked `fetch()` responses to demonstrate remote pagination, sorting, search, loading, and abort behavior.</p>
-          <a class="link" href="./remote.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 04</span>
+            <span class="tag">Remote</span>
+          </div>
+          <h3><a href="./remote.html">Remote Fetch</a></h3>
+          <p>Server-style pagination, search, sorting, loading states, and abort handling backed by a mocked endpoint.</p>
+          <a class="card-link" href="./remote.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 05</div>
-          <h2><a href="./grouping-detail.html">Grouping and Detail</a></h2>
-          <p>Shows grouped sections plus lazy row-detail rendering with expandable content beneath each row.</p>
-          <a class="link" href="./grouping-detail.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 05</span>
+            <span class="tag">Structure</span>
+          </div>
+          <h3><a href="./grouping-detail.html">Grouping and Detail</a></h3>
+          <p>Combine grouped sections with expandable row details to keep dense data readable.</p>
+          <a class="card-link" href="./grouping-detail.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 06</div>
-          <h2><a href="./localization.html">Localization</a></h2>
-          <p>Translate all UI labels, search placeholders, and pagination text into any language.</p>
-          <a class="link" href="./localization.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 06</span>
+            <span class="tag">Locale</span>
+          </div>
+          <h3><a href="./localization.html">Localization</a></h3>
+          <p>Swap labels, placeholders, pagination text, and status copy to match your audience and language.</p>
+          <a class="card-link" href="./localization.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 07</div>
-          <h2><a href="./advanced-features.html">Advanced Features</a></h2>
-          <p>URL persistence, multi-selection, CSV export, and dynamic column visibility.</p>
-          <a class="link" href="./advanced-features.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 07</span>
+            <span class="tag">Power Tools</span>
+          </div>
+          <h3><a href="./advanced-features.html">Advanced Features</a></h3>
+          <p>Selection, CSV export, URL persistence, column toggles, and table state feedback in one place.</p>
+          <a class="card-link" href="./advanced-features.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 08</div>
-          <h2><a href="./formatting.html">Formatter Engine</a></h2>
-          <p>Power of <code>Intl</code> API for automatic Money, Date, and Number formatting.</p>
-          <a class="link" href="./formatting.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 08</span>
+            <span class="tag">Formatting</span>
+          </div>
+          <h3><a href="./formatting.html">Formatter Engine</a></h3>
+          <p>See how <code>Intl</code>-powered money, date, and number formatting behaves across different locales.</p>
+          <a class="card-link" href="./formatting.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 09</div>
-          <h2><a href="./inline-editing.html">Inline Editing</a></h2>
-          <p>Click, type, and save data directly within the table cells.</p>
-          <a class="link" href="./inline-editing.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 09</span>
+            <span class="tag">Editing</span>
+          </div>
+          <h3><a href="./inline-editing.html">Inline Editing</a></h3>
+          <p>Edit rows in place, save changes, and observe update hooks without leaving the table view.</p>
+          <a class="card-link" href="./inline-editing.html">Open demo</a>
         </article>
 
         <article class="card">
-          <div class="eyebrow">Example 10</div>
-          <h2><a href="./live-sync.html">Live Sync</a></h2>
-          <p>Auto-refresh polling engine with visual status indicator.</p>
-          <a class="link" href="./live-sync.html">Open demo</a>
+          <div class="card-top">
+            <span class="card-index">Example 10</span>
+            <span class="tag">Automation</span>
+          </div>
+          <h3><a href="./live-sync.html">Live Sync</a></h3>
+          <p>Adaptive polling with visible status, pause behavior, and a fully mocked remote source for offline testing.</p>
+          <a class="card-link" href="./live-sync.html">Open demo</a>
         </article>
       </section>
+
+      <p class="footer-note">
+        Tip: open the demos through a local static server for the smoothest module-loading experience, then start with <code>remote</code> and <code>live-sync</code> if you want the fastest sanity check for async behavior.
+      </p>
     </main>
   </body>
 </html>
-

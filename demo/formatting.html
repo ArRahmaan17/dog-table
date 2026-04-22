@@ -65,6 +65,26 @@
         overflow-x: auto;
         margin-top: 12px;
       }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
     </style>
   </head>
   <body>
@@ -75,6 +95,37 @@
         Transforming raw data into human-readable formats using the native
         <code>Intl</code> API.
       </p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Formatting is configured directly on each column with <code>type</code>, <code>currency</code>, <code>locale</code>, and <code>format</code>.</p>
+        <pre class="code-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DataTable } from "../src/data-table.js";
+
+  const table = new DataTable("#app", {
+    data,
+    columns: [
+      { key: "name", label: "Dog Name" },
+      { key: "breed", label: "Breed" },
+      {
+        key: "adoptedAt",
+        label: "Adoption Date",
+        type: "datetime",
+        format: { dateStyle: "long" },
+      },
+      {
+        key: "fee",
+        label: "Fee",
+        type: "money",
+        currency: "USD",
+      },
+    ],
+  });
+
+  table.init();
+&lt;/script&gt;</code></pre>
+      </section>
 
       <div id="app"></div>
 
@@ -85,31 +136,29 @@
           <code>type: 'datetime'</code> handle the complexity of localization
           automatically.
         </p>
-        <pre class="code-snippet">
-columns: [
-  { label: 'Dog Name', accessor: 'name' },
-  { label: 'Breed', accessor: 'breed' },
-  { 
-    label: 'Adoption Date', 
-    accessor: 'adopted_at', 
-    type: 'datetime', 
-    format: { dateStyle: 'long' } 
+        <pre class="code-snippet"><code>columns: [
+  { key: "name", label: "Dog Name" },
+  { key: "breed", label: "Breed" },
+  {
+    key: "adoptedAt",
+    label: "Adoption Date",
+    type: "datetime",
+    format: { dateStyle: "long" },
   },
-  { 
-    label: 'Fee', 
-    accessor: 'fee', 
-    type: 'money', 
-    currency: 'USD' 
+  {
+    key: "fee",
+    label: "Fee",
+    type: "money",
+    currency: "USD",
   },
-  { 
-    label: 'Donation (IDR)', 
-    accessor: 'donation', 
-    type: 'money', 
-    currency: 'IDR',
-    locale: 'id-ID' 
+  {
+    key: "donation",
+    label: "Donation (IDR)",
+    type: "money",
+    currency: "IDR",
+    locale: "id-ID",
   },
-]</pre
-        >
+]</code></pre>
       </div>
     </main>
 
@@ -120,35 +169,35 @@ columns: [
         {
           name: "Mochi",
           breed: "Shiba Inu",
-          adopted_at: "2024-01-12T10:30:00Z",
+          adoptedAt: "2024-01-12T10:30:00Z",
           fee: 250,
           donation: 500000,
         },
         {
           name: "Pepper",
           breed: "Beagle",
-          adopted_at: "2023-11-04T15:45:00Z",
+          adoptedAt: "2023-11-04T15:45:00Z",
           fee: 175.5,
           donation: 250000,
         },
         {
           name: "Nori",
           breed: "Corgi",
-          adopted_at: "2024-03-21T09:00:00Z",
+          adoptedAt: "2024-03-21T09:00:00Z",
           fee: 300,
           donation: 1000000,
         },
         {
           name: "Biscuit",
           breed: "Golden Retriever",
-          adopted_at: "2022-09-30T14:20:00Z",
+          adoptedAt: "2022-09-30T14:20:00Z",
           fee: 225,
           donation: 750000,
         },
         {
           name: "Suki",
           breed: "Pomeranian",
-          adopted_at: "2024-02-18T11:15:00Z",
+          adoptedAt: "2024-02-18T11:15:00Z",
           fee: 200.75,
           donation: 300000,
         },
@@ -158,23 +207,23 @@ columns: [
         data,
         pageSize: 5,
         columns: [
-          { label: "Dog Name", accessor: "name" },
-          { label: "Breed", accessor: "breed" },
+          { key: "name", label: "Dog Name" },
+          { key: "breed", label: "Breed" },
           {
+            key: "adoptedAt",
             label: "Adoption Date",
-            accessor: "adopted_at",
             type: "datetime",
             format: { dateStyle: "long" },
           },
           {
+            key: "fee",
             label: "Fee",
-            accessor: "fee",
             type: "money",
             currency: "USD",
           },
           {
+            key: "donation",
             label: "Donation (IDR)",
-            accessor: "donation",
             type: "money",
             currency: "IDR",
             locale: "id-ID",

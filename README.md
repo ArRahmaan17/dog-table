@@ -2,6 +2,8 @@
 
 Lightweight vanilla JavaScript data table for apps that need a clean API, remote data support, and useful built-in behaviors without pulling in a full framework.
 
+Each standalone demo in [demo/index.html](./demo/index.html) now includes a small "Library setup" panel so you can copy the minimum CSS import, module import, and starter config for that feature area.
+
 ## Why Dog Table?
 
 Dog Table is built around a straightforward constructor API and a modular internal architecture. It gives you the essentials out of the box:
@@ -259,8 +261,8 @@ Using `"url"` makes filtered and sorted views shareable via query string.
 
 Each column object supports:
 
-- `accessor`: property name to read from each row, preferred over `key`
-- `key`: legacy property name for data retrieval
+- `key`: primary property name to read from each row
+- `accessor`: backward-compatible alias for `key`
 - `label`: header text, defaults to `accessor`
 - `type`: automatic formatting type such as `"money"`, `"datetime"`, or `"number"`
 - `format`: options object passed to the `Intl` formatter
@@ -358,6 +360,9 @@ Additional examples:
 - [demo/remote.html](./demo/remote.html): mocked remote API with loading, abortable requests, and server-side pagination
 - [demo/grouping-detail.html](./demo/grouping-detail.html): grouped rows plus lazily rendered expandable detail panels
 - [demo/localization.html](./demo/localization.html): translated and customized table labels
+- [demo/advanced-features.html](./demo/advanced-features.html): selection, CSV export, URL persistence, and column visibility controls
+- [demo/formatting.html](./demo/formatting.html): `Intl`-powered money, date, and number formatting with `key`-based column config
+- [demo/inline-editing.html](./demo/inline-editing.html): editable cells with `onCellSave` callbacks
 - [demo/live-sync.html](./demo/live-sync.html): adaptive auto-refresh with live status and timeout backoff
 
 ---

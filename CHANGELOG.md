@@ -1,6 +1,15 @@
 # Changelog - VanillaDataTable
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
+
+## [1.3.1] — 2026-04-22
+### Added
+* **Demo Setup Snippets:** Menambahkan panel "Library setup" pada setiap demo utama agar pola import CSS, import module, dan konfigurasi awal bisa langsung disalin.
+
+### Changed
+* **Demo Gallery Refresh:** Memperbarui `demo/index.html` dengan layout gallery yang lebih informatif dan ringkas untuk membantu menjelajahi semua demo.
+* **Formatting Demo Consistency:** Menyelaraskan `demo/formatting.html` dengan gaya demo lain dan mengubah contoh konfigurasi ke format kolom berbasis `key`.
+* **Documentation Alignment:** README diperbarui agar referensi demo, preferensi konfigurasi kolom, dan dokumentasi penggunaan lebih konsisten dengan contoh terbaru.
  
 ## [1.3.0] — 2026-04-20
 ### Added
