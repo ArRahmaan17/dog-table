@@ -20,7 +20,7 @@
     "./css": "./src/data-table.min.css",
     "./locale/*": "./src/locale/*.js",
     "./plugin/*": "./src/plugin/*.js",
-    "./utils": "./src/utils.min.js"
+    "./utils": "./src/utils/index.min.js"
   },
   "files": [
     "src",

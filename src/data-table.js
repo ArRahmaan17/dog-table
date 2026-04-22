@@ -1,6 +1,6 @@
-import { DataFetcher } from "./data-fetcher.js";
-import { ThemeManager } from "./theme-manager.js";
-import { escapeHtml, debounce } from "./utils.js";
+import { DataFetcher } from "./core/data-fetcher.js";
+import { ThemeManager } from "./core/theme-manager.js";
+import { escapeHtml, debounce } from "./utils/index.js";
 
 // Plugins
 import { PersistencePlugin } from "./plugin/persistence.js";

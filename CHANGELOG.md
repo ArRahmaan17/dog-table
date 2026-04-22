@@ -10,6 +10,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Demo Gallery Refresh:** Memperbarui `demo/index.html` dengan layout gallery yang lebih informatif dan ringkas untuk membantu menjelajahi semua demo.
 * **Formatting Demo Consistency:** Menyelaraskan `demo/formatting.html` dengan gaya demo lain dan mengubah contoh konfigurasi ke format kolom berbasis `key`.
 * **Documentation Alignment:** README diperbarui agar referensi demo, preferensi konfigurasi kolom, dan dokumentasi penggunaan lebih konsisten dengan contoh terbaru.
+* **Source Folder Cleanup:** Modul internal yang sebelumnya bercampur di root `src/` dipindahkan ke `src/core/` dan `src/utils/`, sementara `src/data-table.js` dan `src/data-table-min.js` tetap menjadi entry point utama.
  
 ## [1.3.0] — 2026-04-20
 ### Added
@@ -26,7 +27,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 ### Changed
 * **Architectural Refactor:** Memisahkan fitur Persistence, Selection, dan Export ke dalam sistem plugin di folder `src/plugin`.
 * **Code Cleanliness:** Menguraikan logika engine utama menjadi modul yang lebih kecil dan maintainable.
-* **Utilities:** Memindahkan fungsi bantuan (`escapeHtml`, `debounce`) ke file `src/utils.js`.
+* **Utilities:** Memindahkan fungsi bantuan (`escapeHtml`, `debounce`) ke modul utilitas yang sekarang berada di folder `src/utils/`.
 
 ---
 

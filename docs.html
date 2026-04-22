@@ -439,11 +439,12 @@
             <div class="mini-card">
               <h3>Package entry points</h3>
               <ul>
-                <li>`dog-table` -> minified JS entry</li>
-                <li>`dog-table/css` -> minified stylesheet</li>
-                <li>`dog-table/locale/*` -> locale files</li>
-                <li>`dog-table/plugin/*` -> plugin modules</li>
-                <li>`dog-table/utils` -> utility helpers</li>
+                <li><code>dog-table</code> - exports <code>src/data-table-min.js</code></li>
+                <li><code>dog-table/css</code> - exports <code>src/data-table.min.css</code></li>
+                <li><code>dog-table/locale/*</code> - maps to <code>src/locale/*.js</code></li>
+                <li><code>dog-table/plugin/*</code> - maps to <code>src/plugin/*.js</code></li>
+                <li><code>dog-table/utils</code> - exports <code>src/utils/index.min.js</code></li>
+                <li><code>src/core/</code> contains internal support modules and is not exported as a package subpath</li>
               </ul>
             </div>
           </div>

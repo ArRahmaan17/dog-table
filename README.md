@@ -21,9 +21,34 @@ Dog Table is built around a straightforward constructor API and a modular intern
 - Auto-refresh with adaptive backoff and live status
 - Lifecycle hooks and public API methods
 
+## Source Layout
+
+The public entry files stay at the top of `src/`, while the supporting engine modules are grouped by responsibility:
+
+```text
+src/
+├─ data-table.js
+├─ data-table-min.js
+├─ data-table.css
+├─ data-table.min.css
+├─ core/
+│  ├─ data-fetcher.js
+│  ├─ data-fetcher-min.js
+│  ├─ theme-manager.js
+│  └─ theme-manager-min.js
+├─ plugin/
+├─ locale/
+└─ utils/
+   ├─ index.js
+   └─ index.min.js
+```
+
+This keeps the package entry points easy to discover while making the internal implementation less crowded.
+
 ## Table of Contents
 
 - [Installation](#installation)
+- [Source Layout](#source-layout)
 - [Quick Start](#quick-start)
 - [Core Concepts](#core-concepts)
 - [Guides](#guides)
