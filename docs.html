@@ -415,11 +415,11 @@
       <section class="stats">
         <div class="card">
           <strong>1 constructor</strong>
-          <span>Create a table with `new DataTable(container, options)` and call `init()`.</span>
+          <span>Create a table with <code>new DataTable(container, options)</code> and call <code>init()</code>.</span>
         </div>
         <div class="card">
           <strong>Remote-ready</strong>
-          <span>`fetch()` requests are abortable and react to page, sort, and search state.</span>
+          <span><code>fetch()</code> requests are abortable and react to page, sort, and search state.</span>
         </div>
         <div class="card">
           <strong>Progressive features</strong>
@@ -452,7 +452,7 @@
 
         <section class="panel" id="quick-start">
           <h2 class="section-title">Quick Start</h2>
-          <p class="section-copy">The basic flow is: load CSS, create a `DataTable`, pass `data` and `columns`, then call `init()`.</p>
+          <p class="section-copy">The basic flow is: load CSS, create a <code>DataTable</code>, pass <code>data</code> and <code>columns</code>, then call <code>init()</code>.</p>
           <div class="grid-2">
             <div class="mini-card">
               <h3>Browser modules</h3>
@@ -500,11 +500,11 @@ table.init();</code></pre>
           <div class="mini-grid">
             <div class="mini-card">
               <h3>Local data</h3>
-              <p>Client-side search, sort, and pagination happen automatically when you pass `data` and `columns`.</p>
+              <p>Client-side search, sort, and pagination happen automatically when you pass <code>data</code> and <code>columns</code>.</p>
             </div>
             <div class="mini-card">
               <h3>Remote data</h3>
-              <p>Add a `remote` config to fetch server data. Page, sort, and search state are converted into query params.</p>
+              <p>Add a <code>remote</code> config to fetch server data. Page, sort, and search state are converted into query params.</p>
             </div>
             <div class="mini-card">
               <h3>Columns</h3>
@@ -516,7 +516,7 @@ table.init();</code></pre>
             </div>
             <div class="mini-card">
               <h3>Grouping and detail</h3>
-              <p>Use `groupBy`, `groupLabel`, `rowKey`, and `rowDetail.render()` to build grouped tables with expandable rows.</p>
+              <p>Use <code>groupBy</code>, <code>groupLabel</code>, <code>rowKey</code>, and <code>rowDetail.render()</code> to build grouped tables with expandable rows.</p>
             </div>
             <div class="mini-card">
               <h3>Progressive enhancement</h3>
@@ -552,7 +552,7 @@ table.init();</code></pre>
 
 table.init();</code></pre>
           <p class="footer-note">
-            Remote requests are abortable. If a newer fetch starts, the previous one is canceled with `AbortController`.
+            Remote requests are abortable. If a newer fetch starts, the previous one is canceled with <code>AbortController</code>.
           </p>
         </section>
 
@@ -577,7 +577,7 @@ table.init();</code></pre>
               <tr><td><code>initialSort</code></td><td><code>{ key, direction } | null</code></td><td><code>null</code></td><td>Initial sort state.</td></tr>
               <tr><td><code>theme</code></td><td><code>string | object</code></td><td><code>"default"</code></td><td>Preset name or custom theme map.</td></tr>
               <tr><td><code>classNames</code></td><td><code>object</code></td><td><code>{}</code></td><td>Additional class name overrides merged with the active theme.</td></tr>
-              <tr><td><code>remote</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables server-driven data loading through `fetch()`.</td></tr>
+              <tr><td><code>remote</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables server-driven data loading through <code>fetch()</code>.</td></tr>
               <tr><td><code>groupBy</code></td><td><code>string | function | null</code></td><td><code>null</code></td><td>Groups rows before rendering.</td></tr>
               <tr><td><code>groupLabel</code></td><td><code>function | null</code></td><td><code>null</code></td><td>Builds custom labels for group header rows.</td></tr>
               <tr><td><code>rowKey</code></td><td><code>string | function | null</code></td><td><code>null</code></td><td>Stable id source for row detail and selection features.</td></tr>
@@ -608,7 +608,7 @@ table.init();</code></pre>
               <tr><td><code>searchable</code></td><td><code>boolean</code></td><td>Exclude a column from local search matching.</td></tr>
               <tr><td><code>visible</code></td><td><code>boolean</code></td><td>Hide a column while keeping it in state.</td></tr>
               <tr><td><code>editable</code></td><td><code>boolean</code></td><td>Makes body cells editable through the editor plugin.</td></tr>
-              <tr><td><code>render(value, row)</code></td><td><code>function</code></td><td>Custom cell rendering. Can return a `Node`, string, or primitive.</td></tr>
+              <tr><td><code>render(value, row)</code></td><td><code>function</code></td><td>Custom cell rendering. Can return a <code>Node</code>, string, or primitive.</td></tr>
               <tr><td><code>sortValue(value, row)</code></td><td><code>function</code></td><td>Transforms values before local sorting.</td></tr>
               <tr><td><code>filter({ value, row, query })</code></td><td><code>function</code></td><td>Custom local-search matching for the column.</td></tr>
               <tr><td><code>format</code> or <code>type</code></td><td><code>string</code></td><td>Used by the formatter plugin for built-in display formatting.</td></tr>
@@ -647,7 +647,7 @@ table.init();</code></pre>
               <tr><td><code>toggleColumnVisibility(columnKey, isVisible)</code></td><td>Shows or hides a column.</td></tr>
               <tr><td><code>getSelectedData()</code></td><td>Returns selected row objects.</td></tr>
               <tr><td><code>getState()</code></td><td>Returns a copy of the current table state.</td></tr>
-              <tr><td><code>setLoading(isLoading)</code></td><td>Manually updates loading state and triggers `onLoadingChange`.</td></tr>
+              <tr><td><code>setLoading(isLoading)</code></td><td>Manually updates loading state and triggers <code>onLoadingChange</code>.</td></tr>
               <tr><td><code>exportCSV(filename)</code></td><td>Exports visible columns from the current raw data to CSV.</td></tr>
               <tr><td><code>reset()</code></td><td>Clears search, sort, errors, and expanded detail rows.</td></tr>
               <tr><td><code>destroy()</code></td><td>Removes event listeners, aborts fetches, stops live mode, and clears the container.</td></tr>
@@ -665,7 +665,7 @@ table.init();</code></pre>
               </tr>
             </thead>
             <tbody>
-              <tr><td><code>onInit(state)</code></td><td>After the first `init()` render completes.</td></tr>
+              <tr><td><code>onInit(state)</code></td><td>After the first <code>init()</code> render completes.</td></tr>
               <tr><td><code>onFetchStart(state)</code></td><td>Before a remote request begins.</td></tr>
               <tr><td><code>onFetchSuccess(payload)</code></td><td>After remote data is mapped successfully.</td></tr>
               <tr><td><code>onFetchError(error)</code></td><td>When a remote request fails.</td></tr>
@@ -685,54 +685,54 @@ table.init();</code></pre>
           <h2 class="section-title">Plugins and Modules</h2>
           <div class="mini-grid">
             <div class="mini-card">
-              <h3>`PersistencePlugin`</h3>
-              <p>Stores search, page, sort, and page size in `url`, `localStorage`, or `sessionStorage`.</p>
+              <h3><code>PersistencePlugin</code></h3>
+              <p>Stores search, page, sort, and page size in <code>url</code>, <code>localStorage</code>, or <code>sessionStorage</code>.</p>
             </div>
             <div class="mini-card">
-              <h3>`SelectionPlugin`</h3>
-              <p>Tracks selected row ids and exposes `getSelectedData()`, `toggleRow()`, and `selectAll()`.</p>
+              <h3><code>SelectionPlugin</code></h3>
+              <p>Tracks selected row ids and exposes <code>getSelectedData()</code>, <code>toggleRow()</code>, and <code>selectAll()</code>.</p>
             </div>
             <div class="mini-card">
-              <h3>`ExportPlugin`</h3>
-              <p>Exports visible columns to CSV with `toCSV(filename)`.</p>
+              <h3><code>ExportPlugin</code></h3>
+              <p>Exports visible columns to CSV with <code>toCSV(filename)</code>.</p>
             </div>
             <div class="mini-card">
-              <h3>`FormatterPlugin`</h3>
+              <h3><code>FormatterPlugin</code></h3>
               <p>Formats output values before render using column formatting hints.</p>
             </div>
             <div class="mini-card">
-              <h3>`EditorPlugin`</h3>
-              <p>Starts inline editing for cells marked `editable` in column definitions.</p>
+              <h3><code>EditorPlugin</code></h3>
+              <p>Starts inline editing for cells marked <code>editable</code> in column definitions.</p>
             </div>
             <div class="mini-card">
-              <h3>`LivePlugin`</h3>
+              <h3><code>LivePlugin</code></h3>
               <p>Handles auto-refresh timers, visibility pausing, and adaptive backoff for remote tables.</p>
             </div>
             <div class="mini-card">
-              <h3>`DataFetcher`</h3>
+              <h3><code>DataFetcher</code></h3>
               <p>Builds request URLs from table state, supports query param remapping, and aborts stale requests.</p>
             </div>
             <div class="mini-card">
-              <h3>`ThemeManager`</h3>
+              <h3><code>ThemeManager</code></h3>
               <p>Resolves built-in theme slots and class-name overrides used throughout the rendered UI.</p>
             </div>
             <div class="mini-card">
-              <h3>`utils`</h3>
-              <p>Exports `escapeHtml(value)` and `debounce(callback, wait)`.</p>
+              <h3><code>utils</code></h3>
+              <p>Exports <code>escapeHtml(value)</code> and <code>debounce(callback, wait)</code>.</p>
             </div>
           </div>
-          <p class="footer-note">Built-in locales currently include `en`, `es`, `fr`, `de`, `zh-CN`, and `id`.</p>
+          <p class="footer-note">Built-in locales currently include <code>en</code>, <code>es</code>, <code>fr</code>, <code>de</code>, <code>zh-CN</code>, and <code>id</code>.</p>
         </section>
 
         <section class="panel">
           <h2 class="section-title">Good Defaults to Know</h2>
           <div class="tag-row">
-            <span class="tag">`pageSize` defaults to `5`</span>
+            <span class="tag"><code>pageSize</code> defaults to <code>5</code></span>
             <span class="tag">Search is enabled by default</span>
-            <span class="tag">Search input debounce is `250ms`</span>
-            <span class="tag">Sort direction starts at `asc`</span>
-            <span class="tag">Remote responses expect `data` and `total` unless mapped</span>
-            <span class="tag">Grouping labels fall back to `Ungrouped (count)`</span>
+            <span class="tag">Search input debounce is <code>250ms</code></span>
+            <span class="tag">Sort direction starts at <code>asc</code></span>
+            <span class="tag">Remote responses expect <code>data</code> and <code>total</code> unless mapped</span>
+            <span class="tag">Grouping labels fall back to <code>Ungrouped (count)</code></span>
           </div>
         </section>
 
