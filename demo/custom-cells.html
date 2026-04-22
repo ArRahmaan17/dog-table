@@ -51,9 +51,20 @@
 
       .nav {
         display: inline-flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 20px;
         color: #b45309;
         font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
       }
 
       h1 {
@@ -161,7 +172,11 @@
   </head>
   <body>
     <main>
-      <a class="nav" href="../index.html">Back to gallery</a>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <span>Custom Cells</span>
+      </nav>
       <h1>Custom Cells and Filter Logic</h1>
       <p>This example uses DOM-node cell rendering, custom column search, and richer metadata formatting.</p>
       <section class="setup-card" aria-labelledby="library-setup-title">

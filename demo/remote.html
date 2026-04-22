@@ -51,9 +51,20 @@
 
       .nav {
         display: inline-flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 20px;
         color: #0f766e;
         font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
       }
 
       h1 {
@@ -110,7 +121,11 @@
   </head>
   <body>
     <main>
-      <a class="nav" href="../index.html">Back to gallery</a>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <span>Remote Demo</span>
+      </nav>
       <h1>Remote Data with Mocked Fetch</h1>
       <p>This demo mocks an API endpoint in the browser so you can test loading, server-side pagination, sort, and search without a backend.</p>
       <section class="setup-card" aria-labelledby="library-setup-title">

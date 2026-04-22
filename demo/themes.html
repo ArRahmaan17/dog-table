@@ -58,9 +58,20 @@
 
       .nav {
         display: inline-flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 20px;
         color: #4338ca;
         font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
       }
 
       h1 {
@@ -130,7 +141,11 @@
   </head>
   <body>
     <main>
-      <a class="nav" href="../index.html">Back to gallery</a>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <span>Theme Demo</span>
+      </nav>
       <h1>Theme Presets</h1>
       <p>
         Switch the active class mapping to preview the `default`, `bootstrap`,

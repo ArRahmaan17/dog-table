@@ -65,10 +65,21 @@
 
       .nav {
         display: inline-flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 20px;
         color: #0f766e;
         font-weight: 600;
         text-decoration: none;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
       }
 
       .toolbar-actions {
@@ -195,7 +206,11 @@
   </head>
   <body>
     <main>
-      <a class="nav" href="../index.html">← Back to gallery</a>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <span>Advanced Features</span>
+      </nav>
       <h1>Advanced Features</h1>
       <p>Demonstrating URL persistence, row selection, column visibility, CSV export, and quick access to the table's live state.</p>
       <section class="setup-card" aria-labelledby="library-setup-title">

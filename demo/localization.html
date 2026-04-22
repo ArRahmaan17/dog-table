@@ -69,10 +69,21 @@
 
       .nav {
         display: inline-flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 20px;
         color: #0f766e;
         font-weight: 600;
         text-decoration: none;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
       }
 
       .controls {
@@ -143,7 +154,11 @@
   </head>
   <body>
     <main>
-      <a class="nav" href="../index.html">← Back to gallery</a>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <span>Localization Demo</span>
+      </nav>
       <h1>Localization & Customization</h1>
       <p>
         Switch between predefined languages or provide custom text for all UI
