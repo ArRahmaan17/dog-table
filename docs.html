@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table Docs</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f3ec;
+        --ink: #1f1712;
+        --muted: #6d5b4e;
+        --panel: rgba(255, 252, 247, 0.9);
+        --panel-strong: rgba(255, 255, 255, 0.98);
+        --border: rgba(117, 86, 60, 0.18);
+        --accent: #0f766e;
+        --accent-deep: #134e4a;
+        --accent-warm: #c2410c;
+        --shadow: 0 24px 60px rgba(31, 23, 18, 0.08);
+        --code: #17212b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 28%),
+          radial-gradient(circle at top right, rgba(194, 65, 12, 0.12), transparent 26%),
+          linear-gradient(180deg, #fffaf3 0%, var(--bg) 54%, #efe6da 100%);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      code,
+      pre {
+        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 72px;
+      }
+
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .crumbs {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .top-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        font-weight: 700;
+      }
+
+      .button-primary {
+        color: #fff;
+        background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+        box-shadow: 0 16px 28px rgba(15, 118, 110, 0.18);
+      }
+
+      .button-secondary {
+        border-color: var(--border);
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+        gap: 20px;
+        margin-bottom: 22px;
+      }
+
+      .hero-copy,
+      .hero-panel,
+      .panel,
+      .card,
+      .table-wrap {
+        border: 1px solid var(--border);
+        border-radius: 26px;
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-copy {
+        padding: 28px;
+      }
+
+      .hero-panel,
+      .panel,
+      .table-wrap {
+        padding: 22px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(15, 118, 110, 0.08);
+        color: var(--accent-deep);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0 0 14px;
+        font-size: clamp(2.8rem, 6vw, 5rem);
+        line-height: 0.92;
+        letter-spacing: -0.05em;
+      }
+
+      .lede {
+        margin: 0 0 18px;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 1.08rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .toc {
+        display: grid;
+        gap: 10px;
+      }
+
+      .toc a {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: 0 0 24px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--accent-deep);
+        font-size: 1.2rem;
+      }
+
+      .card span {
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .section-title {
+        margin: 0 0 10px;
+        font-size: 1.55rem;
+        line-height: 1.05;
+      }
+
+      .section-copy {
+        margin: 0 0 16px;
+        color: var(--muted);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+      }
+
+      .mini-card {
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .mini-card h3,
+      .panel h3 {
+        margin: 0 0 8px;
+        font-size: 1.02rem;
+      }
+
+      .mini-card p,
+      .panel p,
+      li {
+        color: var(--muted);
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: var(--code);
+        color: #f7fafc;
+        font-size: 0.9rem;
+        line-height: 1.55;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 720px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid rgba(117, 86, 60, 0.12);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--accent-deep);
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .tag {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(194, 65, 12, 0.08);
+        color: var(--accent-warm);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      .footer-note {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 920px) {
+        .hero,
+        .grid-2,
+        .stats {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          width: min(100% - 20px, 1180px);
+          padding-top: 18px;
+        }
+
+        .hero-copy,
+        .hero-panel,
+        .panel,
+        .card,
+        .table-wrap {
+          border-radius: 22px;
+        }
+
+        body {
+          font-size: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="topbar">
+        <div class="crumbs">
+          <a href="./index.html">Dog Table</a>
+          <span>/</span>
+          <span>Documentation</span>
+        </div>
+        <div class="top-actions">
+          <a class="button button-secondary" href="./index.html">Back to gallery</a>
+          <a class="button button-primary" href="./demo/basic.html">Open a demo</a>
+        </div>
+      </div>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Dog Table Docs</div>
+          <h1>Vanilla tables with the practical stuff already built in.</h1>
+          <p class="lede">
+            Dog Table gives you search, sorting, pagination, remote data loading, grouping, selection, CSV export, inline editing, localization, persistence, and live refresh without bringing in a framework.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#quick-start">Quick start</a>
+            <a class="button button-secondary" href="#api-methods">API methods</a>
+            <a class="button button-secondary" href="#hooks">Hooks</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel">
+          <h2 class="section-title">On this page</h2>
+          <div class="toc">
+            <a href="#installation">Installation</a>
+            <a href="#quick-start">Quick Start</a>
+            <a href="#core-concepts">Core concepts</a>
+            <a href="#table-options">Table options</a>
+            <a href="#columns">Column definition</a>
+            <a href="#api-methods">API methods</a>
+            <a href="#hooks">Hooks</a>
+            <a href="#plugins">Plugins and modules</a>
+            <a href="#demos">Demo map</a>
+          </div>
+        </aside>
+      </section>
+
+      <section class="stats">
+        <div class="card">
+          <strong>1 constructor</strong>
+          <span>Create a table with `new DataTable(container, options)` and call `init()`.</span>
+        </div>
+        <div class="card">
+          <strong>Remote-ready</strong>
+          <span>`fetch()` requests are abortable and react to page, sort, and search state.</span>
+        </div>
+        <div class="card">
+          <strong>Progressive features</strong>
+          <span>Selection, export, editing, persistence, and live sync layer on only when enabled.</span>
+        </div>
+      </section>
+
+      <div class="content">
+        <section class="panel" id="installation">
+          <h2 class="section-title">Installation</h2>
+          <p class="section-copy">Use the package from npm, or load the source files directly in a browser module setup.</p>
+          <div class="grid-2">
+            <div class="mini-card">
+              <h3>npm</h3>
+              <pre><code>npm install dog-table</code></pre>
+            </div>
+            <div class="mini-card">
+              <h3>Package entry points</h3>
+              <ul>
+                <li>`dog-table` -> minified JS entry</li>
+                <li>`dog-table/css` -> minified stylesheet</li>
+                <li>`dog-table/locale/*` -> locale files</li>
+                <li>`dog-table/plugin/*` -> plugin modules</li>
+                <li>`dog-table/utils` -> utility helpers</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="quick-start">
+          <h2 class="section-title">Quick Start</h2>
+          <p class="section-copy">The basic flow is: load CSS, create a `DataTable`, pass `data` and `columns`, then call `init()`.</p>
+          <div class="grid-2">
+            <div class="mini-card">
+              <h3>Browser modules</h3>
+              <pre><code>&lt;link rel="stylesheet" href="./src/data-table.css" /&gt;
+&lt;div id="dogs"&gt;&lt;/div&gt;
+&lt;script type="module"&gt;
+  import { DataTable } from "./src/data-table.js";
+
+  const table = new DataTable("#dogs", {
+    data: [
+      { id: 1, name: "Mochi", age: 3, status: "ready" },
+      { id: 2, name: "Pepper", age: 5, status: "pending" },
+    ],
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "age", label: "Age" },
+      { key: "status", label: "Status" },
+    ],
+  });
+
+  table.init();
+&lt;/script&gt;</code></pre>
+            </div>
+            <div class="mini-card">
+              <h3>Bundlers</h3>
+              <pre><code>import { DataTable } from "dog-table";
+import "dog-table/css";
+
+const table = new DataTable("#dogs", {
+  data,
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age" },
+  ],
+});
+
+table.init();</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="core-concepts">
+          <h2 class="section-title">Core Concepts</h2>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <h3>Local data</h3>
+              <p>Client-side search, sort, and pagination happen automatically when you pass `data` and `columns`.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Remote data</h3>
+              <p>Add a `remote` config to fetch server data. Page, sort, and search state are converted into query params.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Columns</h3>
+              <p>Columns define labels, sort rules, formatting, search behavior, custom rendering, visibility, and editability.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Hooks</h3>
+              <p>Lifecycle hooks expose init, fetch, update, sort, search, paging, row detail, selection, and loading changes.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Grouping and detail</h3>
+              <p>Use `groupBy`, `groupLabel`, `rowKey`, and `rowDetail.render()` to build grouped tables with expandable rows.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Progressive enhancement</h3>
+              <p>Persistence, CSV export, inline editing, locale switching, and live polling are already wired into the table instance.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2 class="section-title">Remote Example</h2>
+          <pre><code>const table = new DataTable("#dogs", {
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "age", label: "Age" },
+  ],
+  remote: {
+    url: "/api/dogs",
+    queryParams: {
+      page: "page",
+      pageSize: "limit",
+      sort: "sort",
+      order: "order",
+      search: "q",
+    },
+    mapResponse(payload) {
+      return {
+        rows: payload.items,
+        totalItems: payload.total,
+      };
+    },
+  },
+});
+
+table.init();</code></pre>
+          <p class="footer-note">
+            Remote requests are abortable. If a newer fetch starts, the previous one is canceled with `AbortController`.
+          </p>
+        </section>
+
+        <section class="table-wrap" id="table-options">
+          <h2 class="section-title">Table Options</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Option</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>data</code></td><td><code>Array&lt;object&gt;</code></td><td><code>[]</code></td><td>Raw local rows.</td></tr>
+              <tr><td><code>columns</code></td><td><code>Array&lt;object&gt;</code></td><td><code>[]</code></td><td>Column definitions used for rendering and behavior.</td></tr>
+              <tr><td><code>pageSize</code></td><td><code>number</code></td><td><code>5</code></td><td>Rows shown per page.</td></tr>
+              <tr><td><code>searchable</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Shows or hides the built-in search control.</td></tr>
+              <tr><td><code>searchDebounce</code></td><td><code>number</code></td><td><code>250</code></td><td>Debounce delay for the search input.</td></tr>
+              <tr><td><code>language</code></td><td><code>object</code></td><td>built-in labels</td><td>Overrides visible UI copy such as search, paging, empty, and loading text.</td></tr>
+              <tr><td><code>initialSort</code></td><td><code>{ key, direction } | null</code></td><td><code>null</code></td><td>Initial sort state.</td></tr>
+              <tr><td><code>theme</code></td><td><code>string | object</code></td><td><code>"default"</code></td><td>Preset name or custom theme map.</td></tr>
+              <tr><td><code>classNames</code></td><td><code>object</code></td><td><code>{}</code></td><td>Additional class name overrides merged with the active theme.</td></tr>
+              <tr><td><code>remote</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables server-driven data loading through `fetch()`.</td></tr>
+              <tr><td><code>groupBy</code></td><td><code>string | function | null</code></td><td><code>null</code></td><td>Groups rows before rendering.</td></tr>
+              <tr><td><code>groupLabel</code></td><td><code>function | null</code></td><td><code>null</code></td><td>Builds custom labels for group header rows.</td></tr>
+              <tr><td><code>rowKey</code></td><td><code>string | function | null</code></td><td><code>null</code></td><td>Stable id source for row detail and selection features.</td></tr>
+              <tr><td><code>rowDetail</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables expandable detail rows.</td></tr>
+              <tr><td><code>persistence</code></td><td><code>"url" | "local" | "session" | null</code></td><td><code>null</code></td><td>Persists search, paging, sort, and page size state.</td></tr>
+              <tr><td><code>persistenceKey</code></td><td><code>string | null</code></td><td><code>null</code></td><td>Custom storage or URL key prefix.</td></tr>
+              <tr><td><code>selectable</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Adds row selection checkboxes.</td></tr>
+              <tr><td><code>hooks</code></td><td><code>object</code></td><td><code>{}</code></td><td>Lifecycle callbacks.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="table-wrap" id="columns">
+          <h2 class="section-title">Column Definition</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>key</code></td><td><code>string</code></td><td>Primary property used for value lookup, sort state, and default filtering.</td></tr>
+              <tr><td><code>label</code></td><td><code>string</code></td><td>Visible header label.</td></tr>
+              <tr><td><code>accessor</code></td><td><code>string</code></td><td>Alternate row property used for rendering and editing.</td></tr>
+              <tr><td><code>sortable</code></td><td><code>boolean</code></td><td>Disable built-in sorting for a column.</td></tr>
+              <tr><td><code>searchable</code></td><td><code>boolean</code></td><td>Exclude a column from local search matching.</td></tr>
+              <tr><td><code>visible</code></td><td><code>boolean</code></td><td>Hide a column while keeping it in state.</td></tr>
+              <tr><td><code>editable</code></td><td><code>boolean</code></td><td>Makes body cells editable through the editor plugin.</td></tr>
+              <tr><td><code>render(value, row)</code></td><td><code>function</code></td><td>Custom cell rendering. Can return a `Node`, string, or primitive.</td></tr>
+              <tr><td><code>sortValue(value, row)</code></td><td><code>function</code></td><td>Transforms values before local sorting.</td></tr>
+              <tr><td><code>filter({ value, row, query })</code></td><td><code>function</code></td><td>Custom local-search matching for the column.</td></tr>
+              <tr><td><code>format</code> or <code>type</code></td><td><code>string</code></td><td>Used by the formatter plugin for built-in display formatting.</td></tr>
+              <tr><td><code>formatOptions</code></td><td><code>object</code></td><td>Options passed to the formatter logic.</td></tr>
+              <tr><td><code>locale</code></td><td><code>string</code></td><td>Locale override for formatted output.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="table-wrap" id="api-methods">
+          <h2 class="section-title">API Methods</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>What it does</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>init()</code></td><td>Builds the table UI, binds events, initializes live mode, and renders the first state.</td></tr>
+              <tr><td><code>loadState()</code> / <code>saveState()</code></td><td>Manually interact with the persistence plugin.</td></tr>
+              <tr><td><code>setPage(pageNumber)</code></td><td>Changes the active page and updates the table.</td></tr>
+              <tr><td><code>setSearch(query)</code></td><td>Updates the search term, resets to page 1, and rerenders.</td></tr>
+              <tr><td><code>clearSearch()</code></td><td>Clears the search input and filter state.</td></tr>
+              <tr><td><code>setPageSize(size)</code></td><td>Updates page size and resets to page 1.</td></tr>
+              <tr><td><code>setSort(key, direction)</code></td><td>Applies a specific sort state.</td></tr>
+              <tr><td><code>clearSort()</code></td><td>Removes active sorting.</td></tr>
+              <tr><td><code>setData(data)</code></td><td>Replaces local row data and clears error/detail state.</td></tr>
+              <tr><td><code>setColumns(columns)</code></td><td>Replaces the current columns and rerenders.</td></tr>
+              <tr><td><code>setTheme(theme, classNames)</code></td><td>Swaps theme mapping and rebuilds the DOM shell.</td></tr>
+              <tr><td><code>setLanguage(language)</code></td><td>Merges language overrides and rebuilds visible UI text.</td></tr>
+              <tr><td><code>toggleRowDetail(rowId)</code></td><td>Expands or collapses a detail row.</td></tr>
+              <tr><td><code>expandRowDetail(rowId)</code> / <code>collapseRowDetail(rowId)</code></td><td>Explicit detail row control.</td></tr>
+              <tr><td><code>toggleRowSelection(rowId, isSelected)</code></td><td>Selects or deselects a row when selection is enabled.</td></tr>
+              <tr><td><code>selectAll(isSelected)</code></td><td>Selects or clears all rows in the current processed set.</td></tr>
+              <tr><td><code>toggleColumnVisibility(columnKey, isVisible)</code></td><td>Shows or hides a column.</td></tr>
+              <tr><td><code>getSelectedData()</code></td><td>Returns selected row objects.</td></tr>
+              <tr><td><code>getState()</code></td><td>Returns a copy of the current table state.</td></tr>
+              <tr><td><code>setLoading(isLoading)</code></td><td>Manually updates loading state and triggers `onLoadingChange`.</td></tr>
+              <tr><td><code>exportCSV(filename)</code></td><td>Exports visible columns from the current raw data to CSV.</td></tr>
+              <tr><td><code>reset()</code></td><td>Clears search, sort, errors, and expanded detail rows.</td></tr>
+              <tr><td><code>destroy()</code></td><td>Removes event listeners, aborts fetches, stops live mode, and clears the container.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="table-wrap" id="hooks">
+          <h2 class="section-title">Hooks</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Hook</th>
+                <th>When it fires</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>onInit(state)</code></td><td>After the first `init()` render completes.</td></tr>
+              <tr><td><code>onFetchStart(state)</code></td><td>Before a remote request begins.</td></tr>
+              <tr><td><code>onFetchSuccess(payload)</code></td><td>After remote data is mapped successfully.</td></tr>
+              <tr><td><code>onFetchError(error)</code></td><td>When a remote request fails.</td></tr>
+              <tr><td><code>onDataUpdated(rows)</code></td><td>After fresh remote rows are stored.</td></tr>
+              <tr><td><code>onLoadingChange(isLoading)</code></td><td>Whenever loading state changes.</td></tr>
+              <tr><td><code>onPageChange(page)</code></td><td>When the visible page changes.</td></tr>
+              <tr><td><code>onSortChange({ sortKey, sortDirection })</code></td><td>When sort state changes.</td></tr>
+              <tr><td><code>onSearchChange(query)</code></td><td>When the normalized search query changes.</td></tr>
+              <tr><td><code>onRowToggle({ rowId, expanded })</code></td><td>When a detail row is opened or closed.</td></tr>
+              <tr><td><code>onSelectionChange(selectedRows)</code></td><td>When row selection changes.</td></tr>
+              <tr><td><code>onUpdate(snapshot)</code></td><td>After a successful render/update cycle.</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="panel" id="plugins">
+          <h2 class="section-title">Plugins and Modules</h2>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <h3>`PersistencePlugin`</h3>
+              <p>Stores search, page, sort, and page size in `url`, `localStorage`, or `sessionStorage`.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`SelectionPlugin`</h3>
+              <p>Tracks selected row ids and exposes `getSelectedData()`, `toggleRow()`, and `selectAll()`.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`ExportPlugin`</h3>
+              <p>Exports visible columns to CSV with `toCSV(filename)`.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`FormatterPlugin`</h3>
+              <p>Formats output values before render using column formatting hints.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`EditorPlugin`</h3>
+              <p>Starts inline editing for cells marked `editable` in column definitions.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`LivePlugin`</h3>
+              <p>Handles auto-refresh timers, visibility pausing, and adaptive backoff for remote tables.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`DataFetcher`</h3>
+              <p>Builds request URLs from table state, supports query param remapping, and aborts stale requests.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`ThemeManager`</h3>
+              <p>Resolves built-in theme slots and class-name overrides used throughout the rendered UI.</p>
+            </div>
+            <div class="mini-card">
+              <h3>`utils`</h3>
+              <p>Exports `escapeHtml(value)` and `debounce(callback, wait)`.</p>
+            </div>
+          </div>
+          <p class="footer-note">Built-in locales currently include `en`, `es`, `fr`, `de`, `zh-CN`, and `id`.</p>
+        </section>
+
+        <section class="panel">
+          <h2 class="section-title">Good Defaults to Know</h2>
+          <div class="tag-row">
+            <span class="tag">`pageSize` defaults to `5`</span>
+            <span class="tag">Search is enabled by default</span>
+            <span class="tag">Search input debounce is `250ms`</span>
+            <span class="tag">Sort direction starts at `asc`</span>
+            <span class="tag">Remote responses expect `data` and `total` unless mapped</span>
+            <span class="tag">Grouping labels fall back to `Ungrouped (count)`</span>
+          </div>
+        </section>
+
+        <section class="panel" id="demos">
+          <h2 class="section-title">Demo Map</h2>
+          <p class="section-copy">Use the demos as working reference implementations for each feature area.</p>
+          <div class="mini-grid">
+            <a class="mini-card" href="./demo/basic.html"><h3>Basic</h3><p>Local data, search, sort, pagination, and starter config.</p></a>
+            <a class="mini-card" href="./demo/custom-cells.html"><h3>Custom Cells</h3><p>Render functions, DOM nodes, and custom search behavior.</p></a>
+            <a class="mini-card" href="./demo/themes.html"><h3>Themes</h3><p>Default, Bootstrap, and Tailwind-oriented class maps.</p></a>
+            <a class="mini-card" href="./demo/remote.html"><h3>Remote</h3><p>Server-style fetch flow with sorting and paging.</p></a>
+            <a class="mini-card" href="./demo/grouping-detail.html"><h3>Grouping + Detail</h3><p>Grouped rows with expandable detail panels.</p></a>
+            <a class="mini-card" href="./demo/localization.html"><h3>Localization</h3><p>Language overrides and built-in locale usage.</p></a>
+            <a class="mini-card" href="./demo/advanced-features.html"><h3>Advanced Features</h3><p>Selection, export, persistence, and visibility control.</p></a>
+            <a class="mini-card" href="./demo/formatting.html"><h3>Formatting</h3><p>Formatter helpers for dates, numbers, and currencies.</p></a>
+            <a class="mini-card" href="./demo/inline-editing.html"><h3>Inline Editing</h3><p>Editable cells and update flow.</p></a>
+            <a class="mini-card" href="./demo/live-sync.html"><h3>Live Sync</h3><p>Auto-refresh and status UI behavior.</p></a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>
