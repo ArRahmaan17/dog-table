@@ -9,7 +9,7 @@
   "bugs": {
     "url": "https://github.com/ArRahmaan17/dog-table/issues"
   },
-  "homepage": "https://github.com/ArRahmaan17/dog-table#readme",
+  "homepage": "https://arrahmaan17.github.io/dog-table/",
   "type": "module",
   "main": "./src/data-table-min.js",
   "module": "./src/data-table-min.js",
