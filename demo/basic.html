@@ -8,7 +8,10 @@
       name="description"
       content="Dog Table basic demo showing local data, search, sorting, pagination, render callbacks, and lifecycle hooks."
     />
-    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/basic.html" />
+    <link
+      rel="canonical"
+      href="https://arrahmaan17.github.io/dog-table/demo/basic.html"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Dog Table - Basic Demo" />
     <meta
@@ -40,8 +43,11 @@
         margin: 0;
         min-height: 100vh;
         padding: 32px 20px;
-        background:
-          radial-gradient(circle at top left, rgba(45, 125, 154, 0.18), transparent 35%),
+        background: radial-gradient(
+            circle at top left,
+            rgba(45, 125, 154, 0.18),
+            transparent 35%
+          ),
           linear-gradient(135deg, #f4f7fb, #e6ecf3);
         font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
       }
@@ -110,7 +116,8 @@
         color: #f8fafc;
         font-size: 0.88rem;
         line-height: 1.5;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          monospace;
       }
     </style>
   </head>
@@ -119,14 +126,24 @@
       <nav class="nav" aria-label="Breadcrumb">
         <a href="../index.html">Dog Table</a>
         <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
         <span>Basic Demo</span>
       </nav>
       <h1>Basic Local Table</h1>
-      <p>Vanilla JavaScript data table with sorting, search, pagination, render callbacks, and lifecycle hooks.</p>
+      <p>
+        Vanilla JavaScript data table with sorting, search, pagination, render
+        callbacks, and lifecycle hooks.
+      </p>
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
-        <p>Start with the core stylesheet, import <code>DataTable</code>, and pass local data plus your columns.</p>
-        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+        <p>
+          Start with the core stylesheet, import <code>DataTable</code>, and
+          pass local data plus your columns.
+        </p>
+        <pre
+          class="setup-snippet"
+        ><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
   import { DataTable } from "../src/data-table.js";
@@ -154,9 +171,19 @@
         { name: "Mochi", breed: "Shiba Inu", age: 3, adopted: "2024-01-12" },
         { name: "Pepper", breed: "Beagle", age: 5, adopted: "2023-11-04" },
         { name: "Nori", breed: "Corgi", age: 2, adopted: "2024-03-21" },
-        { name: "Biscuit", breed: "Golden Retriever", age: 6, adopted: "2022-09-30" },
+        {
+          name: "Biscuit",
+          breed: "Golden Retriever",
+          age: 6,
+          adopted: "2022-09-30",
+        },
         { name: "Suki", breed: "Pomeranian", age: 4, adopted: "2024-02-18" },
-        { name: "Atlas", breed: "German Shepherd", age: 7, adopted: "2021-08-08" },
+        {
+          name: "Atlas",
+          breed: "German Shepherd",
+          age: 7,
+          adopted: "2021-08-08",
+        },
         { name: "Olive", breed: "Mixed", age: 1, adopted: "2024-04-01" },
       ];
 
