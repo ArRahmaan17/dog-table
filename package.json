@@ -1,7 +1,7 @@
 {
   "name": "dog-table",
-  "version": "1.3.2",
-  "description": "Lightweight vanilla JavaScript data table with sorting, search, pagination, and remote data support.",
+  "version": "1.3.3",
+  "description": "Vanilla JavaScript data table with search, sorting, remote data, inline editing, live sync, and create workflows.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ArRahmaan17/dog-table.git"
@@ -11,25 +11,36 @@
   },
   "homepage": "https://arrahmaan17.github.io/dog-table/",
   "type": "module",
-  "main": "./src/data-table-min.js",
-  "module": "./src/data-table-min.js",
+  "main": "./dist/data-table.js",
+  "module": "./dist/data-table.js",
+  "unpkg": "./dist/data-table.min.js",
+  "jsdelivr": "./dist/data-table.min.js",
   "exports": {
     ".": {
-      "import": "./src/data-table-min.js"
+      "import": "./dist/data-table.js",
+      "default": "./dist/data-table.js"
     },
-    "./css": "./src/data-table.min.css",
-    "./locale/*": "./src/locale/*.js",
-    "./plugin/*": "./src/plugin/*.js",
-    "./utils": "./src/utils/index.min.js"
+    "./min": "./dist/data-table.min.js",
+    "./css": "./dist/data-table.css",
+    "./css/min": "./dist/data-table.min.css",
+    "./locale/*": "./dist/locale/*.js",
+    "./plugin/*": "./dist/plugin/*.js",
+    "./utils": "./dist/utils/index.js"
   },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
-    "src",
+    "dist",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node scripts/build.mjs",
+    "clean": "node scripts/build.mjs --clean",
+    "prepack": "npm run build",
+    "test": "npm run build && node --check dist/data-table.js && node --check dist/data-table.min.js"
   },
   "keywords": [
     "datatable",
@@ -38,7 +49,10 @@
     "vanilla-js",
     "pagination",
     "sorting",
-    "remote-data"
+    "remote-data",
+    "inline-editing",
+    "live-sync",
+    "crud"
   ],
   "author": "doglex",
   "license": "MIT"

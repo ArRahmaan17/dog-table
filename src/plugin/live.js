@@ -162,6 +162,32 @@ export class LivePlugin {
   }
 
   render() {
+    const syncStatus = this.table.state.syncStatus;
+    const shouldRenderLiveControl = this.baseInterval && this.table.isRemote();
+
+    if (syncStatus?.state) {
+      const className = {
+        saving: "is-syncing",
+        success: "is-success",
+        error: "is-error",
+      }[syncStatus.state] || "is-paused";
+
+      return `
+        <button
+          type="button"
+          class="dt-live-button ${className}"
+          title="${syncStatus.title || syncStatus.label || "Sync status"}"
+        >
+          <span class="dt-live-dot"></span>
+          <span class="dt-live-label">${syncStatus.label || "Sync"}</span>
+        </button>
+      `;
+    }
+
+    if (!shouldRenderLiveControl) {
+      return "";
+    }
+
     const isHidden = this.isDocumentHidden();
     const active = this.active && !isHidden;
     const label = this.active ? (isHidden ? "Auto Paused" : "Live") : "Paused";
