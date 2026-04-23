@@ -2,6 +2,25 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
+## [1.3.2] — 2026-04-23
+### Added
+* **Create Workflow Module:** Menambahkan `CreatePlugin` dengan tombol toolbar "New Record", modal input bawaan, validasi field wajib, toast konfirmasi, dan highlight baris setelah data berhasil ditambahkan.
+* **Authenticated Mutation Requests:** Menambahkan helper request baru di `src/core/request.js` untuk mendukung request `POST`/`PUT` dengan custom header wajib, termasuk pola autentikasi seperti CSRF token dan JWT.
+* **Remote Create & Update Config:** Menambahkan dukungan `remote.create` dan `remote.update`, termasuk `headers`, `credentials`, `buildBody`, dan `mapResponse` agar sinkronisasi create/edit bisa langsung terhubung ke API.
+* **Create API & Docs:** README diperbarui dengan dokumentasi opsi `create`, konfigurasi field create form, hook baru untuk create/update, serta contoh konfigurasi request terautentikasi.
+* **GitHub Wiki Draft Docs:** Menambahkan set dokumentasi markdown baru di folder `wiki/` untuk Home, Getting Started, Configuration Reference, API Reference, Guides, FAQ, Architecture, dan Contributing agar dokumentasi panjang bisa dipisahkan dari README.
+
+### Changed
+* **Inline Editing Sync Flow:** `EditorPlugin` sekarang bisa menjalankan update remote terautentikasi, menampilkan status sync "Saving/Saved/Sync Failed", dan menjaga feedback UI tetap konsisten setelah edit berhasil atau gagal.
+* **Data Fetcher Request Layer:** Fetch remote sekarang memakai helper request bersama agar perilaku header, credentials, dan parsing response lebih konsisten antara fetch biasa dan mutation.
+* **Default UI Enhancements:** Stylesheet default diperbarui dengan styling untuk sync status, modal create, toast notification, dan efek highlight baris.
+* **Build Output Cleanup:** File minified yang ter-generate seperti `src/data-table-min.js`, `src/data-table.min.css`, dan modul `*-min.js` internal tidak lagi disimpan di `src/`; build sekarang menghasilkan aset minified langsung ke `dist/` dan dokumentasi package entry point diselaraskan ke struktur baru ini.
+* **README Restructure:** README diringkas menjadi front page yang lebih cepat dipahami, berisi badge, quick start 5 menit, feature highlights, package entry points, dan tautan ke dokumentasi lengkap.
+* **Landing Page Refresh:** `index.html` diperbarui dengan palet sky-blue yang lebih dingin dan footer baru bergaya project/library standar agar landing page terasa lebih rapi dan konsisten sebagai halaman proyek open-source.
+
+### Fixed
+* **Optional Live Sync UI:** Tombol live sync tidak lagi dirender pada semua tabel secara default. Status button sekarang hanya tampil saat `autoRefresh` benar-benar aktif atau ketika ada status sinkronisasi sementara yang relevan.
+
 ## [1.3.1] — 2026-04-22
 ### Added
 * **Demo Setup Snippets:** Menambahkan panel "Library setup" pada setiap demo utama agar pola import CSS, import module, dan konfigurasi awal bisa langsung disalin.
@@ -10,7 +29,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Demo Gallery Refresh:** Memperbarui `demo/index.html` dengan layout gallery yang lebih informatif dan ringkas untuk membantu menjelajahi semua demo.
 * **Formatting Demo Consistency:** Menyelaraskan `demo/formatting.html` dengan gaya demo lain dan mengubah contoh konfigurasi ke format kolom berbasis `key`.
 * **Documentation Alignment:** README diperbarui agar referensi demo, preferensi konfigurasi kolom, dan dokumentasi penggunaan lebih konsisten dengan contoh terbaru.
-* **Source Folder Cleanup:** Modul internal yang sebelumnya bercampur di root `src/` dipindahkan ke `src/core/` dan `src/utils/`, sementara `src/data-table.js` dan `src/data-table-min.js` tetap menjadi entry point utama.
+* **Source Folder Cleanup:** Modul internal yang sebelumnya bercampur di root `src/` dipindahkan ke `src/core/` dan `src/utils/`, sementara entry point publik difokuskan pada source utama di `src/` dan output build di `dist/`.
  
 ## [1.3.0] — 2026-04-20
 ### Added

@@ -9,6 +9,7 @@ import { ExportPlugin } from "./plugin/export.js";
 import { FormatterPlugin } from "./plugin/formatter.js";
 import { EditorPlugin } from "./plugin/editor.js";
 import { LivePlugin } from "./plugin/live.js";
+import { CreatePlugin } from "./plugin/create.js";
 
 const DEFAULT_PAGE_SIZE = 5;
 
@@ -43,6 +44,20 @@ export class DataTable {
         showDetails: "Show details",
         hideDetails: "Hide details",
         ungrouped: "Ungrouped",
+        createTrigger: "New Record",
+        createTitle: "Create New Record",
+        createDescription: "Add a new row and sync it to your data source.",
+        createSubmit: "Save Record",
+        createSaving: "Saving...",
+        createCancel: "Cancel",
+        createSuccess: "New record added successfully.",
+        createError: "Unable to save this record.",
+        createValidationError: "Please correct the highlighted fields.",
+        updateSuccess: "Row updated successfully.",
+        updateError: "Unable to update this row.",
+        syncSaving: "Saving",
+        syncSaved: "Saved",
+        syncFailed: "Sync Failed",
         ...(options.language || {}),
       },
       initialSort: null,
@@ -54,6 +69,7 @@ export class DataTable {
       groupLabel: null,
       rowKey: null,
       rowDetail: null,
+      create: null,
       persistence: null,
       persistenceKey: null,
       selectable: false,
@@ -84,6 +100,9 @@ export class DataTable {
       loading: false,
       error: null,
       expandedRowIds: new Set(),
+      syncStatus: null,
+      highlightedRowId: null,
+      toast: null,
     };
 
     this.elements = {};
@@ -96,6 +115,9 @@ export class DataTable {
     this.debouncedSearch = null;
     this.rowIds = new WeakMap();
     this.rowIdCounter = 0;
+    this.highlightTimeoutId = null;
+    this.syncStatusTimeoutId = null;
+    this.toastTimeoutId = null;
 
     // Initialize Plugins
     this.persistence = new PersistencePlugin(this);
@@ -104,6 +126,7 @@ export class DataTable {
     this.formatter = new FormatterPlugin(this);
     this.editor = new EditorPlugin(this);
     this.live = new LivePlugin(this);
+    this.create = new CreatePlugin(this);
 
     if (this.options.persistence) {
       this.persistence.load();
@@ -113,6 +136,7 @@ export class DataTable {
   init() {
     this.renderStructure();
     this.bindEvents();
+    this.create.init();
     this.live.init();
     this.update();
 
@@ -262,6 +286,7 @@ export class DataTable {
             />
           </label>
           <div class="dt-toolbar-actions">
+            <div class="dt-create-entry"></div>
             <div class="${this.theme.get("meta")}" aria-live="polite"></div>
             <div class="dt-live-status"></div>
           </div>
@@ -273,6 +298,8 @@ export class DataTable {
           </table>
         </div>
         <div class="${this.theme.get("pagination")}" aria-label="Pagination controls"></div>
+        <div class="dt-modal-region"></div>
+        <div class="dt-toast-region" aria-live="polite"></div>
       </div>
     `;
 
@@ -288,6 +315,8 @@ export class DataTable {
     this.elements.pagination = this.container.querySelector(
       "[aria-label='Pagination controls']"
     );
+    this.elements.modalRegion = this.container.querySelector(".dt-modal-region");
+    this.elements.toastRegion = this.container.querySelector(".dt-toast-region");
 
     if (!this.options.searchable && this.elements.search) {
       this.elements.search.hidden = true;
@@ -295,6 +324,31 @@ export class DataTable {
   }
 
   bindEvents() {
+    if (this.boundHandlers.onLiveToggle) {
+      this.container.removeEventListener("click", this.boundHandlers.onLiveToggle);
+    }
+
+    if (this.boundHandlers.onCreateClick) {
+      this.container.removeEventListener(
+        "click",
+        this.boundHandlers.onCreateClick
+      );
+    }
+
+    if (this.boundHandlers.onCreateInput) {
+      this.container.removeEventListener(
+        "input",
+        this.boundHandlers.onCreateInput
+      );
+    }
+
+    if (this.boundHandlers.onCreateSubmit) {
+      this.container.removeEventListener(
+        "submit",
+        this.boundHandlers.onCreateSubmit
+      );
+    }
+
     this.boundHandlers.onHeadClick = (event) => {
       const header = event.target.closest("th[data-column]");
 
@@ -390,7 +444,43 @@ export class DataTable {
       if (button) this.live.toggle();
     };
 
+    this.boundHandlers.onCreateClick = (event) => {
+      if (event.target.closest("[data-create-open]")) {
+        this.create.open();
+        return;
+      }
+
+      if (
+        event.target.closest("[data-create-close]") ||
+        event.target.matches("[data-create-backdrop]")
+      ) {
+        this.create.close();
+      }
+    };
+
+    this.boundHandlers.onCreateInput = (event) => {
+      const input = event.target.closest("[data-create-field]");
+
+      if (input) {
+        this.create.handleFieldInput(input);
+      }
+    };
+
+    this.boundHandlers.onCreateSubmit = (event) => {
+      const form = event.target.closest("[data-create-form]");
+
+      if (!form) {
+        return;
+      }
+
+      event.preventDefault();
+      this.create.submit();
+    };
+
     this.container.addEventListener("click", this.boundHandlers.onLiveToggle);
+    this.container.addEventListener("click", this.boundHandlers.onCreateClick);
+    this.container.addEventListener("input", this.boundHandlers.onCreateInput);
+    this.container.addEventListener("submit", this.boundHandlers.onCreateSubmit);
 
     if (this.options.searchable) {
       const handleSearch = (value) => {
@@ -518,6 +608,10 @@ export class DataTable {
     this.setSearch("");
   }
 
+  openCreateModal() {
+    this.create.open();
+  }
+
   setPageSize(pageSize) {
     const nextPageSize = Number(pageSize) || DEFAULT_PAGE_SIZE;
 
@@ -582,6 +676,84 @@ export class DataTable {
       expandedRowIds: [...this.state.expandedRowIds],
       selectedRows: [...this.state.selectedRows],
     };
+  }
+
+  setSyncStatus(status, { autoClearMs } = {}) {
+    this.state.syncStatus = status ? { ...status } : null;
+
+    if (this.syncStatusTimeoutId) {
+      clearTimeout(this.syncStatusTimeoutId);
+      this.syncStatusTimeoutId = null;
+    }
+
+    if (status && autoClearMs !== 0) {
+      const timeout = autoClearMs ?? (status.state === "saving" ? 0 : 2600);
+
+      if (timeout > 0) {
+        this.syncStatusTimeoutId = window.setTimeout(() => {
+          this.state.syncStatus = null;
+          this.live.updateUI();
+        }, timeout);
+      }
+    }
+
+    this.live.updateUI();
+  }
+
+  highlightRow(rowId, duration = 2600) {
+    this.state.highlightedRowId = rowId ? String(rowId) : null;
+
+    if (this.highlightTimeoutId) {
+      clearTimeout(this.highlightTimeoutId);
+      this.highlightTimeoutId = null;
+    }
+
+    if (this.state.highlightedRowId) {
+      this.highlightTimeoutId = window.setTimeout(() => {
+        this.state.highlightedRowId = null;
+        this.update({ skipFetch: true });
+      }, duration);
+    }
+
+    this.update({ skipFetch: true });
+  }
+
+  renderToast() {
+    if (!this.elements.toastRegion) {
+      return;
+    }
+
+    if (!this.state.toast?.message) {
+      this.elements.toastRegion.innerHTML = "";
+      return;
+    }
+
+    this.elements.toastRegion.innerHTML = `
+      <div class="dt-toast dt-toast--${escapeHtml(this.state.toast.type || "info")}">
+        ${escapeHtml(this.state.toast.message)}
+      </div>
+    `;
+  }
+
+  showToast(message, type = "info", duration = 2600) {
+    this.state.toast = {
+      message: String(message || ""),
+      type,
+    };
+
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+      this.toastTimeoutId = null;
+    }
+
+    this.renderToast();
+
+    if (duration > 0) {
+      this.toastTimeoutId = window.setTimeout(() => {
+        this.state.toast = null;
+        this.renderToast();
+      }, duration);
+    }
   }
 
   getSelectedData() {
@@ -844,6 +1016,10 @@ export class DataTable {
       const tr = document.createElement("tr");
       tr.className = this.theme.get("bodyRow");
       tr.dataset.rowId = rowId;
+
+      if (this.state.highlightedRowId === rowId) {
+        tr.classList.add("dt-row--highlight");
+      }
 
       if (this.hasRowDetail()) {
         const detailToggleCell = document.createElement("td");
@@ -1143,6 +1319,9 @@ export class DataTable {
     this.renderBody(processed.displayRows);
     this.renderMeta(processed);
     this.renderPagination(processed);
+    this.renderToast();
+    this.create.updateUI();
+    this.live.updateUI();
     this.emitHooks(processed);
   }
 
@@ -1182,6 +1361,31 @@ export class DataTable {
       );
     }
 
+    if (this.boundHandlers.onLiveToggle) {
+      this.container.removeEventListener("click", this.boundHandlers.onLiveToggle);
+    }
+
+    if (this.boundHandlers.onCreateClick) {
+      this.container.removeEventListener(
+        "click",
+        this.boundHandlers.onCreateClick
+      );
+    }
+
+    if (this.boundHandlers.onCreateInput) {
+      this.container.removeEventListener(
+        "input",
+        this.boundHandlers.onCreateInput
+      );
+    }
+
+    if (this.boundHandlers.onCreateSubmit) {
+      this.container.removeEventListener(
+        "submit",
+        this.boundHandlers.onCreateSubmit
+      );
+    }
+
     if (this.debouncedSearch && typeof this.debouncedSearch.cancel === "function") {
       this.debouncedSearch.cancel();
     }
@@ -1194,6 +1398,19 @@ export class DataTable {
     if (typeof this.live.destroy === "function") {
       this.live.destroy();
     }
+
+    if (this.highlightTimeoutId) {
+      clearTimeout(this.highlightTimeoutId);
+    }
+
+    if (this.syncStatusTimeoutId) {
+      clearTimeout(this.syncStatusTimeoutId);
+    }
+
+    if (this.toastTimeoutId) {
+      clearTimeout(this.toastTimeoutId);
+    }
+
     this.container.innerHTML = "";
     this.elements = {};
     this.boundHandlers = {};

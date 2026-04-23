@@ -1,3 +1,5 @@
+import { requestJson } from "./request.js";
+
 export class DataFetcher {
   constructor(config) {
     this.config = config;
@@ -52,17 +54,17 @@ export class DataFetcher {
 
     this.controller = new AbortController();
 
-    const response = await fetch(this.buildUrl(state), {
+    const { payload } = await requestJson({
+      url: this.buildUrl(state),
       method: this.config.method || "GET",
       headers: this.config.headers,
+      credentials: this.config.credentials,
       signal: this.controller.signal,
+      requireHeaders: this.config.requireHeaders ?? false,
+    }, {
+      action: "fetch",
+      state,
     });
-
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
-    }
-
-    const payload = await response.json();
 
     if (typeof this.config.mapResponse === "function") {
       const mapped = this.config.mapResponse(payload, state);
