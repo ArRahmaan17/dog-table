@@ -37,17 +37,19 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #f7f3ec;
-        --ink: #1f1712;
-        --muted: #6d5b4e;
-        --panel: rgba(255, 252, 247, 0.9);
-        --panel-strong: rgba(255, 255, 255, 0.98);
-        --border: rgba(117, 86, 60, 0.18);
-        --accent: #0f766e;
-        --accent-deep: #134e4a;
-        --accent-warm: #c2410c;
-        --shadow: 0 24px 60px rgba(31, 23, 18, 0.08);
-        --code: #17212b;
+        --bg: #edf7ff;
+        --bg-deep: #d3ebff;
+        --ink: #10263f;
+        --muted: #4c6884;
+        --panel: rgba(247, 252, 255, 0.9);
+        --panel-strong: rgba(255, 255, 255, 0.97);
+        --border: rgba(49, 130, 206, 0.18);
+        --accent: #38bdf8;
+        --accent-deep: #0f4c81;
+        --accent-cool: #0284c7;
+        --glow: rgba(56, 189, 248, 0.22);
+        --shadow: 0 24px 60px rgba(16, 38, 63, 0.08);
+        --code: #1f2937;
       }
 
       * {
@@ -62,11 +64,11 @@
         margin: 0;
         min-height: 100vh;
         color: var(--ink);
-        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        font-family: "Averta Std", "Nunito Sans", "Segoe UI", sans-serif;
         background:
-          radial-gradient(circle at top left, rgba(15, 118, 110, 0.14), transparent 28%),
-          radial-gradient(circle at top right, rgba(194, 65, 12, 0.12), transparent 26%),
-          linear-gradient(180deg, #fffaf3 0%, var(--bg) 54%, #efe6da 100%);
+          radial-gradient(circle at top left, rgba(125, 211, 252, 0.24), transparent 24%),
+          radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 26%),
+          linear-gradient(180deg, #f9fdff 0%, var(--bg) 55%, var(--bg-deep) 100%);
       }
 
       a {
@@ -83,6 +85,80 @@
         width: min(1180px, calc(100% - 32px));
         margin: 0 auto;
         padding: 28px 0 72px;
+      }
+
+      .icon-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(14, 116, 144, 0.16);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.78);
+        color: var(--accent-deep);
+      }
+
+      .icon-link:hover {
+        transform: translateY(-1px);
+      }
+
+      .icon-link svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+        padding: 16px 20px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: rgba(248, 252, 255, 0.82);
+        backdrop-filter: blur(14px);
+        box-shadow: var(--shadow);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .brand-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+        color: #fff;
+        box-shadow: 0 14px 24px var(--glow);
+      }
+
+      .nav-links,
+      .nav-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .nav-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        font-weight: 700;
+        color: var(--muted);
       }
 
       .topbar {
@@ -132,12 +208,12 @@
       .button-primary {
         color: #fff;
         background: linear-gradient(135deg, var(--accent-deep), var(--accent));
-        box-shadow: 0 16px 28px rgba(15, 118, 110, 0.18);
+        box-shadow: 0 16px 28px var(--glow);
       }
 
       .button-secondary {
-        border-color: var(--border);
-        background: rgba(255, 255, 255, 0.78);
+        border-color: rgba(14, 116, 144, 0.18);
+        background: rgba(255, 255, 255, 0.76);
       }
 
       .hero {
@@ -176,7 +252,7 @@
         margin-bottom: 14px;
         padding: 8px 12px;
         border-radius: 999px;
-        background: rgba(15, 118, 110, 0.08);
+        background: rgba(56, 189, 248, 0.1);
         color: var(--accent-deep);
         font-size: 0.78rem;
         font-weight: 800;
@@ -317,7 +393,7 @@
       th,
       td {
         padding: 12px 14px;
-        border-bottom: 1px solid rgba(117, 86, 60, 0.12);
+        border-bottom: 1px solid rgba(49, 130, 206, 0.12);
         text-align: left;
         vertical-align: top;
       }
@@ -338,8 +414,8 @@
       .tag {
         padding: 8px 12px;
         border-radius: 999px;
-        background: rgba(194, 65, 12, 0.08);
-        color: var(--accent-warm);
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-cool);
         font-size: 0.86rem;
         font-weight: 700;
       }
@@ -350,25 +426,104 @@
         font-size: 0.95rem;
       }
 
-      @media (max-width: 920px) {
+      .site-footer {
+        margin-top: 28px;
+        padding: 28px;
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(237, 247, 255, 0.88));
+        box-shadow: var(--shadow);
+      }
+
+      .footer-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+
+      .footer-brand {
+        max-width: 360px;
+      }
+
+      .footer-brand .brand {
+        margin-bottom: 14px;
+      }
+
+      .footer-brand p {
+        margin-bottom: 16px;
+      }
+
+      .footer-title {
+        display: inline-flex;
+        margin-bottom: 12px;
+        color: var(--accent-deep);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .footer-links {
+        display: grid;
+        gap: 10px;
+      }
+
+      .footer-links a {
+        color: var(--muted);
+      }
+
+      .footer-links a:hover {
+        color: var(--accent-deep);
+      }
+
+      .footer-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(14, 116, 144, 0.12);
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 980px) {
         .hero,
         .grid-2,
-        .stats {
+        .stats,
+        .footer-grid {
           grid-template-columns: 1fr;
+        }
+
+        .nav {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .footer-bottom {
+          flex-direction: column;
+          align-items: start;
         }
       }
 
       @media (max-width: 640px) {
         .page {
           width: min(100% - 20px, 1180px);
-          padding-top: 18px;
+          padding-top: 14px;
         }
 
+        .nav,
         .hero-copy,
         .hero-panel,
         .panel,
         .card,
-        .table-wrap {
+        .table-wrap,
+        .site-footer {
           border-radius: 22px;
         }
 
@@ -380,6 +535,40 @@
   </head>
   <body>
     <div class="page">
+      <header class="nav">
+        <div class="brand">
+          <span class="brand-mark">DT</span>
+          <span>Dog Table</span>
+        </div>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="./index.html">Home</a>
+          <a href="./docs.html">Documentation</a>
+          <a href="./index.html#examples">Examples</a>
+        </nav>
+        <div class="nav-actions">
+          <a
+            class="icon-link"
+            href="https://www.npmjs.com/package/dog-table"
+            aria-label="Dog Table on npm"
+            title="npm"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 22V2h20v20h-6V8h-4v14h-4V8H6v14H2z" />
+            </svg>
+          </a>
+          <a
+            class="icon-link"
+            href="https://github.com/ArRahmaan17/dog-table"
+            aria-label="Dog Table on GitHub"
+            title="GitHub"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z" />
+            </svg>
+          </a>
+        </div>
+      </header>
+
       <div class="topbar">
         <div class="crumbs">
           <a href="./index.html">Dog Table</a>
@@ -395,6 +584,8 @@
           <a class="button button-primary" href="./demo/basic.html">Open a demo</a>
         </div>
       </div>
+
+      <main>
 
       <section class="hero">
         <div class="hero-copy">
@@ -771,6 +962,78 @@ table.init();</code></pre>
           </div>
         </section>
       </div>
+      </main>
+
+      <footer class="site-footer">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <div class="brand">
+              <span class="brand-mark">DT</span>
+              <span>Dog Table</span>
+            </div>
+            <p>
+              Vanilla JavaScript data tables with practical features for real app flows: search, sorting, remote data, editing, create workflows, export, and live refresh.
+            </p>
+            <div class="nav-actions">
+              <a
+                class="icon-link"
+                href="https://github.com/ArRahmaan17/dog-table"
+                aria-label="Dog Table on GitHub"
+                title="GitHub"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z" />
+                </svg>
+              </a>
+              <a
+                class="icon-link"
+                href="https://www.npmjs.com/package/dog-table"
+                aria-label="Dog Table on npm"
+                title="npm"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M2 22V2h20v20h-6V8h-4v14h-4V8H6v14H2z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div>
+            <span class="footer-title">Docs</span>
+            <div class="footer-links">
+              <a href="#installation">Install</a>
+              <a href="#api-methods">API Reference</a>
+              <a href="#hooks">Hooks</a>
+              <a href="#plugins">Plugins</a>
+            </div>
+          </div>
+
+          <div>
+            <span class="footer-title">Examples</span>
+            <div class="footer-links">
+              <a href="./demo/basic.html">Basic Table</a>
+              <a href="./demo/remote.html">Remote</a>
+              <a href="./demo/advanced-features.html">Advanced</a>
+              <a href="./demo/live-sync.html">Live Sync</a>
+              <a href="./demo/pagination-guard.html">Pagination Guard</a>
+            </div>
+          </div>
+
+          <div>
+            <span class="footer-title">Project</span>
+            <div class="footer-links">
+              <a href="https://github.com/ArRahmaan17/dog-table">GitHub</a>
+              <a href="https://www.npmjs.com/package/dog-table">npm</a>
+              <a href="./README.md">README</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>Built for teams that want practical table features without a framework-sized dependency.</span>
+          <span>MIT Licensed</span>
+        </div>
+      </footer>
     </div>
     <script>
       const versionSelect = document.querySelector("#docs-version-select");
