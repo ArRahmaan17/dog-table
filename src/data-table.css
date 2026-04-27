@@ -146,7 +146,16 @@
   margin-top: 16px;
 }
 
-.dt-pagination button,
+.dt-pagination button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #2d7d9a;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
 .dt-button {
   border: none;
   border-radius: 999px;

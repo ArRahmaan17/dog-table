@@ -148,9 +148,9 @@
         <pre class="code-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
-  import { DataTable } from "../src/data-table.js";
+  import { DogTable } from "../src/data-table.js";
 
-  const table = new DataTable("#app", {
+  const table = new DogTable("#app", {
     data,
     columns: [
       { key: "name", label: "Dog Name" },
@@ -210,7 +210,7 @@
     </main>
 
     <script type="module">
-      import { DataTable } from "../src/data-table.js";
+      import { DogTable } from "../src/data-table.js";
 
       const data = [
         {
@@ -250,7 +250,7 @@
         },
       ];
 
-      const table = new DataTable("#app", {
+      const table = new DogTable("#app", {
         data,
         pageSize: 5,
         columns: [

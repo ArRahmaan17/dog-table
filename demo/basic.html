@@ -138,7 +138,7 @@
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
         <p>
-          Start with the core stylesheet, import <code>DataTable</code>, and
+          Start with the core stylesheet, import <code>DogTable</code>, and
           pass local data plus your columns.
         </p>
         <pre
@@ -146,9 +146,9 @@
         ><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
-  import { DataTable } from "../src/data-table.js";
+  import { DogTable } from "../src/data-table.js";
 
-  const table = new DataTable("#app", {
+  const table = new DogTable("#app", {
     data,
     pageSize: 3,
     columns: [
@@ -165,7 +165,7 @@
     </main>
 
     <script type="module">
-      import { DataTable } from "../src/data-table.js";
+      import { DogTable } from "../src/data-table.js";
 
       const data = [
         { name: "Mochi", breed: "Shiba Inu", age: 3, adopted: "2024-01-12" },
@@ -187,7 +187,7 @@
         { name: "Olive", breed: "Mixed", age: 1, adopted: "2024-04-01" },
       ];
 
-      const table = new DataTable("#app", {
+      const table = new DogTable("#app", {
         data,
         pageSize: 3,
         searchDebounce: 200,

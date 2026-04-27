@@ -614,10 +614,10 @@
               <span class="code-label">1. Install package</span>
               <pre><code>npm install dog-table</code></pre>
               <span class="code-label">2. Import CSS and render</span>
-              <pre><code>import { DataTable } from "dog-table";
+              <pre><code>import { DogTable } from "dog-table";
 import "dog-table/css";
 
-const table = new DataTable("#app", {
+const table = new DogTable("#app", {
   data: [
     { id: 1, name: "Mochi", status: "ready" },
     { id: 2, name: "Pepper", status: "pending" },
@@ -709,7 +709,7 @@ table.init();</code></pre>
             <a class="link-card" href="./demo/remote.html">
               <span class="eyebrow-small">Remote</span>
               <h3>Remote Fetch</h3>
-              <p>See server-style paging, sorting, abortable loading, and search with a mocked backend flow.</p>
+              <p>See server-style paging, sorting, abortable loading, and search against a live public API.</p>
               <span class="link-meta">View remote demo</span>
             </a>
             <a class="link-card" href="./demo/advanced-features.html">
@@ -753,6 +753,11 @@ table.init();</code></pre>
             <a class="link-card" href="./demo/live-sync.html">
               <h3>Live Sync</h3>
               <p>Adaptive polling, visible status, and mocked live updates.</p>
+              <span class="link-meta">Open demo</span>
+            </a>
+            <a class="link-card" href="./demo/pagination-guard.html">
+              <h3>Pagination Guard</h3>
+              <p>Optional max page and page-size guardrails with clamp examples.</p>
               <span class="link-meta">Open demo</span>
             </a>
             <a class="link-card" href="./docs.html#api-methods">
@@ -814,6 +819,7 @@ table.init();</code></pre>
               <a href="./demo/remote.html">Remote</a>
               <a href="./demo/advanced-features.html">Advanced</a>
               <a href="./demo/live-sync.html">Live Sync</a>
+              <a href="./demo/pagination-guard.html">Pagination Guard</a>
             </div>
           </div>
 

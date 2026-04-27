@@ -13,7 +13,7 @@ import { CreatePlugin } from "./plugin/create.js";
 
 const DEFAULT_PAGE_SIZE = 5;
 
-export class DataTable {
+export class DogTable {
   constructor(container, options = {}) {
     this.container =
       typeof container === "string"
@@ -21,7 +21,7 @@ export class DataTable {
         : container;
 
     if (!this.container) {
-      throw new Error("DataTable container was not found.");
+      throw new Error("DogTable container was not found.");
     }
 
     this.options = {
@@ -73,6 +73,7 @@ export class DataTable {
       persistence: null,
       persistenceKey: null,
       selectable: false,
+      paginationGuard: false,
       hooks: {},
       ...options,
     };
@@ -95,7 +96,7 @@ export class DataTable {
       sortDirection:
         initialSort && initialSort.direction === "desc" ? "desc" : "asc",
       currentPage: 1,
-      pageSize: Number(this.options.pageSize) || DEFAULT_PAGE_SIZE,
+      pageSize: this.clampPageSize(this.options.pageSize),
       totalItems: Array.isArray(this.options.data) ? this.options.data.length : 0,
       loading: false,
       error: null,
@@ -131,6 +132,8 @@ export class DataTable {
     if (this.options.persistence) {
       this.persistence.load();
     }
+
+    this.normalizeStateConstraints();
   }
 
   init() {
@@ -164,10 +167,72 @@ export class DataTable {
 
   loadState() {
     this.persistence.load();
+    this.normalizeStateConstraints();
   }
 
   saveState() {
     this.persistence.save();
+  }
+
+  toPositiveInteger(value, fallback = 1) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+      return fallback;
+    }
+
+    const integer = Math.floor(numeric);
+    return integer >= 1 ? integer : fallback;
+  }
+
+  getPaginationGuardConfig() {
+    const guard = this.options.paginationGuard;
+
+    if (!guard) {
+      return null;
+    }
+
+    const source = guard === true ? {} : typeof guard === "object" ? guard : {};
+    const minPageSize = this.toPositiveInteger(source.minPageSize, 1);
+    const maxPageSize = Math.max(
+      minPageSize,
+      this.toPositiveInteger(source.maxPageSize, 100)
+    );
+    const maxPage = this.toPositiveInteger(source.maxPage, 25);
+
+    return {
+      minPageSize,
+      maxPageSize,
+      maxPage,
+    };
+  }
+
+  clampPage(pageNumber) {
+    let nextPage = this.toPositiveInteger(pageNumber, 1);
+    const guard = this.getPaginationGuardConfig();
+
+    if (guard) {
+      nextPage = Math.min(nextPage, guard.maxPage);
+    }
+
+    return nextPage;
+  }
+
+  clampPageSize(pageSize) {
+    const fallback = this.toPositiveInteger(this.options.pageSize, DEFAULT_PAGE_SIZE);
+    let nextPageSize = this.toPositiveInteger(pageSize, fallback);
+    const guard = this.getPaginationGuardConfig();
+
+    if (guard) {
+      nextPageSize = Math.max(guard.minPageSize, nextPageSize);
+      nextPageSize = Math.min(guard.maxPageSize, nextPageSize);
+    }
+
+    return nextPageSize;
+  }
+
+  normalizeStateConstraints() {
+    this.state.pageSize = this.clampPageSize(this.state.pageSize);
+    this.state.currentPage = this.clampPage(this.state.currentPage);
   }
 
   getRowId(row) {
@@ -587,7 +652,7 @@ export class DataTable {
   }
 
   setPage(pageNumber) {
-    this.state.currentPage = Number(pageNumber) || 1;
+    this.state.currentPage = this.clampPage(pageNumber);
     this.saveState();
     this.update();
   }
@@ -613,9 +678,7 @@ export class DataTable {
   }
 
   setPageSize(pageSize) {
-    const nextPageSize = Number(pageSize) || DEFAULT_PAGE_SIZE;
-
-    this.state.pageSize = Math.max(1, nextPageSize);
+    this.state.pageSize = this.clampPageSize(pageSize);
     this.state.currentPage = 1;
     this.saveState();
     this.update();
@@ -851,8 +914,10 @@ export class DataTable {
     }
 
     const totalItems = this.isRemote() ? this.state.totalItems : processed.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    const safePage = Math.min(Math.max(1, currentPage), totalPages);
+    const guard = this.getPaginationGuardConfig();
+    const rawTotalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+    const totalPages = guard ? Math.min(rawTotalPages, guard.maxPage) : rawTotalPages;
+    const safePage = Math.min(Math.max(1, this.clampPage(currentPage)), totalPages);
     const start = (safePage - 1) * pageSize;
     const paginated = this.isRemote()
       ? processed
@@ -1420,3 +1485,5 @@ export class DataTable {
     }
   }
 }
+
+export { DogTable as DataTable };

@@ -187,9 +187,9 @@
         <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
-  import { DataTable } from "../src/data-table.js";
+  import { DogTable } from "../src/data-table.js";
 
-  const table = new DataTable("#app", {
+  const table = new DogTable("#app", {
     data: projects,
     columns: [
       { key: "dog", label: "Dog" },
@@ -217,7 +217,7 @@
     </main>
 
     <script type="module">
-      import { DataTable } from "../src/data-table.js";
+      import { DogTable } from "../src/data-table.js";
 
       const projects = [
         {
@@ -287,7 +287,7 @@
         return wrap;
       }
 
-      const table = new DataTable("#app", {
+      const table = new DogTable("#app", {
         data: projects,
         pageSize: 4,
         searchPlaceholder: "Search by dog, owner, notes, or tags",
