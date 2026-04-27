@@ -2,6 +2,10 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
+## [1.4.1] — 2026-04-28
+### Added
+* **Demo navigation:** Added Previous/Next navigation links across all demo pages based on the Demo Map order. Updated documentation and README to reflect the new UI theme.
+
 ## [1.4.0] — 2026-04-28
 ### Changed
 * **Primary Constructor Rename:** API utama kini memakai `new DogTable(container, options)` sebagai konstruktor publik.

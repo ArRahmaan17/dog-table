@@ -4,6 +4,8 @@
 [![license](https://img.shields.io/npm/l/dog-table)](./LICENSE)
 [![demo site](https://img.shields.io/badge/demo-live-0f766e)](https://arrahmaan17.github.io/dog-table/)
 
+Dog Table is a lightweight vanilla JavaScript data table library with a modern blue UI theme and unified documentation layout. New demo pages now include **Previous/Next** navigation links for seamless browsing through the demo map.
+
 Dog Table is a lightweight vanilla JavaScript data table library for projects that want a clean API, useful built-in features, and no framework lock-in. It supports local data, remote fetching, inline editing, create workflows, selection, formatting, grouping, localization, and live sync in one package.
 
 The README is the fast path. If you want deeper setup guides, API details, troubleshooting, or architecture notes, use the wiki pages in [`wiki/`](./wiki/Home.md).
