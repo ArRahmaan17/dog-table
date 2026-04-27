@@ -7,6 +7,9 @@
     <loc>https://arrahmaan17.github.io/dog-table/docs.html</loc>
   </url>
   <url>
+    <loc>https://arrahmaan17.github.io/dog-table/docs-v1.html</loc>
+  </url>
+  <url>
     <loc>https://arrahmaan17.github.io/dog-table/demo/basic.html</loc>
   </url>
   <url>
@@ -35,5 +38,8 @@
   </url>
   <url>
     <loc>https://arrahmaan17.github.io/dog-table/demo/live-sync.html</loc>
+  </url>
+  <url>
+    <loc>https://arrahmaan17.github.io/dog-table/demo/pagination-guard.html</loc>
   </url>
 </urlset>

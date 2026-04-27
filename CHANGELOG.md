@@ -1,6 +1,30 @@
-# Changelog - VanillaDataTable
+# Changelog - Dog Table
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
+
+## [1.4.0] — 2026-04-28
+### Changed
+* **Primary Constructor Rename:** API utama kini memakai `new DogTable(container, options)` sebagai konstruktor publik.
+* **Backward Compatibility Alias:** `DataTable` tetap diekspor sebagai alias agar integrasi lama tidak langsung rusak.
+* **Naming Consistency in Examples:** Snippet README, wiki, landing page, dan semua demo HTML diperbarui ke `DogTable`.
+
+### Docs
+* **Versioned Documentation Pages:** `docs.html` sekarang menjadi docs versi terbaru (`DogTable`) dan halaman legacy baru tersedia di `docs-v1.html` (`DataTable`).
+* **Version Switcher:** Menambahkan dropdown pemilih versi docs pada `docs.html` dan `docs-v1.html` untuk memudahkan pindah dokumentasi versi lama/baru.
+
+## [1.3.4] — 2026-04-27
+### Added
+* **Optional Pagination Guardrails:** Menambahkan opsi baru `paginationGuard` untuk membatasi `currentPage` dan `pageSize` secara opsional.
+* **Default Guard Preset:** Saat `paginationGuard: true`, guard memakai default `maxPage: 25`, `minPageSize: 1`, dan `maxPageSize: 100`.
+* **Pagination Guard Demo:** Menambahkan demo baru untuk menunjukkan perilaku clamp page/pageSize saat guard aktif.
+
+### Changed
+* **State Sanitization:** Nilai `currentPage` dan `pageSize` sekarang dinormalisasi juga setelah persistence load agar tetap valid terhadap guard config.
+* **Pagination Processing:** Perhitungan total halaman mengikuti batas `maxPage` saat guard aktif, termasuk pada render kontrol pagination.
+* **Pagination Visual Tuning:** Radius tombol pagination default dikurangi (tidak lagi pill penuh) agar tampilan navigasi halaman terasa lebih tegas dan tidak terlalu rounded.
+
+### Docs
+* README dan docs diperbarui dengan dokumentasi `paginationGuard`, contoh konfigurasi, dan tautan demo guardrails.
 
 ## [1.3.2] — 2026-04-23
 ### Added

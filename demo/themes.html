@@ -161,9 +161,9 @@
 &lt;script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"&gt;&lt;/script&gt;
 
 &lt;script type="module"&gt;
-  import { DataTable } from "../src/data-table.js";
+  import { DogTable } from "../src/data-table.js";
 
-  const table = new DataTable("#app", {
+  const table = new DogTable("#app", {
     data: dogs,
     theme: "bootstrap",
     columns: [
@@ -186,7 +186,7 @@
     </main>
 
     <script type="module">
-      import { DataTable } from "../src/data-table.js";
+      import { DogTable } from "../src/data-table.js";
 
       const dogs = [
         { name: "Mochi", size: "Small", energy: "Medium", fee: 120 },
@@ -195,7 +195,7 @@
         { name: "Olive", size: "Small", energy: "Low", fee: 90 },
       ];
 
-      const table = new DataTable("#app", {
+      const table = new DogTable("#app", {
         data: dogs,
         pageSize: 4,
         theme: "default",

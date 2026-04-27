@@ -108,6 +108,16 @@
         gap: 10px;
       }
 
+      .version-switch {
+        min-height: 44px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.82);
+        color: var(--ink);
+        font-weight: 700;
+      }
+
       .button {
         display: inline-flex;
         align-items: center;
@@ -377,6 +387,10 @@
           <span>Documentation</span>
         </div>
         <div class="top-actions">
+          <select class="version-switch" id="docs-version-select" aria-label="Documentation version">
+            <option value="./docs.html" selected>v2 (DogTable)</option>
+            <option value="./docs-v1.html">v1 (DataTable)</option>
+          </select>
           <a class="button button-secondary" href="./index.html">Back to gallery</a>
           <a class="button button-primary" href="./demo/basic.html">Open a demo</a>
         </div>
@@ -415,7 +429,7 @@
       <section class="stats">
         <div class="card">
           <strong>1 constructor</strong>
-          <span>Create a table with <code>new DataTable(container, options)</code> and call <code>init()</code>.</span>
+          <span>Create a table with <code>new DogTable(container, options)</code> and call <code>init()</code>.</span>
         </div>
         <div class="card">
           <strong>Remote-ready</strong>
@@ -452,16 +466,16 @@
 
         <section class="panel" id="quick-start">
           <h2 class="section-title">Quick Start</h2>
-          <p class="section-copy">The basic flow is: load CSS, create a <code>DataTable</code>, pass <code>data</code> and <code>columns</code>, then call <code>init()</code>.</p>
+          <p class="section-copy">The basic flow is: load CSS, create a <code>DogTable</code>, pass <code>data</code> and <code>columns</code>, then call <code>init()</code>.</p>
           <div class="grid-2">
             <div class="mini-card">
               <h3>Browser modules</h3>
               <pre><code>&lt;link rel="stylesheet" href="./src/data-table.css" /&gt;
 &lt;div id="dogs"&gt;&lt;/div&gt;
 &lt;script type="module"&gt;
-  import { DataTable } from "./src/data-table.js";
+  import { DogTable } from "./src/data-table.js";
 
-  const table = new DataTable("#dogs", {
+  const table = new DogTable("#dogs", {
     data: [
       { id: 1, name: "Mochi", age: 3, status: "ready" },
       { id: 2, name: "Pepper", age: 5, status: "pending" },
@@ -478,10 +492,10 @@
             </div>
             <div class="mini-card">
               <h3>Bundlers</h3>
-              <pre><code>import { DataTable } from "dog-table";
+              <pre><code>import { DogTable } from "dog-table";
 import "dog-table/css";
 
-const table = new DataTable("#dogs", {
+const table = new DogTable("#dogs", {
   data,
   columns: [
     { key: "name", label: "Name" },
@@ -527,7 +541,7 @@ table.init();</code></pre>
 
         <section class="panel">
           <h2 class="section-title">Remote Example</h2>
-          <pre><code>const table = new DataTable("#dogs", {
+          <pre><code>const table = new DogTable("#dogs", {
   columns: [
     { key: "name", label: "Name" },
     { key: "age", label: "Age" },
@@ -571,6 +585,7 @@ table.init();</code></pre>
               <tr><td><code>data</code></td><td><code>Array&lt;object&gt;</code></td><td><code>[]</code></td><td>Raw local rows.</td></tr>
               <tr><td><code>columns</code></td><td><code>Array&lt;object&gt;</code></td><td><code>[]</code></td><td>Column definitions used for rendering and behavior.</td></tr>
               <tr><td><code>pageSize</code></td><td><code>number</code></td><td><code>5</code></td><td>Rows shown per page.</td></tr>
+              <tr><td><code>paginationGuard</code></td><td><code>boolean | { maxPage, minPageSize, maxPageSize }</code></td><td><code>false</code></td><td>Optional guardrails for page/page-size bounds. Use <code>true</code> for defaults (25 / 1 / 100).</td></tr>
               <tr><td><code>searchable</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Shows or hides the built-in search control.</td></tr>
               <tr><td><code>searchDebounce</code></td><td><code>number</code></td><td><code>250</code></td><td>Debounce delay for the search input.</td></tr>
               <tr><td><code>language</code></td><td><code>object</code></td><td>built-in labels</td><td>Overrides visible UI copy such as search, paging, empty, and loading text.</td></tr>
@@ -728,6 +743,8 @@ table.init();</code></pre>
           <h2 class="section-title">Good Defaults to Know</h2>
           <div class="tag-row">
             <span class="tag"><code>pageSize</code> defaults to <code>5</code></span>
+            <span class="tag"><code>paginationGuard</code> is <code>false</code> by default</span>
+            <span class="tag"><code>paginationGuard: true</code> uses <code>maxPage 25</code> and <code>maxPageSize 100</code></span>
             <span class="tag">Search is enabled by default</span>
             <span class="tag">Search input debounce is <code>250ms</code></span>
             <span class="tag">Sort direction starts at <code>asc</code></span>
@@ -750,9 +767,21 @@ table.init();</code></pre>
             <a class="mini-card" href="./demo/formatting.html"><h3>Formatting</h3><p>Formatter helpers for dates, numbers, and currencies.</p></a>
             <a class="mini-card" href="./demo/inline-editing.html"><h3>Inline Editing</h3><p>Editable cells and update flow.</p></a>
             <a class="mini-card" href="./demo/live-sync.html"><h3>Live Sync</h3><p>Auto-refresh and status UI behavior.</p></a>
+            <a class="mini-card" href="./demo/pagination-guard.html"><h3>Pagination Guard</h3><p>Optional caps for max page and page-size validation.</p></a>
           </div>
         </section>
       </div>
     </div>
+    <script>
+      const versionSelect = document.querySelector("#docs-version-select");
+      if (versionSelect) {
+        versionSelect.addEventListener("change", (event) => {
+          const targetUrl = event.target.value;
+          if (targetUrl) {
+            window.location.href = targetUrl;
+          }
+        });
+      }
+    </script>
   </body>
 </html>

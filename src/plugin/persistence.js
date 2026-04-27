@@ -25,7 +25,7 @@ export class PersistencePlugin {
         };
       }
     } catch (e) {
-      console.warn("DataTable Persistence: Failed to load state", e);
+      console.warn("DogTable Persistence: Failed to load state", e);
     }
 
     if (saved) {

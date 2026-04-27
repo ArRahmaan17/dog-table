@@ -6,14 +6,14 @@
     <title>Dog Table - Remote Demo</title>
     <meta
       name="description"
-      content="Dog Table remote demo for mocked API fetching, loading states, server-side pagination, sorting, and search."
+      content="Dog Table remote demo connected to a live employees API with loading states, pagination, sorting, and search."
     />
     <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/remote.html" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Dog Table - Remote Demo" />
     <meta
       property="og:description"
-      content="Dog Table remote demo for mocked API fetching, loading states, server-side pagination, sorting, and search."
+      content="Dog Table remote demo connected to a live employees API with loading states, pagination, sorting, and search."
     />
     <meta
       property="og:url"
@@ -28,7 +28,7 @@
     <meta name="twitter:title" content="Dog Table - Remote Demo" />
     <meta
       name="twitter:description"
-      content="Dog Table remote demo for mocked API fetching, loading states, server-side pagination, sorting, and search."
+      content="Dog Table remote demo connected to a live employees API with loading states, pagination, sorting, and search."
     />
     <meta
       name="twitter:image"
@@ -128,29 +128,34 @@
         <span aria-hidden="true">/</span>
         <span>Remote Demo</span>
       </nav>
-      <h1>Remote Data with Mocked Fetch</h1>
-      <p>This demo mocks an API endpoint in the browser so you can test loading, server-side pagination, sort, and search without a backend.</p>
+      <h1>Remote Data from Open API</h1>
+      <p>This demo uses a live employees endpoint and maps the API response into Dog Table.</p>
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
         <p>Remote mode only needs the core import plus a <code>remote</code> config that maps your API response.</p>
         <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
-  import { DataTable } from "../src/data-table.js";
+  import { DogTable } from "../src/data-table.js";
 
-  const table = new DataTable("#app", {
-    pageSize: 4,
+  const table = new DogTable("#app", {
+    pageSize: 6,
     remote: {
-      url: "/api/dogs",
-      mapResponse(payload) {
+      url: "https://api.rahmaanms.my.id/api/employees",
+      mapResponse(payload, state) {
+        const rows = Array.isArray(payload?.data) ? payload.data : [];
+        const start = (state.currentPage - 1) * state.pageSize;
         return {
-          rows: payload.items,
-          totalItems: payload.total,
+          rows: rows.slice(start, start + state.pageSize),
+          totalItems: rows.length,
         };
       },
     },
     columns: [
+      { key: "id", label: "ID" },
+      { key: "avatar", label: "Avatar", type: "picture" },
       { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
       { key: "status", label: "Status" },
     ],
   });
@@ -163,113 +168,106 @@
     </main>
 
     <script type="module">
-      import { DataTable } from "../src/data-table.js";
+      import { DogTable } from "../src/data-table.js";
 
-      const dataset = [
-        { name: "Mochi", city: "Austin", age: 3, status: "ready" },
-        { name: "Pepper", city: "Seattle", age: 5, status: "pending" },
-        { name: "Nori", city: "Denver", age: 2, status: "ready" },
-        { name: "Biscuit", city: "Phoenix", age: 6, status: "pending" },
-        { name: "Suki", city: "Portland", age: 4, status: "ready" },
-        { name: "Atlas", city: "Chicago", age: 7, status: "needs-care" },
-        { name: "Olive", city: "Boston", age: 1, status: "ready" },
-        { name: "Maple", city: "Dallas", age: 2, status: "pending" },
-        { name: "Taro", city: "San Diego", age: 8, status: "ready" },
-        { name: "Junie", city: "Miami", age: 3, status: "needs-care" },
-      ];
-
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
       const log = document.getElementById("log");
-      const originalFetch = window.fetch.bind(window);
+      const numberFormat = new Intl.NumberFormat("id-ID");
+      const dateFormat = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" });
 
-      window.fetch = (input, init = {}) => {
-        const url = new URL(typeof input === "string" ? input : input.url, window.location.href);
-
-        if (url.pathname !== "/api/dogs") {
-          return originalFetch(input, init);
+      function compareValues(left, right) {
+        if (typeof left === "number" && typeof right === "number") {
+          return left - right;
         }
 
-        const page = Number(url.searchParams.get("page") || 1);
-        const pageSize = Number(url.searchParams.get("pageSize") || 4);
-        const sort = url.searchParams.get("sort");
-        const order = url.searchParams.get("order") || "asc";
-        const search = (url.searchParams.get("search") || "").toLowerCase();
-        const signal = init.signal;
+        return String(left ?? "").localeCompare(String(right ?? ""), undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      }
 
-        log.textContent = `Fetching page ${page}, sort=${sort || "none"}, order=${order}, search="${search}"`;
+      const table = new DogTable("#app", {
+        pageSize: 6,
+        loadingText: "Fetching employees from open API...",
+        searchPlaceholder: "Search employee, email, role, department...",
+        remote: {
+          url: API_URL,
+          buildQuery(params) {
+            // params.delete("page");
+            // params.delete("pageSize");
+            // params.delete("sort");
+            // params.delete("order");
+            // params.delete("search");
+            return params;
+          },
+          mapResponse(payload, state) {
+            let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+            const query = (state.searchQuery || "").toLowerCase().trim();
 
-        return new Promise((resolve, reject) => {
-          const timer = window.setTimeout(() => {
-            let rows = [...dataset];
-
-            if (search) {
+            if (query) {
               rows = rows.filter((row) =>
-                `${row.name} ${row.city} ${row.status}`.toLowerCase().includes(search)
+                `${row.id} ${row.name} ${row.email} ${row.role} ${row.department} ${row.status}`
+                  .toLowerCase()
+                  .includes(query)
               );
             }
 
-            if (sort) {
+            if (state.sortKey) {
               rows.sort((a, b) => {
-                const comparison = String(a[sort]).localeCompare(String(b[sort]), undefined, {
-                  numeric: true,
-                  sensitivity: "base",
-                });
-                return order === "desc" ? -comparison : comparison;
+                const comparison = compareValues(a[state.sortKey], b[state.sortKey]);
+                return state.sortDirection === "desc" ? -comparison : comparison;
               });
             }
 
-            const start = (page - 1) * pageSize;
-            const items = rows.slice(start, start + pageSize);
-
-            resolve(
-              new Response(
-                JSON.stringify({
-                  items,
-                  total: rows.length,
-                }),
-                {
-                  status: 200,
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }
-              )
-            );
-          }, 700);
-
-          if (signal) {
-            signal.addEventListener("abort", () => {
-              window.clearTimeout(timer);
-              reject(new DOMException("Request aborted", "AbortError"));
-            });
-          }
-        });
-      };
-
-      const table = new DataTable("#app", {
-        pageSize: 4,
-        loadingText: "Fetching dogs from the mock API...",
-        searchPlaceholder: "Search remote data",
-        remote: {
-          url: "/api/dogs",
-          mapResponse(payload) {
+            const start = (state.currentPage - 1) * state.pageSize;
             return {
-              rows: payload.items,
+              rows: payload.data,
               totalItems: payload.total,
             };
           },
         },
         columns: [
+          { key: "id", label: "ID" },
+          {
+            key: "avatar",
+            label: "Avatar",
+            type: "picture",
+            imageWidth: 36,
+            imageHeight: 36,
+            imageAlt(value, row) {
+              return `Avatar of ${row.name || "employee"}`;
+            },
+          },
           { key: "name", label: "Name" },
-          { key: "city", label: "City" },
-          { key: "age", label: "Age" },
+          { key: "email", label: "Email" },
+          { key: "department", label: "Department" },
+          { key: "role", label: "Role" },
+          {
+            key: "salary",
+            label: "Salary (IDR)",
+            format(value) {
+              return value == null ? "-" : numberFormat.format(Number(value));
+            },
+          },
+          {
+            key: "join_date",
+            label: "Join Date",
+            format(value) {
+              if (!value) return "-";
+              const parsed = new Date(value);
+              return Number.isNaN(parsed.getTime()) ? String(value) : dateFormat.format(parsed);
+            },
+          },
           { key: "status", label: "Status" },
         ],
         hooks: {
           onFetchStart(state) {
-            log.textContent = `Loading page ${state.currentPage}...`;
+            const sort = state.sortKey ? `${state.sortKey}:${state.sortDirection}` : "none";
+            const search = state.searchQuery || "-";
+            log.textContent = `Requesting employees | page=${state.currentPage} | sort=${sort} | search="${search}"`;
           },
           onFetchSuccess(payload) {
-            log.textContent = `Loaded ${payload.rows.length} rows from mock API`;
+            log.textContent = `Loaded ${payload.rows.length} rows from API`;
           },
           onFetchError(error) {
             log.textContent = `Fetch failed: ${error.message}`;

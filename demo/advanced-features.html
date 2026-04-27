@@ -221,9 +221,9 @@
         <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
-  import { DataTable } from "../src/data-table.js";
+  import { DogTable } from "../src/data-table.js";
 
-  const table = new DataTable("#app", {
+  const table = new DogTable("#app", {
     data,
     rowKey: "id",
     selectable: true,
@@ -285,7 +285,7 @@
     </main>
 
     <script type="module">
-      import { DataTable } from "../src/data-table.js";
+      import { DogTable } from "../src/data-table.js";
 
       const data = [
         { id: 101, name: "Mochi", breed: "Shiba Inu", age: 3, adopted: "2024-01-12", region: "North" },
@@ -304,7 +304,7 @@
       const visibleColumnsEl = document.getElementById("visible-columns");
       const viewSummaryEl = document.getElementById("view-summary");
 
-      const table = new DataTable("#app", {
+      const table = new DogTable("#app", {
         data,
         rowKey: "id",
         pageSize: 5,
