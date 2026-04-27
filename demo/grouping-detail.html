@@ -133,6 +133,73 @@
         line-height: 1.5;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+
+      .pn-disabled {
+        visibility: hidden;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+
     </style>
   </head>
   <body>
@@ -173,6 +240,11 @@
 &lt;/script&gt;</code></pre>
       </section>
       <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link pn-prev" href="./remote.html"><span class="pn-dir">← Previous</span><span class="pn-name">Remote</span></a>
+        <a class="pn-link pn-next" href="./localization.html"><span class="pn-dir">Next →</span><span class="pn-name">Localization</span></a>
+      </nav>
     </main>
 
     <script type="module">

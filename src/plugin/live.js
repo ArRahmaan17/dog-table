@@ -146,8 +146,13 @@ export class LivePlugin {
     this.updateUI();
   }
 
-  handleFetchError() {
+  handleFetchError(error) {
     if (!this.active || !this.baseInterval) {
+      return;
+    }
+
+    if (error && error.status >= 400 && error.status < 600) {
+      this.stop();
       return;
     }
 
