@@ -8,7 +8,10 @@
       name="description"
       content="Dog Table live sync demo showing adaptive polling, visible status updates, pause behavior, and mocked remote data."
     />
-    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/live-sync.html" />
+    <link
+      rel="canonical"
+      href="https://arrahmaan17.github.io/dog-table/demo/live-sync.html"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Dog Table - Live Sync" />
     <meta
@@ -115,7 +118,8 @@
         color: #f8fafc;
         font-size: 0.88rem;
         line-height: 1.5;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       }
 
       .card {
@@ -174,7 +178,10 @@
         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
         text-decoration: none;
         color: inherit;
-        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          transform 0.2s;
         min-width: 160px;
       }
 
@@ -221,7 +228,6 @@
           margin-left: 0;
         }
       }
-
     </style>
   </head>
   <body>
@@ -237,12 +243,18 @@
       <p>
         The table refreshes every 5 seconds, backs off automatically when the
         payload is unchanged, and pauses while the tab is inactive. This page
-        uses a mocked endpoint so it stays demo-friendly even without a real API.
+        uses a mocked endpoint so it stays demo-friendly even without a real
+        API.
       </p>
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
-        <p>Combine a <code>remote</code> source with <code>autoRefresh</code> and hooks to monitor refresh activity in your own UI.</p>
-        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+        <p>
+          Combine a <code>remote</code> source with <code>autoRefresh</code> and
+          hooks to monitor refresh activity in your own UI.
+        </p>
+        <pre
+          class="setup-snippet"
+        ><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
   import { DogTable } from "../src/data-table.js";
@@ -251,7 +263,7 @@
     remote: {
       url: "/api/live-market",
       mapResponse(payload) {
-        return { rows: payload.items, totalItems: payload.total };
+        return { rows: payload.data, totalItems: payload.total };
       },
     },
     autoRefresh: 5000,
@@ -301,8 +313,14 @@
       </div>
 
       <nav class="prev-next" aria-label="Demo navigation">
-        <a class="pn-link pn-prev" href="./inline-editing.html"><span class="pn-dir">← Previous</span><span class="pn-name">Inline Editing</span></a>
-        <a class="pn-link pn-next" href="./pagination-guard.html"><span class="pn-dir">Next →</span><span class="pn-name">Pagination Guard</span></a>
+        <a class="pn-link pn-prev" href="./inline-editing.html"
+          ><span class="pn-dir">← Previous</span
+          ><span class="pn-name">Inline Editing</span></a
+        >
+        <a class="pn-link pn-next" href="./pagination-guard.html"
+          ><span class="pn-dir">Next →</span
+          ><span class="pn-name">Pagination Guard</span></a
+        >
       </nav>
     </main>
 
@@ -311,10 +329,22 @@
 
       const originalFetch = window.fetch.bind(window);
       const baseMarkets = [
-        { id: 1, pair: "BTC/USDT", price: 65000, change: 1.42, volume: 18240000 },
+        {
+          id: 1,
+          pair: "BTC/USDT",
+          price: 65000,
+          change: 1.42,
+          volume: 18240000,
+        },
         { id: 2, pair: "ETH/USDT", price: 3500, change: 0.86, volume: 9340000 },
         { id: 3, pair: "SOL/USDT", price: 140, change: 3.28, volume: 5120000 },
-        { id: 4, pair: "DOGE/USDT", price: 0.15, change: -1.14, volume: 2010000 },
+        {
+          id: 4,
+          pair: "DOGE/USDT",
+          price: 0.15,
+          change: -1.14,
+          volume: 2010000,
+        },
       ];
 
       let updateCount = 0;
@@ -331,14 +361,20 @@
 
         return baseMarkets.map((row) => ({
           ...row,
-          price: row.price + (Math.random() - 0.5) * (row.price > 1000 ? 1000 : row.price > 1 ? 10 : 0.02),
+          price:
+            row.price +
+            (Math.random() - 0.5) *
+              (row.price > 1000 ? 1000 : row.price > 1 ? 10 : 0.02),
           change: row.change + (Math.random() - 0.5) * 2.4,
           volume: row.volume + Math.round((Math.random() - 0.5) * 650000),
         }));
       };
 
       window.fetch = (input, init = {}) => {
-        const url = new URL(typeof input === "string" ? input : input.url, window.location.href);
+        const url = new URL(
+          typeof input === "string" ? input : input.url,
+          window.location.href,
+        );
 
         if (url.pathname !== "/api/live-market") {
           return originalFetch(input, init);
@@ -359,8 +395,8 @@
                   headers: {
                     "Content-Type": "application/json",
                   },
-                }
-              )
+                },
+              ),
             );
           }, 450);
 
@@ -397,7 +433,7 @@
             updateCount++;
             totalUpdatesEl.textContent = updateCount;
             lastRefreshEl.textContent = new Date().toLocaleTimeString();
-            return { rows: payload.items, totalItems: payload.total };
+            return { rows: payload.data, totalItems: payload.total };
           },
         },
         autoRefresh: 5000,

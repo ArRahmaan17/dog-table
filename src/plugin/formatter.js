@@ -1,6 +1,26 @@
 export class FormatterPlugin {
   constructor(table) {
     this.table = table;
+    this._intlCache = new Map();
+  }
+
+  getIntlFormatter(type, locale, options) {
+    const key = `${type}:${locale}:${JSON.stringify(options)}`;
+    if (this._intlCache.has(key)) {
+      return this._intlCache.get(key);
+    }
+
+    let formatter;
+    if (type === "number") {
+      formatter = new Intl.NumberFormat(locale, options);
+    } else if (type === "datetime") {
+      formatter = new Intl.DateTimeFormat(locale, options);
+    }
+
+    if (formatter) {
+      this._intlCache.set(key, formatter);
+    }
+    return formatter;
   }
 
   resolveFormatOptions(column) {
@@ -84,11 +104,12 @@ export class FormatterPlugin {
     const formatOptions = this.resolveFormatOptions(column);
 
     if (type === "money" || type === "currency") {
-      return new Intl.NumberFormat(locale, {
+      const options = {
         style: "currency",
         currency: column.currency || "USD",
         ...formatOptions,
-      }).format(value);
+      };
+      return this.getIntlFormatter("number", locale, options).format(value);
     }
 
     if (type === "datetime" || type === "date") {
@@ -97,13 +118,18 @@ export class FormatterPlugin {
         return value;
       }
 
-      return new Intl.DateTimeFormat(locale, Object.keys(formatOptions).length ? formatOptions : {
-        dateStyle: "medium"
-      }).format(parsedDate);
+      const options = Object.keys(formatOptions).length
+        ? formatOptions
+        : { dateStyle: "medium" };
+      return this.getIntlFormatter("datetime", locale, options).format(
+        parsedDate
+      );
     }
 
     if (type === "number") {
-      return new Intl.NumberFormat(locale, formatOptions).format(value);
+      return this.getIntlFormatter("number", locale, formatOptions).format(
+        value
+      );
     }
 
     if (

@@ -119,6 +119,15 @@ export class DogTable {
     this.highlightTimeoutId = null;
     this.syncStatusTimeoutId = null;
     this.toastTimeoutId = null;
+    this._pipelineCache = {
+      rawData: null,
+      filtered: null,
+      sorted: null,
+      searchQuery: null,
+      sortKey: null,
+      sortDirection: null,
+    };
+    this._searchIndex = null;
 
     // Initialize Plugins
     this.persistence = new PersistencePlugin(this);
@@ -368,13 +377,9 @@ export class DogTable {
       </div>
     `;
 
-    this.elements.search = this.container.querySelector(
-      `.${this.theme.get("search").split(" ")[0]}`
-    );
+    this.elements.search = this.container.querySelector(this.theme.getSelector("search"));
     this.elements.searchInput = this.container.querySelector("input[type='search']");
-    this.elements.meta = this.container.querySelector(
-      `.${this.theme.get("meta").split(" ")[0]}`
-    );
+    this.elements.meta = this.container.querySelector(this.theme.getSelector("meta"));
     this.elements.thead = this.container.querySelector("thead");
     this.elements.tbody = this.container.querySelector("tbody");
     this.elements.pagination = this.container.querySelector(
@@ -450,16 +455,6 @@ export class DogTable {
       this.setPage(Number(button.dataset.page));
     };
 
-    this.boundHandlers.onBodyClick = (event) => {
-      const button = event.target.closest("button[data-detail-toggle]");
-
-      if (!button || this.state.loading) {
-        return;
-      }
-
-      this.toggleRowDetail(button.dataset.detailToggle);
-    };
-
     this.boundHandlers.onBulkCheck = (event) => {
       const checkbox = event.target.closest("input[data-bulk-checkbox]");
       if (!checkbox) return;
@@ -472,19 +467,26 @@ export class DogTable {
       this.selection.toggleRow(checkbox.dataset.rowCheckbox, checkbox.checked);
     };
 
-    this.boundHandlers.onCellClick = (event) => {
-      const td = event.target.closest("td[data-field]");
-      if (!td) return;
+    this.boundHandlers.onBodyClick = (event) => {
+      const target = event.target;
+      const detailButton = target.closest("button[data-detail-toggle]");
+      if (detailButton && !this.state.loading) {
+        this.toggleRowDetail(detailButton.dataset.detailToggle);
+        return;
+      }
 
-      const rowId = td.closest("tr")?.dataset.rowId;
-      const field = td.dataset.field;
-      const column = this.state.columns.find(
-        (c) => (c.accessor || c.key) === field
-      );
+      const td = target.closest("td[data-field]");
+      if (td) {
+        const rowId = td.closest("tr")?.dataset.rowId;
+        const field = td.dataset.field;
+        const column = this.state.columns.find(
+          (c) => (c.accessor || c.key) === field
+        );
 
-      if (column?.editable && rowId) {
-        const row = this.state.rawData.find((r) => this.getRowId(r) === rowId);
-        this.editor.startEditing(td, rowId, field, row ? row[field] : "");
+        if (column?.editable && rowId) {
+          const row = this.state.rawData.find((r) => this.getRowId(r) === rowId);
+          this.editor.startEditing(td, rowId, field, row ? row[field] : "", row);
+        }
       }
     };
 
@@ -495,10 +497,7 @@ export class DogTable {
     );
     this.elements.thead.addEventListener("change", this.boundHandlers.onBulkCheck);
     this.elements.tbody.addEventListener("change", this.boundHandlers.onRowCheck);
-    this.elements.tbody.addEventListener("click", (e) => {
-      this.boundHandlers.onBodyClick(e);
-      this.boundHandlers.onCellClick(e);
-    });
+    this.elements.tbody.addEventListener("click", this.boundHandlers.onBodyClick);
     this.elements.pagination.addEventListener(
       "click",
       this.boundHandlers.onPaginationClick
@@ -734,8 +733,9 @@ export class DogTable {
   getState() {
     return {
       ...this.state,
-      rawData: [...this.state.rawData],
-      columns: [...this.state.columns],
+      // Pass references directly for efficiency in hot paths, as per PLAN.MD
+      rawData: this.state.rawData,
+      columns: this.state.columns,
       expandedRowIds: [...this.state.expandedRowIds],
       selectedRows: [...this.state.selectedRows],
     };
@@ -862,56 +862,83 @@ export class DogTable {
       pageSize,
     } = this.state;
 
-    let processed = [...rawData];
-
-    if (!this.isRemote() && searchQuery) {
-      processed = processed.filter((row) =>
-        columns.some((column) => {
-          if (column.searchable === false) {
-            return false;
-          }
-
-          if (typeof column.filter === "function") {
-            return column.filter({
-              value: row[column.key],
-              row,
-              query: searchQuery,
-            });
-          }
-
-          const value = row[column.key];
-          return String(value ?? "").toLowerCase().includes(searchQuery);
-        })
-      );
-    }
-
-    if (!this.isRemote() && sortKey) {
-      processed.sort((left, right) => {
-        const sortColumn = columns.find((column) => column.key === sortKey);
-        const leftValue =
-          sortColumn && typeof sortColumn.sortValue === "function"
-            ? sortColumn.sortValue(left[sortKey], left)
-            : left[sortKey];
-        const rightValue =
-          sortColumn && typeof sortColumn.sortValue === "function"
-            ? sortColumn.sortValue(right[sortKey], right)
-            : right[sortKey];
-
-        if (typeof leftValue === "number" && typeof rightValue === "number") {
-          return sortDirection === "asc"
-            ? leftValue - rightValue
-            : rightValue - leftValue;
-        }
-
-        const comparison = String(leftValue ?? "").localeCompare(
-          String(rightValue ?? ""),
-          undefined,
-          { numeric: true, sensitivity: "base" }
+    // 1. Filtering
+    let filtered;
+    if (
+      this._pipelineCache.rawData === rawData &&
+      this._pipelineCache.searchQuery === searchQuery &&
+      this._pipelineCache.filtered
+    ) {
+      filtered = this._pipelineCache.filtered;
+    } else {
+      filtered = [...rawData];
+      if (!this.isRemote() && searchQuery) {
+        filtered = filtered.filter((row) =>
+          columns.some((column) => {
+            if (column.searchable === false) return false;
+            if (typeof column.filter === "function") {
+              return column.filter({
+                value: row[column.key],
+                row,
+                query: searchQuery,
+              });
+            }
+            const value = row[column.key];
+            return String(value ?? "").toLowerCase().includes(searchQuery);
+          })
         );
-
-        return sortDirection === "asc" ? comparison : -comparison;
-      });
+      }
+      this._pipelineCache.rawData = rawData;
+      this._pipelineCache.searchQuery = searchQuery;
+      this._pipelineCache.filtered = filtered;
+      this._pipelineCache.sorted = null; // Invalidate sort cache
     }
+
+    // 2. Sorting
+    let sorted;
+    if (
+      this._pipelineCache.filtered === filtered &&
+      this._pipelineCache.sortKey === sortKey &&
+      this._pipelineCache.sortDirection === sortDirection &&
+      this._pipelineCache.sorted
+    ) {
+      sorted = this._pipelineCache.sorted;
+    } else {
+      sorted = [...filtered];
+      if (!this.isRemote() && sortKey) {
+        const sortColumn = columns.find((column) => column.key === sortKey);
+        sorted.sort((left, right) => {
+          const leftValue =
+            sortColumn && typeof sortColumn.sortValue === "function"
+              ? sortColumn.sortValue(left[sortKey], left)
+              : left[sortKey];
+          const rightValue =
+            sortColumn && typeof sortColumn.sortValue === "function"
+              ? sortColumn.sortValue(right[sortKey], right)
+              : right[sortKey];
+
+          if (typeof leftValue === "number" && typeof rightValue === "number") {
+            return sortDirection === "asc"
+              ? leftValue - rightValue
+              : rightValue - leftValue;
+          }
+
+          const comparison = String(leftValue ?? "").localeCompare(
+            String(rightValue ?? ""),
+            undefined,
+            { numeric: true, sensitivity: "base" }
+          );
+
+          return sortDirection === "asc" ? comparison : -comparison;
+        });
+      }
+      this._pipelineCache.filtered = filtered;
+      this._pipelineCache.sortKey = sortKey;
+      this._pipelineCache.sortDirection = sortDirection;
+      this._pipelineCache.sorted = sorted;
+    }
+
+    const processed = sorted;
 
     const totalItems = this.isRemote() ? this.state.totalItems : processed.length;
     const guard = this.getPaginationGuardConfig();
@@ -944,6 +971,10 @@ export class DogTable {
 
   isAllSelected(rows) {
     return this.selection.isAllSelected(rows);
+  }
+
+  isSomeSelected(rows) {
+    return this.selection.isSomeSelected(rows);
   }
 
   renderHeader(rows = []) {
@@ -993,6 +1024,17 @@ export class DogTable {
       : "";
 
     this.elements.thead.innerHTML = `<tr>${selectionHeader}${detailHeader}${headers}</tr>`;
+
+    if (this.options.selectable) {
+      const bulk = this.elements.thead.querySelector(
+        "input[data-bulk-checkbox]"
+      );
+      if (bulk) {
+        const isSome = this.isSomeSelected(rows);
+        const isAll = this.isAllSelected(rows);
+        bulk.indeterminate = isSome && !isAll;
+      }
+    }
   }
 
   renderLoading() {
@@ -1206,6 +1248,12 @@ export class DogTable {
   }
 
   renderPagination(processed) {
+    const stateKey = `${processed.currentPage}:${processed.totalPages}:${processed.totalItems}`;
+    if (this._lastPaginationState === stateKey) {
+      return;
+    }
+    this._lastPaginationState = stateKey;
+
     const prevDisabled = processed.currentPage <= 1;
     const nextDisabled = processed.currentPage >= processed.totalPages;
     const pageNumbers = this.getVisiblePageNumbers(

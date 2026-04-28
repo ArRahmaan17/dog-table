@@ -17,6 +17,7 @@ export class CreatePlugin {
     this.values = {};
     this.errors = {};
     this.formError = "";
+    this._createColumns = null;
   }
 
   init() {
@@ -38,13 +39,20 @@ export class CreatePlugin {
   }
 
   getCreateColumns() {
-    return this.table.state.columns.filter((column) => {
+    if (this._createColumns) {
+      return this._createColumns;
+    }
+
+    this._createColumns = this.table.state.columns.filter((column) => {
       const key = normalizeFieldKey(column);
       return Boolean(key) && column.createable !== false;
     });
+
+    return this._createColumns;
   }
 
   resetForm() {
+    this._createColumns = null; // Invalidate cache
     const initialValues = this.getConfig().initialValues || {};
 
     this.values = this.getCreateColumns().reduce((result, column) => {

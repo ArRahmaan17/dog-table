@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Create Record Demo</title>
+    <meta
+      name="description"
+      content="Dog Table demo showing the built-in create workflow, modal forms, and local data submission."
+    />
+    <link
+      rel="canonical"
+      href="https://arrahmaan17.github.io/dog-table/demo/create-record.html"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: radial-gradient(
+            circle at top left,
+            rgba(45, 125, 154, 0.18),
+            transparent 35%
+          ),
+          linear-gradient(135deg, #f4f7fb, #e6ecf3);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #0f766e;
+        font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
+      }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #102a43;
+        color: #f8fafc;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          monospace;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Create Record</span>
+      </nav>
+      <h1>Create Record Workflow</h1>
+      <p>
+        Built-in modal for adding new records. Supports field validation,
+        custom initial values, and local or remote submission.
+      </p>
+
+      <section class="setup-card">
+        <h2>Configuration</h2>
+        <pre class="setup-snippet"><code>const table = new DogTable("#app", {
+  data,
+  create: {
+    enabled: true,
+    initialValues: { status: "Available" }
+  },
+  columns: [
+    { key: "name", label: "Name", required: true },
+    { key: "breed", label: "Breed" },
+    { key: "status", label: "Status" }
+  ]
+});</code></pre>
+      </section>
+
+      <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link" href="./inline-editing.html">
+          <span class="pn-dir">← Previous</span>
+          <span class="pn-name">Inline Editing</span>
+        </a>
+        <a class="pn-link pn-next" href="./live-sync.html">
+          <span class="pn-dir">Next →</span>
+          <span class="pn-name">Live Sync</span>
+        </a>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+
+      const data = [
+        { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3, status: "Available" },
+        { id: 2, name: "Pepper", breed: "Beagle", age: 5, status: "Adopted" },
+        { id: 3, name: "Nori", breed: "Corgi", age: 2, status: "Available" },
+      ];
+
+      const table = new DogTable("#app", {
+        data,
+        pageSize: 5,
+        create: {
+          enabled: true,
+          initialValues: {
+            status: "Available",
+            age: 1
+          }
+        },
+        columns: [
+          { key: "id", label: "ID", sortable: true, createable: false },
+          { key: "name", label: "Name", required: true },
+          { key: "breed", label: "Breed", required: true },
+          { key: "age", label: "Age", type: "number" },
+          {
+            key: "status",
+            label: "Status",
+            render(value) {
+              const colors = {
+                Available: "#059669",
+                Adopted: "#4b5563",
+                Pending: "#d97706"
+              };
+              return `<span style="color: ${colors[value] || "#334155"}; font-weight: 600;">${value}</span>`;
+            }
+          },
+        ],
+        hooks: {
+          onUpdateSuccess: (payload) => {
+            console.log("Record added/updated:", payload);
+          }
+        }
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

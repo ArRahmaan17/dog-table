@@ -2,9 +2,16 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
+
 ## [1.4.1] — 2026-04-28
 ### Added
 * **Demo navigation:** Added Previous/Next navigation links across all demo pages based on the Demo Map order. Updated documentation and README to reflect the new UI theme.
+* **Performance Optimizations:** Comprehensive efficiency overhaul across the library core and plugins as outlined in the development plan.
+    * **Core Engine:** Implemented a memoized data processing pipeline (filter/sort caching), sort hoisting, and centralized event delegation for better UI responsiveness.
+    * **Theme Engine:** Optimized class merging and added a selector cache to minimize DOM querying overhead.
+    * **Plugin Layer:** Added `Intl` object caching in `FormatterPlugin`, throttled storage writes in `PersistencePlugin`, and O(1) row lookups in `EditorPlugin`.
+    * **Selection:** Improved "Select All" to handle multi-page selection for local data and added support for the `indeterminate` checkbox state in the header.
+    * **Memory & DOM:** Reduced redundant cloning in `getState()` and improved DOM update batching in the rendering loop.
 
 ## [1.4.0] — 2026-04-28
 ### Changed
