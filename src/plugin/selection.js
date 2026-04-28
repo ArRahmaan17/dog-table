@@ -23,8 +23,14 @@ export class SelectionPlugin {
   }
 
   selectAll(isSelected) {
-    const processed = this.table.getProcessedData();
-    processed.rows.forEach((row) => {
+    // When local, select all matching (filtered) rows across all pages.
+    // When remote, we only have access to the current page's rows.
+    const rows =
+      !this.table.isRemote() && this.table._pipelineCache.filtered
+        ? this.table._pipelineCache.filtered
+        : this.table.getProcessedData().rows;
+
+    rows.forEach((row) => {
       const id = this.table.getRowId(row);
       if (isSelected) {
         this.table.state.selectedRows.add(id);
@@ -46,6 +52,13 @@ export class SelectionPlugin {
   isAllSelected(rows) {
     if (!rows || rows.length === 0) return false;
     return rows.every((row) =>
+      this.table.state.selectedRows.has(this.table.getRowId(row))
+    );
+  }
+
+  isSomeSelected(rows) {
+    if (!rows || rows.length === 0) return false;
+    return rows.some((row) =>
       this.table.state.selectedRows.has(this.table.getRowId(row))
     );
   }

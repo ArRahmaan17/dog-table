@@ -74,11 +74,13 @@ table.init();
 - Built-in create modal with local or remote submit flows
 - Grouped rows and expandable detail panels
 - Selection, CSV export, and state persistence
+- **Smart Selection:** Indeterminate state support and multi-page "Select All" for local datasets
 - `Intl`-powered formatting for money, dates, and numbers
 - Optional pagination guardrails for max page and page-size bounds
 - Theme presets for default, Bootstrap, and Tailwind-style class maps
 - Localization support with bundled locale files
 - Auto-refresh with adaptive backoff and live status UI
+- **Optimized Performance:** Memoized data pipeline, `Intl` caching, and throttled persistence for smooth handling of large datasets
 
 ## Optional Pagination Guardrails
 

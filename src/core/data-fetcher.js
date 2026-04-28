@@ -4,10 +4,11 @@ export class DataFetcher {
   constructor(config) {
     this.config = config;
     this.controller = null;
+    this.baseUrl = new URL(this.config.url, window.location.href);
   }
 
   buildUrl(state) {
-    const baseUrl = new URL(this.config.url, window.location.href);
+    const baseUrl = new URL(this.baseUrl.toString());
     const params = new URLSearchParams(baseUrl.search);
     const queryKeys = {
       page: "page",

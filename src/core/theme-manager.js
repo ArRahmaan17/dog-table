@@ -83,6 +83,10 @@ const presets = {
 };
 
 function mergeTheme(theme, overrides = {}) {
+  if (!overrides || Object.keys(overrides).length === 0) {
+    return { ...theme };
+  }
+
   const merged = {};
 
   Object.keys(theme).forEach((key) => {
@@ -104,10 +108,25 @@ export class ThemeManager {
       typeof theme === "string" ? presets[theme] || presets.default : theme;
 
     this.theme = mergeTheme(preset || presets.default, overrides);
+    this._primaryCache = {};
   }
 
   get(key) {
     return this.theme[key] || "";
+  }
+
+  getSelector(key) {
+    const primary = this.getPrimary(key);
+    return primary ? `.${primary}` : "";
+  }
+
+  getPrimary(key) {
+    if (this._primaryCache[key] !== undefined) {
+      return this._primaryCache[key];
+    }
+    const val = this.get(key);
+    this._primaryCache[key] = val ? val.split(" ")[0] : "";
+    return this._primaryCache[key];
   }
 }
 

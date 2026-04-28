@@ -59,7 +59,7 @@ export class EditorPlugin {
     return null;
   }
 
-  startEditing(td, rowId, field, value) {
+  startEditing(td, rowId, field, value, row) {
     if (this.editing) return;
 
     const originalContent = td.innerHTML;
@@ -77,13 +77,11 @@ export class EditorPlugin {
     const finish = async (save) => {
       if (!this.editing) return;
       const newValue = input.value;
+      const editingRow = this.editing.row || row;
       this.editing = null;
-      const row = this.table.state.rawData.find(
-        (r) => this.table.getRowId(r) === rowId
-      );
 
       if (save && newValue !== String(value)) {
-        const previousValue = row ? row[field] : value;
+        const previousValue = editingRow ? editingRow[field] : value;
 
         try {
           this.table.setSyncStatus({
@@ -92,21 +90,21 @@ export class EditorPlugin {
             title: `Updating ${field}.`,
           });
 
-          if (row && this.getRemoteConfig()) {
+          if (editingRow && this.getRemoteConfig()) {
             const updatedRow = await this.submitRemoteUpdate(
-              row,
+              editingRow,
               rowId,
               field,
               newValue
             );
 
             if (updatedRow && typeof updatedRow === "object") {
-              Object.assign(row, updatedRow);
+              Object.assign(editingRow, updatedRow);
             } else {
-              row[field] = newValue;
+              editingRow[field] = newValue;
             }
-          } else if (row) {
-            row[field] = newValue;
+          } else if (editingRow) {
+            editingRow[field] = newValue;
           }
 
           if (typeof this.table.options.onCellSave === "function") {
@@ -114,11 +112,11 @@ export class EditorPlugin {
               rowId,
               field,
               newValue,
-              row
+              editingRow
             );
 
-            if (row && callbackResult && typeof callbackResult === "object") {
-              Object.assign(row, callbackResult);
+            if (editingRow && callbackResult && typeof callbackResult === "object") {
+              Object.assign(editingRow, callbackResult);
             }
           }
 
@@ -131,7 +129,7 @@ export class EditorPlugin {
               rowId,
               field,
               value: newValue,
-              row,
+              row: editingRow,
             });
           }
 
@@ -148,8 +146,8 @@ export class EditorPlugin {
           });
           this.table.update({ skipFetch: true });
         } catch (error) {
-          if (row) {
-            row[field] = previousValue;
+          if (editingRow) {
+            editingRow[field] = previousValue;
           }
 
           td.innerHTML = originalContent;
@@ -183,6 +181,6 @@ export class EditorPlugin {
       if (e.key === "Escape") finish(false);
     };
 
-    this.editing = { td, rowId, field };
+    this.editing = { td, rowId, field, row };
   }
 }

@@ -16,11 +16,11 @@ function countHeaders(headers) {
     return [...headers.keys()].length;
   }
 
-  if (!isObjectLike(headers)) {
-    return 0;
+  if (isObjectLike(headers)) {
+    return Object.keys(headers).length;
   }
 
-  return Object.keys(headers).length;
+  return 0;
 }
 
 export async function resolveRequestValue(value, context = {}) {
@@ -66,11 +66,16 @@ export async function parseResponsePayload(response) {
     return null;
   }
 
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
+  const trimmed = text.trim();
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
   }
+
+  return text;
 }
 
 export function buildRequestError(response, payload, fallbackMessage) {
@@ -94,7 +99,7 @@ export async function requestJson(config = {}, context = {}) {
     throw new Error("A request URL is required.");
   }
 
-  const headers = await resolveRequestHeaders(config.headers, {
+  const resolvedHeaders = await resolveRequestValue(config.headers, {
     ...context,
     method,
     url,
@@ -102,7 +107,7 @@ export async function requestJson(config = {}, context = {}) {
   const requireHeaders =
     config.requireHeaders ?? !["GET", "HEAD"].includes(method);
 
-  if (requireHeaders && countHeaders(headers) === 0) {
+  if (requireHeaders && countHeaders(resolvedHeaders) === 0) {
     throw new Error(
       `Custom headers are required for ${method} requests. Provide ${String(
         context.action || "request"
@@ -110,6 +115,10 @@ export async function requestJson(config = {}, context = {}) {
     );
   }
 
+  const headers =
+    resolvedHeaders instanceof Headers
+      ? resolvedHeaders
+      : new Headers(resolvedHeaders || {});
   const body =
     typeof config.buildBody === "function"
       ? await config.buildBody(context.data, {

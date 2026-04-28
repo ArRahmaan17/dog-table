@@ -1,6 +1,9 @@
+import { debounce } from "../utils/index.js";
+
 export class PersistencePlugin {
   constructor(table) {
     this.table = table;
+    this.debouncedSave = debounce(() => this._save(), 250);
   }
 
   load() {
