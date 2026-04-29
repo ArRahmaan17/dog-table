@@ -216,28 +216,21 @@
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
         <p>Grouping and expandable rows are configured with <code>groupBy</code> and a <code>rowDetail.render()</code> callback.</p>
-        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
-
-&lt;script type="module"&gt;
-  import { DogTable } from "../src/data-table.js";
-
-  const table = new DogTable("#app", {
-    data: dogs,
-    rowKey: "id",
-    groupBy: "region",
-    rowDetail: {
-      render(row) {
-        return makeDetailCard(row);
-      },
-    },
-    columns: [
-      { key: "name", label: "Name" },
-      { key: "region", label: "Region" },
-    ],
-  });
-
-  table.init();
-&lt;/script&gt;</code></pre>
+        <pre class="setup-snippet"><code>const table = new DogTable("#app", {
+  groupBy: "department",
+  remote: {
+    url: "https://api.rahmaanms.my.id/api/employees",
+    mapResponse: (payload, state) => { /* ... */ }
+  },
+  columns: [
+    { key: "id", label: "ID" },
+    { key: "name", label: "Name" },
+    { key: "role", label: "Role" },
+  ],
+  rowDetail: {
+    render: (row) => `&lt;div&gt;Location: \${row.location}&lt;/div&gt;`
+  }
+});</code></pre>
       </section>
       <div id="app"></div>
 
@@ -250,87 +243,51 @@
     <script type="module">
       import { DogTable } from "../src/data-table.js";
 
-      const dogs = [
-        {
-          id: "austin-1",
-          region: "South",
-          name: "Mochi",
-          foster: "Ava Brooks",
-          age: 3,
-          temperament: ["friendly", "quiet", "playful"],
-          notes: "Best with small families and short daily walks.",
-        },
-        {
-          id: "austin-2",
-          region: "South",
-          name: "Pepper",
-          foster: "Liam Scott",
-          age: 5,
-          temperament: ["active", "smart"],
-          notes: "Would love an adopter who hikes on weekends.",
-        },
-        {
-          id: "chi-1",
-          region: "Midwest",
-          name: "Atlas",
-          foster: "Noah Lane",
-          age: 7,
-          temperament: ["loyal", "calm"],
-          notes: "Knows advanced commands and settles quickly indoors.",
-        },
-        {
-          id: "bos-1",
-          region: "Northeast",
-          name: "Olive",
-          foster: "Emma Reed",
-          age: 1,
-          temperament: ["gentle", "curious"],
-          notes: "Still adjusting, but progressing well with leash work.",
-        },
-      ];
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
+
+      function makeDetailCard(row) {
+        const card = document.createElement("div");
+        card.className = "detail-card";
+        card.innerHTML = `
+          <div class="detail-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 4px 0;">
+            <div class="detail-item"><strong>Role:</strong> ${row.role || "N/A"}</div>
+            <div class="detail-item"><strong>Department:</strong> ${row.department || "N/A"}</div>
+            <div class="detail-item"><strong>Location:</strong> ${row.location || "Remote"}</div>
+            <div class="detail-item"><strong>Joined:</strong> ${row.joinDate || "N/A"}</div>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; font-size: 0.9rem; color: #4b5563;">
+            Professional team member specializing in ${row.role}.
+          </div>
+        `;
+        return card;
+      }
 
       const table = new DogTable("#app", {
-        data: dogs,
-        pageSize: 6,
-        rowKey: "id",
-        groupBy: "region",
-        groupLabel(region, rows) {
-          return `${region} Region - ${rows.length} dog${rows.length === 1 ? "" : "s"}`;
-        },
-        rowDetail: {
-          toggleLabel(row, expanded) {
-            return expanded ? `Hide ${row.name}` : `About ${row.name}`;
-          },
-          render(row) {
-            const card = document.createElement("div");
-            card.className = "detail-card";
-
-            const title = document.createElement("div");
-            title.className = "detail-title";
-            title.textContent = `${row.name} is fostered by ${row.foster}`;
-
-            const meta = document.createElement("div");
-            meta.className = "detail-meta";
-            row.temperament.forEach((trait) => {
-              const chip = document.createElement("span");
-              chip.className = "detail-chip";
-              chip.textContent = trait;
-              meta.appendChild(chip);
-            });
-
-            const notes = document.createElement("div");
-            notes.textContent = row.notes;
-
-            card.append(title, meta, notes);
-            return card;
+        pageSize: 10,
+        groupBy: "department",
+        remote: {
+          url: API_URL,
+          mapResponse(payload, state) {
+            let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+            const start = (state.currentPage - 1) * state.pageSize;
+            return {
+              rows: rows.slice(start, start + state.pageSize),
+              totalItems: rows.length,
+            };
           },
         },
         columns: [
+          { key: "id", label: "ID" },
           { key: "name", label: "Name" },
-          { key: "region", label: "Region" },
-          { key: "foster", label: "Foster" },
-          { key: "age", label: "Age" },
+          { key: "role", label: "Role" },
+          { key: "department", label: "Department" },
+          { key: "status", label: "Status" },
         ],
+        rowDetail: {
+          render(row) {
+            return makeDetailCard(row);
+          },
+        },
       });
 
       table.init();

@@ -285,25 +285,22 @@
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
         <p>Selection, persistence, and export are enabled from the main constructor, then controlled through the table instance.</p>
-        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+        <pre class="setup-snippet"><code>const table = new DogTable("#app", {
+  pageSize: 5,
+  selectable: true,
+  persistence: "url",
+  remote: {
+    url: "https://api.rahmaanms.my.id/api/employees",
+    mapResponse: (payload, state) => { /* ... */ }
+  },
+  columns: [
+    { key: "id", label: "ID" },
+    { key: "name", label: "Name" },
+    { key: "role", label: "Role" }
+  ]
+});
 
-&lt;script type="module"&gt;
-  import { DogTable } from "../src/data-table.js";
-
-  const table = new DogTable("#app", {
-    data,
-    rowKey: "id",
-    selectable: true,
-    persistence: "url",
-    columns: [
-      { key: "name", label: "Name" },
-      { key: "region", label: "Region" },
-    ],
-  });
-
-  table.init();
-  table.exportCSV("dogs.csv");
-&lt;/script&gt;</code></pre>
+table.init();</code></pre>
       </section>
 
       <div class="toolbar-actions">
@@ -322,13 +319,13 @@
 
         <div class="visibility-toggles">
           <label class="toggle-item">
-            <input type="checkbox" data-column="breed" checked> Breed
+            <input type="checkbox" data-column="role" checked> Role
           </label>
           <label class="toggle-item">
-            <input type="checkbox" data-column="age" checked> Age
+            <input type="checkbox" data-column="department" checked> Dept
           </label>
           <label class="toggle-item">
-            <input type="checkbox" data-column="adopted" checked> Adopted
+            <input type="checkbox" data-column="status" checked> Status
           </label>
         </div>
       </div>
@@ -359,40 +356,34 @@
     <script type="module">
       import { DogTable } from "../src/data-table.js";
 
-      const data = [
-        { id: 101, name: "Mochi", breed: "Shiba Inu", age: 3, adopted: "2024-01-12", region: "North" },
-        { id: 102, name: "Pepper", breed: "Beagle", age: 5, adopted: "2023-11-04", region: "South" },
-        { id: 103, name: "Nori", breed: "Corgi", age: 2, adopted: "2024-03-21", region: "North" },
-        { id: 104, name: "Biscuit", breed: "Golden Retriever", age: 6, adopted: "2022-09-30", region: "East" },
-        { id: 105, name: "Suki", breed: "Pomeranian", age: 4, adopted: "2024-02-18", region: "South" },
-        { id: 106, name: "Atlas", breed: "German Shepherd", age: 7, adopted: "2021-08-08", region: "West" },
-        { id: 107, name: "Olive", breed: "Mixed", age: 1, adopted: "2024-04-01", region: "North" },
-        { id: 108, name: "Luna", breed: "Husky", age: 2, adopted: "2024-05-10", region: "West" },
-        { id: 109, name: "Rex", breed: "Rottweiler", age: 4, adopted: "2023-12-15", region: "South" },
-        { id: 110, name: "Daisy", breed: "Poodle", age: 3, adopted: "2024-01-05", region: "East" },
-      ];
-
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
       const selectedCountEl = document.getElementById("selected-count");
       const visibleColumnsEl = document.getElementById("visible-columns");
       const viewSummaryEl = document.getElementById("view-summary");
 
       const table = new DogTable("#app", {
-        data,
-        rowKey: "id",
         pageSize: 5,
+        rowKey: "id",
         selectable: true,
         persistence: "url",
-        persistenceKey: "adv",
-        columns: [
-          { key: "name", label: "Name" },
-          { key: "breed", label: "Breed" },
-          { key: "age", label: "Age" },
-          {
-            key: "adopted",
-            label: "Adopted",
-            render: (val) => new Date(val).toLocaleDateString(),
+        persistenceKey: "adv-emp",
+        remote: {
+          url: API_URL,
+          mapResponse(payload, state) {
+            let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+            const start = (state.currentPage - 1) * state.pageSize;
+            return {
+              rows: rows.slice(start, start + state.pageSize),
+              totalItems: rows.length,
+            };
           },
-          { key: "region", label: "Region" },
+        },
+        columns: [
+          { key: "id", label: "ID", sortable: true },
+          { key: "name", label: "Name", sortable: true },
+          { key: "role", label: "Role", sortable: true },
+          { key: "department", label: "Department", sortable: true },
+          { key: "status", label: "Status", sortable: true },
         ],
         hooks: {
           onSelectionChange: (selectedRows) => {
@@ -414,7 +405,7 @@
       table.init();
 
       document.getElementById("export-csv").addEventListener("click", () => {
-        table.exportCSV("dog-data-export.csv");
+        table.exportCSV("employee-data.csv");
       });
 
       document.getElementById("get-selected").addEventListener("click", () => {
@@ -422,8 +413,7 @@
         if (selected.length === 0) {
           alert("No rows selected!");
         } else {
-          alert(`Selected Dogs: ${selected.map((d) => d.name).join(", ")}`);
-          console.log("Selected Data:", selected);
+          alert(`Selected: ${selected.map((d) => d.name).join(", ")}`);
         }
       });
 

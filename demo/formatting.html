@@ -212,33 +212,35 @@
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
         <p>Formatting is configured directly on each column with <code>type</code>, <code>currency</code>, <code>locale</code>, and <code>format</code>.</p>
-        <pre class="code-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
-
-&lt;script type="module"&gt;
-  import { DogTable } from "../src/data-table.js";
-
-  const table = new DogTable("#app", {
-    data,
-    columns: [
-      { key: "name", label: "Dog Name" },
-      { key: "breed", label: "Breed" },
-      {
-        key: "adoptedAt",
-        label: "Adoption Date",
-        type: "datetime",
-        format: { dateStyle: "long" },
-      },
-      {
-        key: "fee",
-        label: "Fee",
-        type: "money",
-        currency: "USD",
-      },
-    ],
-  });
-
-  table.init();
-&lt;/script&gt;</code></pre>
+        <pre class="code-snippet"><code>const table = new DogTable("#app", {
+  pageSize: 5,
+  remote: {
+    url: "https://api.rahmaanms.my.id/api/employees",
+    mapResponse: (payload, state) => { /* ... */ }
+  },
+  columns: [
+    { key: "name", label: "Employee" },
+    {
+      key: "joinDate",
+      label: "Joined",
+      type: "datetime",
+      format: { dateStyle: "long" },
+    },
+    {
+      key: "salary",
+      label: "Salary (USD)",
+      type: "money",
+      currency: "USD",
+    },
+    {
+      key: "salary",
+      label: "Salary (IDR)",
+      type: "money",
+      currency: "IDR",
+      locale: "id-ID",
+    },
+  ],
+});</code></pre>
       </section>
 
       <div id="app"></div>
@@ -251,23 +253,22 @@
           automatically.
         </p>
         <pre class="code-snippet"><code>columns: [
-  { key: "name", label: "Dog Name" },
-  { key: "breed", label: "Breed" },
+  { key: "name", label: "Employee" },
   {
-    key: "adoptedAt",
-    label: "Adoption Date",
+    key: "joinDate",
+    label: "Joined",
     type: "datetime",
     format: { dateStyle: "long" },
   },
   {
-    key: "fee",
-    label: "Fee",
+    key: "salary",
+    label: "Salary (USD)",
     type: "money",
     currency: "USD",
   },
   {
-    key: "donation",
-    label: "Donation (IDR)",
+    key: "salary",
+    label: "Salary (IDR)",
     type: "money",
     currency: "IDR",
     locale: "id-ID",
@@ -284,65 +285,38 @@
     <script type="module">
       import { DogTable } from "../src/data-table.js";
 
-      const data = [
-        {
-          name: "Mochi",
-          breed: "Shiba Inu",
-          adoptedAt: "2024-01-12T10:30:00Z",
-          fee: 250,
-          donation: 500000,
-        },
-        {
-          name: "Pepper",
-          breed: "Beagle",
-          adoptedAt: "2023-11-04T15:45:00Z",
-          fee: 175.5,
-          donation: 250000,
-        },
-        {
-          name: "Nori",
-          breed: "Corgi",
-          adoptedAt: "2024-03-21T09:00:00Z",
-          fee: 300,
-          donation: 1000000,
-        },
-        {
-          name: "Biscuit",
-          breed: "Golden Retriever",
-          adoptedAt: "2022-09-30T14:20:00Z",
-          fee: 225,
-          donation: 750000,
-        },
-        {
-          name: "Suki",
-          breed: "Pomeranian",
-          adoptedAt: "2024-02-18T11:15:00Z",
-          fee: 200.75,
-          donation: 300000,
-        },
-      ];
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
 
       const table = new DogTable("#app", {
-        data,
         pageSize: 5,
+        remote: {
+          url: API_URL,
+          mapResponse(payload, state) {
+            let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+            const start = (state.currentPage - 1) * state.pageSize;
+            return {
+              rows: rows.slice(start, start + state.pageSize),
+              totalItems: rows.length,
+            };
+          },
+        },
         columns: [
-          { key: "name", label: "Dog Name" },
-          { key: "breed", label: "Breed" },
+          { key: "name", label: "Employee" },
           {
-            key: "adoptedAt",
-            label: "Adoption Date",
+            key: "joinDate",
+            label: "Joined",
             type: "datetime",
             format: { dateStyle: "long" },
           },
           {
-            key: "fee",
-            label: "Fee",
+            key: "salary",
+            label: "Salary (USD)",
             type: "money",
             currency: "USD",
           },
           {
-            key: "donation",
-            label: "Donation (IDR)",
+            key: "salary",
+            label: "Salary (IDR)",
             type: "money",
             currency: "IDR",
             locale: "id-ID",

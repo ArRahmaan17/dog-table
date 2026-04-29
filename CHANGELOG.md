@@ -3,23 +3,22 @@
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
 
-## [1.4.1] — 2026-04-28
+## [1.4.1] — 2026-04-29
 ### Added
-* **Demo navigation:** Added Previous/Next navigation links across all demo pages based on the Demo Map order. Updated documentation and README to reflect the new UI theme.
-* **Performance Optimizations:** Comprehensive efficiency overhaul across the library core and plugins as outlined in the development plan.
+* **Demo navigation:** Added Previous/Next navigation links across all demo pages based on the Demo Map order.
+* **Remote API Standardization:** Migrated the entire demo suite (Custom Cells, Grouping, Advanced, Formatting, Live Sync, Pagination Guard) to use the unified `https://api.rahmaanms.my.id/api/employees` remote endpoint.
+* **Performance Optimizations:** Comprehensive efficiency overhaul across the library core and plugins.
     * **Core Engine:** Implemented a memoized data processing pipeline (filter/sort caching), sort hoisting, and centralized event delegation for better UI responsiveness.
     * **Theme Engine:** Optimized class merging and added a selector cache to minimize DOM querying overhead.
     * **Plugin Layer:** Added `Intl` object caching in `FormatterPlugin`, throttled storage writes in `PersistencePlugin`, and O(1) row lookups in `EditorPlugin`.
     * **Selection:** Improved "Select All" to handle multi-page selection for local data and added support for the `indeterminate` checkbox state in the header.
-    * **Memory & DOM:** Reduced redundant cloning in `getState()` and improved DOM update batching in the rendering loop.
+* **Create Record Overhaul:** Comprehensive UI/UX redesign of the record creation workflow with glassmorphism, backdrop blur, and horizontal row grid layouts.
 
-* **Create Record Overhaul:** Comprehensive UI/UX redesign of the record creation workflow.
-    * **Premium Modal UI:** Implemented glassmorphism, backdrop blur, and smooth scale animations for the create modal.
-    * **Horizontal Row Layout:** Form fields now use a modern "row grid" layout (label and input side-by-side) for better readability and alignment.
-    * **Custom Select Styling:** Status and other dropdown fields now feature a custom SVG chevron icon and refined padding.
-    * **Responsive Improvements:** Optimized the modal form for mobile devices, ensuring inputs don't break containers and stack correctly.
-    * **Field Indicators:** Styled required field asterisks with a clear red accent.
-* **Documentation:** Integrated the Create Record demo into the main landing page and added full API/hook documentation in `docs.html`.
+### Fixed
+* **Search Input:** Implemented trimming and case-normalization in `setSearch` to prevent redundant network requests when inputs only differ by whitespace.
+* **Pagination Sync:** Fixed a critical bug where UI state could become out-of-sync with remote data if the dataset size decreased (e.g. during live sync). The engine now automatically clamps the current page and triggers a corrective re-fetch.
+* **Redundant Fetches:** Added idempotency guards to `setPage` and `setPageSize` to avoid unnecessary remote calls when inputs result in the same state.
+
 
 ## [1.4.0] — 2026-04-28
 ### Changed
