@@ -1258,9 +1258,6 @@ export class DogTable {
 
   renderPagination(processed) {
     const stateKey = `${processed.currentPage}:${processed.totalPages}:${processed.totalItems}`;
-    if (this._lastPaginationState === stateKey) {
-      return;
-    }
     this._lastPaginationState = stateKey;
 
     const prevDisabled = processed.currentPage <= 1;
