@@ -13,6 +13,14 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
     * **Selection:** Improved "Select All" to handle multi-page selection for local data and added support for the `indeterminate` checkbox state in the header.
     * **Memory & DOM:** Reduced redundant cloning in `getState()` and improved DOM update batching in the rendering loop.
 
+* **Create Record Overhaul:** Comprehensive UI/UX redesign of the record creation workflow.
+    * **Premium Modal UI:** Implemented glassmorphism, backdrop blur, and smooth scale animations for the create modal.
+    * **Horizontal Row Layout:** Form fields now use a modern "row grid" layout (label and input side-by-side) for better readability and alignment.
+    * **Custom Select Styling:** Status and other dropdown fields now feature a custom SVG chevron icon and refined padding.
+    * **Responsive Improvements:** Optimized the modal form for mobile devices, ensuring inputs don't break containers and stack correctly.
+    * **Field Indicators:** Styled required field asterisks with a clear red accent.
+* **Documentation:** Integrated the Create Record demo into the main landing page and added full API/hook documentation in `docs.html`.
+
 ## [1.4.0] — 2026-04-28
 ### Changed
 * **Primary Constructor Rename:** API utama kini memakai `new DogTable(container, options)` sebagai konstruktor publik.

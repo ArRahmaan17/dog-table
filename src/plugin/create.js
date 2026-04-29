@@ -365,13 +365,13 @@ export class CreatePlugin {
     if (inputType === "checkbox") {
       return `
         <label class="dt-create-field dt-create-field--checkbox">
+          <span class="dt-create-label">${escapeHtml(label)}</span>
           <input
             type="checkbox"
             name="${escapeHtml(key)}"
             data-create-field
             ${value ? "checked" : ""}
           />
-          <span>${escapeHtml(label)}</span>
         </label>
       `;
     }

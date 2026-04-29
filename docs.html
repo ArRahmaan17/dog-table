@@ -791,6 +791,7 @@ table.init();</code></pre>
               <tr><td><code>persistence</code></td><td><code>"url" | "local" | "session" | null</code></td><td><code>null</code></td><td>Persists search, paging, sort, and page size state.</td></tr>
               <tr><td><code>persistenceKey</code></td><td><code>string | null</code></td><td><code>null</code></td><td>Custom storage or URL key prefix.</td></tr>
               <tr><td><code>selectable</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Adds row selection checkboxes.</td></tr>
+              <tr><td><code>create</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables built-in creation workflows with modal forms and validation.</td></tr>
               <tr><td><code>hooks</code></td><td><code>object</code></td><td><code>{}</code></td><td>Lifecycle callbacks.</td></tr>
             </tbody>
           </table>
@@ -855,6 +856,7 @@ table.init();</code></pre>
               <tr><td><code>getState()</code></td><td>Returns a copy of the current table state.</td></tr>
               <tr><td><code>setLoading(isLoading)</code></td><td>Manually updates loading state and triggers <code>onLoadingChange</code>.</td></tr>
               <tr><td><code>exportCSV(filename)</code></td><td>Exports visible columns from the current raw data to CSV.</td></tr>
+              <tr><td><code>openCreateModal()</code></td><td>Opens the record creation modal if the feature is enabled.</td></tr>
               <tr><td><code>reset()</code></td><td>Clears search, sort, errors, and expanded detail rows.</td></tr>
               <tr><td><code>destroy()</code></td><td>Removes event listeners, aborts fetches, stops live mode, and clears the container.</td></tr>
             </tbody>
@@ -883,6 +885,8 @@ table.init();</code></pre>
               <tr><td><code>onRowToggle({ rowId, expanded })</code></td><td>When a detail row is opened or closed.</td></tr>
               <tr><td><code>onSelectionChange(selectedRows)</code></td><td>When row selection changes.</td></tr>
               <tr><td><code>onUpdate(snapshot)</code></td><td>After a successful render/update cycle.</td></tr>
+              <tr><td><code>onCreateSuccess(row)</code></td><td>After a new record is successfully created and added.</td></tr>
+              <tr><td><code>onCreateError(error)</code></td><td>When a create request fails.</td></tr>
             </tbody>
           </table>
         </section>
@@ -913,6 +917,10 @@ table.init();</code></pre>
             <div class="mini-card">
               <h3><code>LivePlugin</code></h3>
               <p>Handles auto-refresh timers, visibility pausing, and adaptive backoff for remote tables.</p>
+            </div>
+            <div class="mini-card">
+              <h3><code>CreatePlugin</code></h3>
+              <p>Manages the built-in record creation workflow, field validation, and modal state.</p>
             </div>
             <div class="mini-card">
               <h3><code>DataFetcher</code></h3>
@@ -959,6 +967,7 @@ table.init();</code></pre>
             <a class="mini-card" href="./demo/inline-editing.html"><h3>Inline Editing</h3><p>Editable cells and update flow.</p></a>
             <a class="mini-card" href="./demo/live-sync.html"><h3>Live Sync</h3><p>Auto-refresh and status UI behavior.</p></a>
             <a class="mini-card" href="./demo/pagination-guard.html"><h3>Pagination Guard</h3><p>Optional caps for max page and page-size validation.</p></a>
+            <a class="mini-card" href="./demo/create-record.html"><h3>Create Record</h3><p>Built-in modal workflows for adding new rows with validation.</p></a>
           </div>
         </section>
       </div>
