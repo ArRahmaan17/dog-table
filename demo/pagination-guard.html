@@ -238,15 +238,15 @@
           Set <code>paginationGuard</code> to <code>true</code> (defaults) or pass custom bounds.
         </p>
         <pre class="snippet"><code>const table = new DogTable("#app", {
-  data,
   pageSize: 10,
-  paginationGuard: true,
-  // or custom:
-  // paginationGuard: { maxPage: 25, minPageSize: 1, maxPageSize: 100 },
+  paginationGuard: { maxPage: 3, maxPageSize: 50 },
+  remote: {
+    url: "https://api.rahmaanms.my.id/api/employees",
+    mapResponse: (payload, state) => { /* ... */ }
+  },
   columns: [
     { key: "id", label: "ID" },
     { key: "name", label: "Name" },
-    { key: "team", label: "Team" },
   ],
 });</code></pre>
       </section>
@@ -254,9 +254,9 @@
       <div class="toolbar">
         <label>
           <input type="checkbox" id="guard-toggle" checked />
-          Enable <code>paginationGuard</code>
+          Enable <code>paginationGuard</code> (maxPage: 3)
         </label>
-        <button type="button" id="set-page-30">setPage(30)</button>
+        <button type="button" id="set-page-10">setPage(10)</button>
         <button type="button" id="set-size-negative">setPageSize(-8)</button>
         <button type="button" id="set-size-150">setPageSize(150)</button>
         <button type="button" id="set-size-50">setPageSize(50)</button>
@@ -276,18 +276,8 @@
 
       const log = document.getElementById("log");
       const guardToggle = document.getElementById("guard-toggle");
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
       let table = null;
-
-      const data = Array.from({ length: 520 }, (_, index) => {
-        const id = index + 1;
-        const teams = ["Platform", "API", "Design", "Ops", "Growth"];
-        return {
-          id,
-          name: `Employee ${String(id).padStart(3, "0")}`,
-          team: teams[index % teams.length],
-          score: (72 + (index % 29)) / 100,
-        };
-      });
 
       function buildTable() {
         if (table) {
@@ -295,23 +285,24 @@
         }
 
         table = new DogTable("#app", {
-          data,
           pageSize: 10,
-          paginationGuard: guardToggle.checked,
+          paginationGuard: guardToggle.checked ? { maxPage: 3, maxPageSize: 50 } : false,
+          remote: {
+            url: API_URL,
+            mapResponse(payload, state) {
+              let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+              const start = (state.currentPage - 1) * state.pageSize;
+              return {
+                rows: rows.slice(start, start + state.pageSize),
+                totalItems: rows.length,
+              };
+            },
+          },
           columns: [
             { key: "id", label: "ID" },
             { key: "name", label: "Name" },
-            { key: "team", label: "Team" },
-            {
-              key: "score",
-              label: "Score",
-              type: "number",
-              format: {
-                style: "percent",
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
-              },
-            },
+            { key: "role", label: "Role" },
+            { key: "department", label: "Department" },
           ],
           hooks: {
             onUpdate(snapshot) {
@@ -331,7 +322,7 @@
       }
 
       guardToggle.addEventListener("change", buildTable);
-      document.getElementById("set-page-30").addEventListener("click", () => table.setPage(30));
+      document.getElementById("set-page-10").addEventListener("click", () => table.setPage(10));
       document
         .getElementById("set-size-negative")
         .addEventListener("click", () => table.setPageSize(-8));

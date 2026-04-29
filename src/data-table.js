@@ -651,13 +651,19 @@ export class DogTable {
   }
 
   setPage(pageNumber) {
-    this.state.currentPage = this.clampPage(pageNumber);
+    const next = this.clampPage(pageNumber);
+    if (this.state.currentPage === next) return;
+
+    this.state.currentPage = next;
     this.saveState();
     this.update();
   }
 
   setSearch(query) {
-    this.state.searchQuery = String(query ?? "").trim().toLowerCase();
+    const trimmed = String(query ?? "").trim().toLowerCase();
+    if (this.state.searchQuery === trimmed) return;
+
+    this.state.searchQuery = trimmed;
     this.state.currentPage = 1;
 
     if (this.elements.searchInput) {
@@ -677,7 +683,10 @@ export class DogTable {
   }
 
   setPageSize(pageSize) {
-    this.state.pageSize = this.clampPageSize(pageSize);
+    const next = this.clampPageSize(pageSize);
+    if (this.state.pageSize === next) return;
+
+    this.state.pageSize = next;
     this.state.currentPage = 1;
     this.saveState();
     this.update();
@@ -1249,9 +1258,6 @@ export class DogTable {
 
   renderPagination(processed) {
     const stateKey = `${processed.currentPage}:${processed.totalPages}:${processed.totalItems}`;
-    if (this._lastPaginationState === stateKey) {
-      return;
-    }
     this._lastPaginationState = stateKey;
 
     const prevDisabled = processed.currentPage <= 1;
@@ -1337,6 +1343,14 @@ export class DogTable {
       this.state.rawData = Array.isArray(payload.rows) ? payload.rows : [];
       this.state.totalItems = Number(payload.totalItems) || 0;
       this.state.error = null;
+
+      // Sync pagination if the data source shrunk (common in live sync)
+      const totalPages = Math.max(1, Math.ceil(this.state.totalItems / this.state.pageSize));
+      if (this.state.currentPage > totalPages && totalPages > 0) {
+        this.state.currentPage = totalPages;
+        return this.fetchData();
+      }
+
       this.state.expandedRowIds.clear();
       this.live.handleFetchSuccess(payload);
 

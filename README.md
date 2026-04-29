@@ -71,7 +71,7 @@ table.init();
 - Client-side sorting, search, and pagination
 - Remote data loading with abortable requests
 - Inline editing with optional authenticated update requests
-- Built-in create modal with local or remote submit flows
+- **Premium Create Workflow:** Built-in modal with glassmorphism UI, horizontal row layouts, field validation, and local or remote submit flows
 - Grouped rows and expandable detail panels
 - Selection, CSV export, and state persistence
 - **Smart Selection:** Indeterminate state support and multi-page "Select All" for local datasets

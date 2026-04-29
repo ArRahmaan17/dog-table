@@ -164,7 +164,7 @@
   columns: [
     { key: "name", label: "Name", required: true },
     { key: "breed", label: "Breed" },
-    { key: "status", label: "Status" }
+    { key: "status", label: "Status", options: ["Available", "Adopted", "Pending"] }
   ]
 });</code></pre>
       </section>
@@ -210,6 +210,7 @@
           {
             key: "status",
             label: "Status",
+            options: ["Available", "Adopted", "Pending"],
             render(value) {
               const colors = {
                 Available: "#059669",

@@ -1,3 +1,10 @@
+.dt-shell,
+.dt-shell *,
+.dt-shell *::before,
+.dt-shell *::after {
+  box-sizing: border-box;
+}
+
 .dt-shell {
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
   color: #1f2933;
@@ -7,6 +14,7 @@
   padding: 20px;
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
 }
+
 
 .dt-toolbar {
   display: flex;
@@ -292,17 +300,32 @@
 
 .dt-create-trigger:hover,
 .dt-create-submit:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 15px 30px rgba(16, 42, 67, 0.2);
 }
+
+.dt-create-trigger:active,
+.dt-create-submit:active {
+  transform: translateY(0);
+}
+
 
 .dt-create-cancel {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #d9e2ec;
-  color: #243b53;
-  padding: 10px 16px;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 10px 20px;
+  transition: all 0.2s;
 }
+
+.dt-create-cancel:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
 
 .dt-row--highlight td {
   animation: dt-row-highlight 2.6s ease;
@@ -457,12 +480,28 @@
   width: min(100%, 720px);
   max-height: calc(100vh - 48px);
   overflow: auto;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
-  border: 1px solid #d9e2ec;
-  border-radius: 24px;
-  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.24);
-  padding: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 28px;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(15, 23, 42, 0.05);
+  padding: 32px;
+  animation: dt-modal-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+@keyframes dt-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 
 .dt-create-modal__header {
   display: flex;
@@ -479,19 +518,35 @@
 }
 
 .dt-create-modal__description {
-  margin: 8px 0 0;
-  color: #52606d;
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 0.95rem;
 }
+
 
 .dt-create-close {
   appearance: none;
   border: none;
-  background: transparent;
-  color: #52606d;
+  background: #f1f5f9;
+  color: #64748b;
   cursor: pointer;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   line-height: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.dt-create-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
 
 .dt-create-form {
   display: grid;
@@ -500,37 +555,67 @@
 
 .dt-create-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  padding: 4px 0;
 }
+
 
 .dt-create-field {
   display: grid;
-  gap: 8px;
+  grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
 }
+
+
 
 .dt-create-field--checkbox {
-  grid-template-columns: auto 1fr;
-  align-items: center;
+  grid-template-columns: 140px 1fr;
 }
 
+
 .dt-create-label {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #486581;
+  color: #334e68;
+  text-align: right;
+  line-height: 1.2;
 }
+
+.dt-create-label [aria-hidden="true"] {
+  color: #ef4444;
+  margin-left: 4px;
+}
+
+
 
 .dt-create-input {
   width: 100%;
-  border: 1px solid #bcccdc;
-  border-radius: 14px;
-  padding: 12px 14px;
+  border: 1.5px solid #d9e2ec;
+  border-radius: 12px;
+  padding: 12px 16px;
   font: inherit;
   color: #102a43;
   background: #ffffff;
+  transition: all 0.2s ease;
 }
+
+select.dt-create-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+
+.dt-create-input:hover {
+  border-color: #bcccdc;
+}
+
 
 .dt-create-input:focus-visible {
   outline: none;
@@ -588,6 +673,25 @@
 }
 
 @media (max-width: 640px) {
+  .dt-create-modal {
+    padding: 24px;
+    border-radius: 20px;
+  }
+
+  .dt-create-field {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .dt-create-label {
+    text-align: left;
+  }
+
+  .dt-create-field--checkbox {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+  }
+
   .dt-create-grid {
     grid-template-columns: 1fr;
   }
@@ -602,3 +706,4 @@
     width: 100%;
   }
 }
+
