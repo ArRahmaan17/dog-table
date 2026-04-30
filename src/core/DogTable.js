@@ -178,6 +178,60 @@ export class DogTable {
     this.tableState.normalizeConstraints();
   }
 
+  rememberQueryPagination(overrides = {}) {
+    if (!this.isRemote()) {
+      return;
+    }
+
+    const totalItems = Number.isFinite(overrides.totalItems)
+      ? overrides.totalItems
+      : this.state.totalItems;
+    const rawTotalPages = Math.max(
+      1,
+      Math.ceil(Math.max(0, totalItems) / Math.max(1, this.state.pageSize))
+    );
+    const guard = this.getPaginationGuardConfig();
+    const totalPages = Number.isFinite(overrides.totalPages)
+      ? overrides.totalPages
+      : guard
+        ? Math.min(rawTotalPages, guard.maxPage)
+        : rawTotalPages;
+
+    this.remoteAdapter.savePagination(this.state, {
+      page: this.state.currentPage,
+      pageSize: this.state.pageSize,
+      totalItems,
+      totalPages,
+    });
+  }
+
+  restoreQueryPagination() {
+    if (!this.isRemote()) {
+      return false;
+    }
+
+    const pagination = this.remoteAdapter.getPagination(this.state);
+
+    if (!pagination) {
+      this.rememberQueryPagination();
+      return false;
+    }
+
+    if (pagination.pageSize != null) {
+      this.state.pageSize = this.clampPageSize(pagination.pageSize);
+    }
+
+    if (pagination.page != null) {
+      this.state.currentPage = this.clampPage(pagination.page);
+    }
+
+    if (pagination.totalItems != null) {
+      this.state.totalItems = Number(pagination.totalItems) || 0;
+    }
+
+    return true;
+  }
+
   getRowId(row) {
     if (typeof this.options.rowKey === "function") {
       return String(this.options.rowKey(row));
@@ -253,14 +307,24 @@ export class DogTable {
       return;
     }
 
+    if (this.isRemote()) {
+      this.rememberQueryPagination();
+    }
+
     if (this.tableState.setSort(sortKey, direction)) {
+      this.restoreQueryPagination();
       this.saveState();
       this.update();
     }
   }
 
   clearSort() {
+    if (this.isRemote()) {
+      this.rememberQueryPagination();
+    }
+
     if (this.tableState.clearSort()) {
+      this.restoreQueryPagination();
       this.saveState();
       this.update();
     }
@@ -297,15 +361,22 @@ export class DogTable {
 
   setPage(pageNumber) {
     if (this.tableState.setPage(pageNumber)) {
+      this.rememberQueryPagination();
       this.saveState();
       this.update();
     }
   }
 
   setSearch(query) {
+    if (this.isRemote()) {
+      this.rememberQueryPagination();
+    }
+
     if (!this.tableState.setSearch(query)) {
       return;
     }
+
+    this.restoreQueryPagination();
 
     if (this.elements.searchInput) {
       this.elements.searchInput.value = query ?? "";
@@ -325,6 +396,7 @@ export class DogTable {
 
   setPageSize(pageSize) {
     if (this.tableState.setPageSize(pageSize)) {
+      this.rememberQueryPagination();
       this.saveState();
       this.update();
     }
@@ -363,6 +435,10 @@ export class DogTable {
   }
 
   reset() {
+    if (this.isRemote()) {
+      this.rememberQueryPagination();
+    }
+
     this.tableState.reset();
 
     if (this.elements.searchInput) {
@@ -642,6 +718,10 @@ export class DogTable {
     this.renderBody(processed.displayRows);
     this.renderMeta(processed);
     this.renderPagination(processed);
+    this.rememberQueryPagination({
+      totalItems: processed.totalItems,
+      totalPages: processed.totalPages,
+    });
     this.renderToast();
     this.create.updateUI();
     this.live.updateUI();

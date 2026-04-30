@@ -7,7 +7,7 @@ export class DataFetcher {
     this.baseUrl = new URL(this.config.url, window.location.href);
   }
 
-  buildUrl(state) {
+  buildUrl(state, { includePagination = true } = {}) {
     const baseUrl = new URL(this.baseUrl.toString());
     const params = new URLSearchParams(baseUrl.search);
     const queryKeys = {
@@ -19,8 +19,13 @@ export class DataFetcher {
       ...(this.config.queryParams || {}),
     };
 
-    params.set(queryKeys.page, state.currentPage);
-    params.set(queryKeys.pageSize, state.pageSize);
+    if (includePagination) {
+      params.set(queryKeys.page, state.currentPage);
+      params.set(queryKeys.pageSize, state.pageSize);
+    } else {
+      params.delete(queryKeys.page);
+      params.delete(queryKeys.pageSize);
+    }
 
     if (state.sortKey) {
       params.set(queryKeys.sort, state.sortKey);

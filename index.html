@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dog Table </title>
+    <title>Dog Table</title>
     <meta
       name="description"
       content="Explore Dog Table demos for local data, remote loading, grouping, localization, formatting, inline editing, and live sync."
@@ -15,7 +15,10 @@
       property="og:description"
       content="Explore Dog Table demos for local data, remote loading, grouping, localization, formatting, inline editing, and live sync."
     />
-    <meta property="og:url" content="https://arrahmaan17.github.io/dog-table/" />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/"
+    />
     <meta
       property="og:image"
       content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
@@ -61,9 +64,22 @@
         margin: 0;
         min-height: 100vh;
         background:
-          radial-gradient(circle at top left, rgba(125, 211, 252, 0.24), transparent 24%),
-          radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 26%),
-          linear-gradient(180deg, #f9fdff 0%, var(--bg) 55%, var(--bg-deep) 100%);
+          radial-gradient(
+            circle at top left,
+            rgba(125, 211, 252, 0.24),
+            transparent 24%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(59, 130, 246, 0.18),
+            transparent 26%
+          ),
+          linear-gradient(
+            180deg,
+            #f9fdff 0%,
+            var(--bg) 55%,
+            var(--bg-deep) 100%
+          );
         color: var(--ink);
         font-family: "Averta Std", "Nunito Sans", "Segoe UI", sans-serif;
       }
@@ -258,13 +274,18 @@
 
       .hero-preview {
         background:
-          linear-gradient(160deg, rgba(255, 255, 255, 0.98), rgba(235, 248, 255, 0.92)),
+          linear-gradient(
+            160deg,
+            rgba(255, 255, 255, 0.98),
+            rgba(235, 248, 255, 0.92)
+          ),
           var(--panel-strong);
       }
 
       .preview-stack {
         display: grid;
         gap: 14px;
+        margin: 10px 0;
       }
 
       .preview-box {
@@ -274,10 +295,61 @@
         background: rgba(255, 255, 255, 0.82);
       }
 
+      .preview-box--highlight {
+        position: relative;
+        overflow: hidden;
+        border-color: rgba(2, 132, 199, 0.22);
+        background:
+          linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(99, 102, 241, 0.12)),
+          rgba(255, 255, 255, 0.92);
+        box-shadow: 0 18px 36px rgba(14, 165, 233, 0.12);
+      }
+
+      .preview-box--highlight::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          110deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.08) 36%,
+          rgba(255, 255, 255, 0.45) 50%,
+          rgba(255, 255, 255, 0.08) 64%,
+          transparent 100%
+        );
+        transform: translateX(-140%);
+        animation: dt-shimmer 4.2s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      .preview-box--highlight strong,
+      .preview-box--highlight p {
+        position: relative;
+        z-index: 1;
+      }
+
+      .preview-box--highlight strong {
+        color: #075985;
+      }
+
+      .preview-box--highlight p {
+        color: #1e3a5f;
+      }
+
       .preview-box strong {
         display: block;
         margin-bottom: 6px;
         color: var(--accent-deep);
+      }
+
+      @keyframes dt-shimmer {
+        0% {
+          transform: translateX(-140%);
+        }
+        55%,
+        100% {
+          transform: translateX(140%);
+        }
       }
 
       .preview-list {
@@ -420,8 +492,11 @@
         padding: 28px;
         border: 1px solid var(--border);
         border-radius: 28px;
-        background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(237, 247, 255, 0.88));
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.92),
+          rgba(237, 247, 255, 0.88)
+        );
         box-shadow: var(--shadow);
       }
 
@@ -547,7 +622,9 @@
             title="GitHub"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z" />
+              <path
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z"
+              />
             </svg>
           </a>
         </div>
@@ -559,14 +636,22 @@
             <div class="eyebrow">Dog Table v1.5</div>
             <h1>Advanced table workflows without a framework-sized setup.</h1>
             <p class="lede">
-              Dog Table is a lightweight vanilla JavaScript data table for teams that need sorting, search, pagination, remote data, grouping, export, editing, and live refresh in a small API surface, now backed by a cleaner modular core.
+              Dog Table is a lightweight vanilla JavaScript data table for teams
+              that need sorting, search, pagination, remote data, grouping,
+              export, editing, and live refresh in a small API surface, now
+              backed by a cleaner modular core.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="./docs.html">Read documentation</a>
-              <a class="button button-secondary" href="./demo/basic.html">Open examples</a>
+              <a class="button button-primary" href="./docs.html"
+                >Read documentation</a
+              >
+              <a class="button button-secondary" href="./demo/basic.html"
+                >Open examples</a
+              >
             </div>
             <p class="meta">
-              Works with plain HTML, modern bundlers, and production UIs that want table behavior without pulling in a full component framework.
+              Works with plain HTML, modern bundlers, and production UIs that
+              want table behavior without pulling in a full component framework.
             </p>
           </div>
 
@@ -574,7 +659,11 @@
             <div class="preview-stack">
               <div class="preview-box">
                 <strong>What you get</strong>
-                <p>Search, sort, pagination, remote fetching, localization, grouping, row detail, CSV export, inline editing, auto-refresh, and a clearer internal architecture.</p>
+                <p>
+                  Search, sort, pagination, remote fetching, localization,
+                  grouping, row detail, CSV export, inline editing,
+                  auto-refresh, and a clearer internal architecture.
+                </p>
               </div>
               <div class="preview-list">
                 <div class="preview-item">
@@ -591,6 +680,12 @@
                 </div>
               </div>
             </div>
+            <div class="preview-stack">
+              <div class="preview-box preview-box--highlight">
+                <strong>What’s new in v1.5</strong>
+                <p>Phase 1 modular architecture and query-cache behavior: shared remote datasets, isolated pagination per query.</p>
+              </div>
+            </div>
           </aside>
         </section>
 
@@ -600,12 +695,18 @@
               <span class="eyebrow-small">Install</span>
               <h2>Install Dog Table in a few straightforward steps.</h2>
               <p>
-                The structure here follows a simple landing-page flow: install, initialize, then branch into docs or examples depending on how deep you want to go.
+                The structure here follows a simple landing-page flow: install,
+                initialize, then branch into docs or examples depending on how
+                deep you want to go.
               </p>
             </div>
             <div class="install-actions">
-              <a class="button button-secondary" href="./docs.html#installation">Full docs</a>
-              <a class="button button-secondary" href="./demo/remote.html">Remote demo</a>
+              <a class="button button-secondary" href="./docs.html#installation"
+                >Full docs</a
+              >
+              <a class="button button-secondary" href="./demo/remote.html"
+                >Remote demo</a
+              >
             </div>
           </div>
 
@@ -634,15 +735,28 @@ table.init();</code></pre>
             <div class="install-list">
               <div class="install-step">
                 <strong>Use local data first</strong>
-                <p>Start with the basic demo if you want to learn the core constructor and column setup before adding plugins or remote fetch logic.</p>
+                <p>
+                  Start with the basic demo if you want to learn the core
+                  constructor and column setup before adding plugins or remote
+                  fetch logic.
+                </p>
               </div>
               <div class="install-step">
                 <strong>Add features incrementally</strong>
-                <p>Dog Table lets you layer in row detail, persistence, selection, export, editing, and live polling as your table needs grow without collapsing everything into one controller file.</p>
+                <p>
+                  Dog Table lets you layer in row detail, persistence,
+                  selection, export, editing, and live polling as your table
+                  needs grow without collapsing everything into one controller
+                  file.
+                </p>
               </div>
               <div class="install-step">
                 <strong>Move to remote mode when needed</strong>
-                <p>Switch to `remote` config when the dataset belongs on the server. Requests are abortable and respond to search, sort, and page state.</p>
+                <p>
+                  Switch to `remote` config when the dataset belongs on the
+                  server. Requests are abortable and respond to search, sort,
+                  and page state.
+                </p>
               </div>
             </div>
           </div>
@@ -652,22 +766,35 @@ table.init();</code></pre>
           <div class="section-head">
             <div class="section-copy">
               <span class="eyebrow-small">Why Dog Table</span>
-              <h2>Practical defaults for the table work teams actually ship.</h2>
+              <h2>
+                Practical defaults for the table work teams actually ship.
+              </h2>
             </div>
           </div>
 
           <div class="feature-grid">
             <article class="feature-card">
               <strong>Easy to wire up</strong>
-              <p>The constructor API stays small: pass a container, data, columns, and optional feature configs. Then call `init()`.</p>
+              <p>
+                The constructor API stays small: pass a container, data,
+                columns, and optional feature configs. Then call `init()`.
+              </p>
             </article>
             <article class="feature-card">
               <strong>Extensible without ceremony</strong>
-              <p>Persistence, selection, export, formatting, editing, and live refresh are already organized as internal modules you can build on.</p>
+              <p>
+                Persistence, selection, export, formatting, editing, and live
+                refresh are already organized as internal modules you can build
+                on.
+              </p>
             </article>
             <article class="feature-card">
               <strong>Made for real app flows</strong>
-              <p>Remote pagination, localization, expandable rows, and detail panels cover the higher-friction use cases that simple table examples usually skip.</p>
+              <p>
+                Remote pagination, localization, expandable rows, and detail
+                panels cover the higher-friction use cases that simple table
+                examples usually skip.
+              </p>
             </article>
           </div>
         </section>
@@ -677,25 +804,44 @@ table.init();</code></pre>
             <div class="section-copy">
               <span class="eyebrow-small">Architecture</span>
               <h2>Phase 1 splits the table into focused layers.</h2>
-              <p>The public API still starts with <code>new DogTable(container, options)</code>, but the internals now separate state, data processing, rendering, remote loading, events, and plugin bootstrapping.</p>
+              <p>
+                The public API still starts with
+                <code>new DogTable(container, options)</code>, but the internals
+                now separate state, data processing, rendering, remote loading,
+                events, and plugin bootstrapping.
+              </p>
             </div>
             <div class="install-actions">
-              <a class="button button-secondary" href="./docs.html#architecture">Architecture docs</a>
+              <a class="button button-secondary" href="./docs.html#architecture"
+                >Architecture docs</a
+              >
+              <a class="button button-secondary" href="./query-cache.html"
+                >Query cache guide</a
+              >
             </div>
           </div>
 
           <div class="feature-grid">
             <article class="feature-card">
               <strong>State manager</strong>
-              <p><code>TableState</code> owns page, page size, search, sorting, and pagination guard constraints.</p>
+              <p>
+                <code>TableState</code> owns page, page size, search, sorting,
+                and pagination guard constraints.
+              </p>
             </article>
             <article class="feature-card">
               <strong>Data engine</strong>
-              <p><code>DataEngine</code> handles filtering, sorting, pagination slicing, grouping, and cache reuse without touching the DOM.</p>
+              <p>
+                <code>DataEngine</code> handles filtering, sorting, pagination
+                slicing, grouping, and cache reuse without touching the DOM.
+              </p>
             </article>
             <article class="feature-card">
               <strong>Renderer layer</strong>
-              <p>Dedicated renderers handle table structure, pagination UI, and meta states so UI work stays separate from business logic.</p>
+              <p>
+                Dedicated renderers handle table structure, pagination UI, and
+                meta states so UI work stays separate from business logic.
+              </p>
             </article>
           </div>
         </section>
@@ -705,7 +851,10 @@ table.init();</code></pre>
             <div class="section-copy">
               <span class="eyebrow-small">Examples</span>
               <h2>Browse the feature set through focused examples.</h2>
-              <p>Instead of one massive demo, each page isolates a workflow so it is easier to inspect, copy, and test.</p>
+              <p>
+                Instead of one massive demo, each page isolates a workflow so it
+                is easier to inspect, copy, and test.
+              </p>
             </div>
           </div>
 
@@ -713,37 +862,64 @@ table.init();</code></pre>
             <a class="link-card" href="./docs.html">
               <span class="eyebrow-small">Reference</span>
               <h3>Documentation</h3>
-              <p>Installation, options, methods, hooks, plugins, and the current modular architecture behind the public API.</p>
+              <p>
+                Installation, options, methods, hooks, plugins, and the current
+                modular architecture behind the public API.
+              </p>
               <span class="link-meta">Open docs</span>
+            </a>
+            <a class="link-card" href="./query-cache.html">
+              <span class="eyebrow-small">Architecture</span>
+              <h3>Query Cache Guide</h3>
+              <p>
+                Understand dataset aliasing, per-query pagination state, and the
+                remote cache rules.
+              </p>
+              <span class="link-meta">Open guide</span>
             </a>
             <a class="link-card" href="./demo/basic.html">
               <span class="eyebrow-small">Core</span>
               <h3>Basic Local Table</h3>
-              <p>Start with local rows, search, sorting, pagination, and a clean starter configuration.</p>
+              <p>
+                Start with local rows, search, sorting, pagination, and a clean
+                starter configuration.
+              </p>
               <span class="link-meta">View basic demo</span>
             </a>
             <a class="link-card" href="./demo/custom-cells.html">
               <span class="eyebrow-small">Rendering</span>
               <h3>Custom Cells</h3>
-              <p>Mix DOM nodes, richer row metadata, and custom filter logic in a straightforward column definition.</p>
+              <p>
+                Mix DOM nodes, richer row metadata, and custom filter logic in a
+                straightforward column definition.
+              </p>
               <span class="link-meta">View custom cells</span>
             </a>
             <a class="link-card" href="./demo/themes.html">
               <span class="eyebrow-small">Styling</span>
               <h3>Theme Presets</h3>
-              <p>Compare the default, Bootstrap, and Tailwind-oriented class mappings against the same table model.</p>
+              <p>
+                Compare the default, Bootstrap, and Tailwind-oriented class
+                mappings against the same table model.
+              </p>
               <span class="link-meta">View themes</span>
             </a>
             <a class="link-card" href="./demo/remote.html">
               <span class="eyebrow-small">Remote</span>
               <h3>Remote Fetch</h3>
-              <p>See server-style paging, sorting, abortable loading, and search against a live public API.</p>
+              <p>
+                See server-style paging, sorting, abortable loading, and search
+                against a live public API.
+              </p>
               <span class="link-meta">View remote demo</span>
             </a>
             <a class="link-card" href="./demo/advanced-features.html">
               <span class="eyebrow-small">Power Tools</span>
               <h3>Advanced Features</h3>
-              <p>Selection, CSV export, persistence, and column visibility controls in one place.</p>
+              <p>
+                Selection, CSV export, persistence, and column visibility
+                controls in one place.
+              </p>
               <span class="link-meta">View advanced demo</span>
             </a>
           </div>
@@ -770,7 +946,10 @@ table.init();</code></pre>
             </a>
             <a class="link-card" href="./demo/formatting.html">
               <h3>Formatting</h3>
-              <p>Currency, date, and number formatting examples with locale-aware output.</p>
+              <p>
+                Currency, date, and number formatting examples with locale-aware
+                output.
+              </p>
               <span class="link-meta">Open demo</span>
             </a>
             <a class="link-card" href="./demo/inline-editing.html">
@@ -783,7 +962,10 @@ table.init();</code></pre>
             <a class="link-card" href="./demo/create-record.html">
               <span class="eyebrow-small">Input</span>
               <h3>Create Record</h3>
-              <p>Built-in modal workflows for adding new rows with field validation and custom inputs.</p>
+              <p>
+                Built-in modal workflows for adding new rows with field
+                validation and custom inputs.
+              </p>
               <span class="link-meta">Open demo</span>
             </a>
             <a class="link-card" href="./demo/live-sync.html">
@@ -794,12 +976,17 @@ table.init();</code></pre>
             </a>
             <a class="link-card" href="./demo/pagination-guard.html">
               <h3>Pagination Guard</h3>
-              <p>Optional max page and page-size guardrails with clamp examples.</p>
+              <p>
+                Optional max page and page-size guardrails with clamp examples.
+              </p>
               <span class="link-meta">Open demo</span>
             </a>
             <a class="link-card" href="./docs.html#api-methods">
               <h3>API Methods</h3>
-              <p>Jump straight to the method reference for programmatic control of the table instance.</p>
+              <p>
+                Jump straight to the method reference for programmatic control
+                of the table instance.
+              </p>
               <span class="link-meta">Read API reference</span>
             </a>
           </div>
@@ -814,7 +1001,9 @@ table.init();</code></pre>
               <span>Dog Table</span>
             </div>
             <p>
-              Vanilla JavaScript data tables with practical features for real app flows: search, sorting, remote data, editing, create workflows, export, and live refresh.
+              Vanilla JavaScript data tables with practical features for real
+              app flows: search, sorting, remote data, editing, create
+              workflows, export, and live refresh.
             </p>
             <div class="nav-actions">
               <a
@@ -824,7 +1013,9 @@ table.init();</code></pre>
                 title="GitHub"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z" />
+                  <path
+                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z"
+                  />
                 </svg>
               </a>
               <a
@@ -846,6 +1037,7 @@ table.init();</code></pre>
               <a href="#install">Install</a>
               <a href="./docs.html">Documentation</a>
               <a href="./docs.html#api-methods">API Reference</a>
+              <a href="./query-cache.html">Query Cache Guide</a>
             </div>
           </div>
 
@@ -871,7 +1063,10 @@ table.init();</code></pre>
         </div>
 
         <div class="footer-bottom">
-          <span>Built for teams that want practical table features without a framework-sized dependency.</span>
+          <span
+            >Built for teams that want practical table features without a
+            framework-sized dependency.</span
+          >
           <span>MIT Licensed</span>
         </div>
       </footer>

@@ -8,6 +8,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Phase 1 Modular Refactor:** `DogTable` sekarang menjadi orchestrator tipis yang mendelegasikan state, data processing, rendering, event binding, remote fetching, dan plugin bootstrap ke modul terpisah.
 * **State Layer:** Menambahkan `src/core/TableState.js` untuk menangani `currentPage`, `pageSize`, `searchQuery`, `sortKey`, dan guard pagination secara terpusat.
 * **Data Layer:** Menambahkan `src/core/DataEngine.js` untuk filtering, sorting, pagination slicing, serta cache pipeline yang sebelumnya tertanam di kelas utama.
+* **Query Cache:** Remote query context sekarang menyimpan pagination secara terpisah per query, sementara dataset identik di-alias ke base cache yang sama agar tidak diduplikasi di memori.
 * **Renderer Split:** UI tabel dipisahkan ke `src/renderers/TableRenderer.js`, `src/renderers/PaginationRenderer.js`, dan `src/renderers/MetaRenderer.js` agar render lebih idempoten dan tidak tercampur dengan business logic.
 * **Remote & Events:** Menambahkan `src/data/RemoteAdapter.js` dan `src/core/EventBinder.js` untuk memisahkan fetch remote dari UI serta memusatkan bind/unbind event DOM.
 * **Plugin Bootstrap:** Inisialisasi plugin sekarang diisolasi di `src/plugin/PluginManager.js` tanpa mengubah API publik yang ada.
