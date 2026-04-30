@@ -84,7 +84,7 @@ table.init();
 
 ## Internal Architecture
 
-`DogTable` remains the public controller, but Phase 1 refactors the implementation into focused modules:
+`DogTable` remains the public controller, but  refactors the implementation into focused modules:
 
 - `src/core/DogTable.js`: orchestration and public API
 - `src/core/TableState.js`: state mutation and pagination constraints

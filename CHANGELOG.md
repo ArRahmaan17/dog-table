@@ -5,7 +5,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
 ## [1.5.0] — 2026-04-30
 ### Changed
-* **Phase 1 Modular Refactor:** `DogTable` sekarang menjadi orchestrator tipis yang mendelegasikan state, data processing, rendering, event binding, remote fetching, dan plugin bootstrap ke modul terpisah.
+* ** Modular Refactor:** `DogTable` sekarang menjadi orchestrator tipis yang mendelegasikan state, data processing, rendering, event binding, remote fetching, dan plugin bootstrap ke modul terpisah.
 * **State Layer:** Menambahkan `src/core/TableState.js` untuk menangani `currentPage`, `pageSize`, `searchQuery`, `sortKey`, dan guard pagination secara terpusat.
 * **Data Layer:** Menambahkan `src/core/DataEngine.js` untuk filtering, sorting, pagination slicing, serta cache pipeline yang sebelumnya tertanam di kelas utama.
 * **Query Cache:** Remote query context sekarang menyimpan pagination secara terpisah per query, sementara dataset identik di-alias ke base cache yang sama agar tidak diduplikasi di memori.
@@ -14,8 +14,8 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Plugin Bootstrap:** Inisialisasi plugin sekarang diisolasi di `src/plugin/PluginManager.js` tanpa mengubah API publik yang ada.
 
 ### Docs
-* README, wiki architecture, dan dokumentasi terkait diperbarui agar mencerminkan struktur modular Phase 1 baru.
-* `index.html` dan `docs.html` diperbarui untuk menampilkan arsitektur modular Phase 1, termasuk penjelasan layer internal dan alur update baru.
+* README, wiki architecture, dan dokumentasi terkait diperbarui agar mencerminkan struktur modular  baru.
+* `index.html` dan `docs.html` diperbarui untuk menampilkan arsitektur modular , termasuk penjelasan layer internal dan alur update baru.
 
 ## [1.4.1] — 2026-04-29
 ### Added
@@ -89,7 +89,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
  
 ## [1.3.0] — 2026-04-20
 ### Added
-* **Formatter Engine (Phase 1):** Menambahkan sistem formatting cerdas berbasis **Intl API** untuk otomatisasi tampilan mata uang (`money`), tanggal (`datetime`), dan angka (`number`).
+* **Formatter Engine ():** Menambahkan sistem formatting cerdas berbasis **Intl API** untuk otomatisasi tampilan mata uang (`money`), tanggal (`datetime`), dan angka (`number`).
 * **Inline Editor (Phase 2):** Implementasi plugin `EditorPlugin` yang memungkinkan pengeditan data langsung di sel tabel dengan dukungan callback `onCellSave`.
 * **Live Sync (Phase 3):** Menambahkan fitur `autoRefresh` untuk sinkronisasi data otomatis secara berkala (polling) dilengkapi dengan UI indicator "Live/Paused" yang interaktif.
 * **Hook Lifecycle (Phase 4):** Penambahan hook baru `onBeforeRefresh` (sebelum polling) dan `onDataUpdated` (saat data mentah berubah melalui fetch atau edit).
@@ -108,7 +108,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
 ## [1.2.0] — 2026-04-20
 ### Added
-* **Phase 1: State Persistence & URL Sync:** Menambahkan dukungan penyimpanan state tabel ke `localStorage`, `sessionStorage`, atau URL Query Parameters.
+* **: State Persistence & URL Sync:** Menambahkan dukungan penyimpanan state tabel ke `localStorage`, `sessionStorage`, atau URL Query Parameters.
 * **Phase 2: Selection & Bulk Actions:** Menambahkan fitur multi-select dengan kolom checkbox otomatis dan API `getSelectedData()`.
 * **Phase 3: Column Visibility & Export:** Menambahkan API `toggleColumnVisibility` dan fitur ekspor data ke format CSV (`exportCSV`).
 * **Advanced Features Demo:** Menambahkan demo baru di `demo/advanced-features.html` yang menggabungkan fitur persistence, selection, dan export.

@@ -53,7 +53,7 @@
     "remote-data",
     "inline-editing",
     "live-sync",
-    "crud"
+    "auto-refresh"
   ],
   "author": "doglex",
   "license": "MIT"
