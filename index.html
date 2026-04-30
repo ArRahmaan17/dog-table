@@ -556,10 +556,10 @@
       <main>
         <section class="hero">
           <div class="hero-copy">
-            <div class="eyebrow">Dog Table v1.4</div>
+            <div class="eyebrow">Dog Table v1.5</div>
             <h1>Advanced table workflows without a framework-sized setup.</h1>
             <p class="lede">
-              Dog Table is a lightweight vanilla JavaScript data table for teams that need sorting, search, pagination, remote data, grouping, export, editing, and live refresh in a small API surface.
+              Dog Table is a lightweight vanilla JavaScript data table for teams that need sorting, search, pagination, remote data, grouping, export, editing, and live refresh in a small API surface, now backed by a cleaner modular core.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="./docs.html">Read documentation</a>
@@ -574,7 +574,7 @@
             <div class="preview-stack">
               <div class="preview-box">
                 <strong>What you get</strong>
-                <p>Search, sort, pagination, remote fetching, localization, grouping, row detail, CSV export, inline editing, and auto-refresh.</p>
+                <p>Search, sort, pagination, remote fetching, localization, grouping, row detail, CSV export, inline editing, auto-refresh, and a clearer internal architecture.</p>
               </div>
               <div class="preview-list">
                 <div class="preview-item">
@@ -582,8 +582,8 @@
                   <span>Built in</span>
                 </div>
                 <div class="preview-item">
-                  <span>Plugin-powered extras</span>
-                  <span>Selection + export</span>
+                  <span>Modular internals</span>
+                  <span>State + render layers</span>
                 </div>
                 <div class="preview-item">
                   <span>Examples included</span>
@@ -638,7 +638,7 @@ table.init();</code></pre>
               </div>
               <div class="install-step">
                 <strong>Add features incrementally</strong>
-                <p>Dog Table lets you layer in row detail, persistence, selection, export, editing, and live polling as your table needs grow.</p>
+                <p>Dog Table lets you layer in row detail, persistence, selection, export, editing, and live polling as your table needs grow without collapsing everything into one controller file.</p>
               </div>
               <div class="install-step">
                 <strong>Move to remote mode when needed</strong>
@@ -672,6 +672,34 @@ table.init();</code></pre>
           </div>
         </section>
 
+        <section class="section">
+          <div class="section-head">
+            <div class="section-copy">
+              <span class="eyebrow-small">Architecture</span>
+              <h2>Phase 1 splits the table into focused layers.</h2>
+              <p>The public API still starts with <code>new DogTable(container, options)</code>, but the internals now separate state, data processing, rendering, remote loading, events, and plugin bootstrapping.</p>
+            </div>
+            <div class="install-actions">
+              <a class="button button-secondary" href="./docs.html#architecture">Architecture docs</a>
+            </div>
+          </div>
+
+          <div class="feature-grid">
+            <article class="feature-card">
+              <strong>State manager</strong>
+              <p><code>TableState</code> owns page, page size, search, sorting, and pagination guard constraints.</p>
+            </article>
+            <article class="feature-card">
+              <strong>Data engine</strong>
+              <p><code>DataEngine</code> handles filtering, sorting, pagination slicing, grouping, and cache reuse without touching the DOM.</p>
+            </article>
+            <article class="feature-card">
+              <strong>Renderer layer</strong>
+              <p>Dedicated renderers handle table structure, pagination UI, and meta states so UI work stays separate from business logic.</p>
+            </article>
+          </div>
+        </section>
+
         <section class="section" id="examples">
           <div class="section-head">
             <div class="section-copy">
@@ -685,7 +713,7 @@ table.init();</code></pre>
             <a class="link-card" href="./docs.html">
               <span class="eyebrow-small">Reference</span>
               <h3>Documentation</h3>
-              <p>Installation, options, methods, hooks, plugins, and a guided overview of the current API surface.</p>
+              <p>Installation, options, methods, hooks, plugins, and the current modular architecture behind the public API.</p>
               <span class="link-meta">Open docs</span>
             </a>
             <a class="link-card" href="./demo/basic.html">

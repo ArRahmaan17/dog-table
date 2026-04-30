@@ -6,14 +6,14 @@
     <title>Dog Table Docs</title>
     <meta
       name="description"
-      content="Read the Dog Table documentation with installation, quick start, options, API methods, hooks, plugins, and demo references."
+      content="Read the Dog Table documentation with installation, quick start, options, modular architecture, API methods, hooks, plugins, and demo references."
     />
     <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/docs.html" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Dog Table Docs" />
     <meta
       property="og:description"
-      content="Read the Dog Table documentation with installation, quick start, options, API methods, hooks, plugins, and demo references."
+      content="Read the Dog Table documentation with installation, quick start, options, modular architecture, API methods, hooks, plugins, and demo references."
     />
     <meta
       property="og:url"
@@ -28,7 +28,7 @@
     <meta name="twitter:title" content="Dog Table Docs" />
     <meta
       name="twitter:description"
-      content="Read the Dog Table documentation with installation, quick start, options, API methods, hooks, plugins, and demo references."
+      content="Read the Dog Table documentation with installation, quick start, options, modular architecture, API methods, hooks, plugins, and demo references."
     />
     <meta
       name="twitter:image"
@@ -592,7 +592,7 @@
           <div class="eyebrow">Dog Table Docs</div>
           <h1>Vanilla tables with the practical stuff already built in.</h1>
           <p class="lede">
-            Dog Table gives you search, sorting, pagination, remote data loading, grouping, selection, CSV export, inline editing, localization, persistence, and live refresh without bringing in a framework.
+            Dog Table gives you search, sorting, pagination, remote data loading, grouping, selection, CSV export, inline editing, localization, persistence, and live refresh without bringing in a framework, while keeping the internals split into focused modules.
           </p>
           <div class="hero-actions">
             <a class="button button-primary" href="#quick-start">Quick start</a>
@@ -607,6 +607,7 @@
             <a href="#installation">Installation</a>
             <a href="#quick-start">Quick Start</a>
             <a href="#core-concepts">Core concepts</a>
+            <a href="#architecture">Architecture</a>
             <a href="#table-options">Table options</a>
             <a href="#columns">Column definition</a>
             <a href="#api-methods">API methods</a>
@@ -728,6 +729,42 @@ table.init();</code></pre>
               <p>Persistence, CSV export, inline editing, locale switching, and live polling are already wired into the table instance.</p>
             </div>
           </div>
+        </section>
+
+        <section class="panel" id="architecture">
+          <h2 class="section-title">Architecture</h2>
+          <p class="section-copy">Phase 1 keeps the public <code>DogTable</code> API stable while separating state management, data processing, rendering, remote loading, event binding, and plugin bootstrapping.</p>
+          <div class="mini-grid">
+            <div class="mini-card">
+              <h3><code>DogTable</code></h3>
+              <p>The main controller coordinates update flow, public methods, hooks, and module lifecycles.</p>
+            </div>
+            <div class="mini-card">
+              <h3><code>TableState</code></h3>
+              <p>Owns page, page size, search query, sort state, error/loading state, and pagination guard constraints.</p>
+            </div>
+            <div class="mini-card">
+              <h3><code>DataEngine</code></h3>
+              <p>Handles filtering, sorting, pagination slicing, grouping, and cache reuse without touching the DOM.</p>
+            </div>
+            <div class="mini-card">
+              <h3><code>RemoteAdapter</code></h3>
+              <p>Wraps remote fetching and returns normalized <code>{ rows, totalItems }</code> payloads to the controller.</p>
+            </div>
+            <div class="mini-card">
+              <h3>Renderers</h3>
+              <p><code>TableRenderer</code>, <code>PaginationRenderer</code>, and <code>MetaRenderer</code> keep UI output separate from business logic.</p>
+            </div>
+            <div class="mini-card">
+              <h3><code>EventBinder</code></h3>
+              <p>Centralizes DOM bind/unbind behavior for header sorting, pagination, row actions, search, and create/live controls.</p>
+            </div>
+          </div>
+          <pre><code>await table.update();
+// -> fetch remote rows when needed
+// -> process state through DataEngine
+// -> render header/body/meta/pagination
+</code></pre>
         </section>
 
         <section class="panel">
@@ -925,6 +962,10 @@ table.init();</code></pre>
             <div class="mini-card">
               <h3><code>DataFetcher</code></h3>
               <p>Builds request URLs from table state, supports query param remapping, and aborts stale requests.</p>
+            </div>
+            <div class="mini-card">
+              <h3><code>PluginManager</code></h3>
+              <p>Initializes persistence, selection, export, formatter, editor, live, and create plugins for the controller.</p>
             </div>
             <div class="mini-card">
               <h3><code>ThemeManager</code></h3>

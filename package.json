@@ -1,7 +1,7 @@
 {
   "name": "dog-table",
-  "version": "1.4.1",
-  "description": "Vanilla JavaScript data table with search, sorting, remote data, inline editing, live sync, and create workflows.",
+  "version": "1.5.0",
+  "description": "Modular vanilla JavaScript data table with search, sorting, remote data, inline editing, live sync, and create workflows.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ArRahmaan17/dog-table.git"
@@ -49,6 +49,7 @@
     "vanilla-js",
     "pagination",
     "sorting",
+    "modular",
     "remote-data",
     "inline-editing",
     "live-sync",
