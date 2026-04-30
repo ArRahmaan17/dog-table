@@ -92,18 +92,61 @@
       }
 
       .controls button {
-        border: none;
+        border: 1px solid transparent;
         border-radius: 999px;
         padding: 10px 14px;
-        background: #c7d2fe;
+        background: rgba(199, 210, 254, 0.72);
         color: #312e81;
         font: inherit;
         font-weight: 600;
         cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
       }
 
       .controls button:hover {
         background: #a5b4fc;
+        transform: translateY(-1px);
+      }
+
+      .controls button[aria-pressed="true"] {
+        border-color: #4338ca;
+        background: #4338ca;
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(67, 56, 202, 0.2);
+      }
+
+      .controls button[data-theme="bootstrap"][aria-pressed="true"] {
+        border-color: #198754;
+        background: #198754;
+      }
+
+      .controls button[data-theme="tailwind"][aria-pressed="true"] {
+        border-color: #059669;
+        background: #059669;
+      }
+
+      .theme-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 22px;
+        padding: 12px 16px;
+        border: 1px solid rgba(67, 56, 202, 0.14);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.82);
+        color: #312e81;
+        font-weight: 600;
+      }
+
+      .theme-status strong {
+        color: #1e1b4b;
+      }
+
+      .theme-status code {
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: #e0e7ff;
+        color: #3730a3;
       }
 
       .setup-card {
@@ -244,9 +287,15 @@
       </section>
 
       <div class="controls">
-        <button type="button" data-theme="default">Default</button>
+        <button type="button" data-theme="default" aria-pressed="true">Default</button>
         <button type="button" data-theme="bootstrap">Bootstrap</button>
         <button type="button" data-theme="tailwind">Tailwind</button>
+      </div>
+
+      <div class="theme-status" aria-live="polite">
+        <strong>Current theme</strong>
+        <code id="theme-status-label">default</code>
+        <span id="theme-status-copy">Base Dog Table preset with the default header styling.</span>
       </div>
 
       <div id="app"></div>
@@ -266,6 +315,34 @@
         { name: "Atlas", size: "Large", energy: "High", fee: 220 },
         { name: "Olive", size: "Small", energy: "Low", fee: 90 },
       ];
+
+      const themeConfigs = {
+        default: {
+          label: "default",
+          description: "Base Dog Table preset with the default header styling.",
+          classNames: {},
+        },
+        bootstrap: {
+          label: "bootstrap",
+          description:
+            "Bootstrap preset with a greener table head so the framework styling is more visible.",
+          classNames: {
+            thead: "table-success",
+            headerCell:
+              "dt-header-cell bg-success-subtle text-success-emphasis border-bottom border-success-subtle fw-semibold",
+          },
+        },
+        tailwind: {
+          label: "tailwind",
+          description:
+            "Tailwind preset with an emerald table head and stronger header separation.",
+          classNames: {
+            thead: "bg-emerald-100",
+            headerCell:
+              "dt-header-cell bg-emerald-100 text-emerald-900 border-b border-emerald-200 font-semibold uppercase tracking-[0.08em]",
+          },
+        },
+      };
 
       const table = new DogTable("#app", {
         data: dogs,
@@ -290,13 +367,31 @@
 
       table.init();
 
+      const statusLabel = document.querySelector("#theme-status-label");
+      const statusCopy = document.querySelector("#theme-status-copy");
+      const themeButtons = [...document.querySelectorAll("button[data-theme]")];
+
+      function applyTheme(themeName) {
+        const nextTheme = themeConfigs[themeName] || themeConfigs.default;
+
+        table.setTheme(themeName, nextTheme.classNames);
+
+        themeButtons.forEach((button) => {
+          const isActive = button.dataset.theme === themeName;
+          button.setAttribute("aria-pressed", String(isActive));
+        });
+
+        statusLabel.textContent = nextTheme.label;
+        statusCopy.textContent = nextTheme.description;
+      }
+
       document.querySelector(".controls").addEventListener("click", (event) => {
         const button = event.target.closest("button[data-theme]");
         if (!button) {
           return;
         }
 
-        table.setTheme(button.dataset.theme);
+        applyTheme(button.dataset.theme);
       });
     </script>
   </body>

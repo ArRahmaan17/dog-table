@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -6,14 +6,17 @@
     <title>Dog Table Docs</title>
     <meta
       name="description"
-      content="Read the Dog Table documentation with installation, quick start, options, API methods, hooks, plugins, and demo references."
+      content="Read the Dog Table documentation with installation, quick start, options, modular architecture, API methods, hooks, plugins, and demo references."
     />
-    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/docs.html" />
+    <link
+      rel="canonical"
+      href="https://arrahmaan17.github.io/dog-table/docs.html"
+    />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Dog Table Docs" />
     <meta
       property="og:description"
-      content="Read the Dog Table documentation with installation, quick start, options, API methods, hooks, plugins, and demo references."
+      content="Read the Dog Table documentation with installation, quick start, options, modular architecture, API methods, hooks, plugins, and demo references."
     />
     <meta
       property="og:url"
@@ -28,7 +31,7 @@
     <meta name="twitter:title" content="Dog Table Docs" />
     <meta
       name="twitter:description"
-      content="Read the Dog Table documentation with installation, quick start, options, API methods, hooks, plugins, and demo references."
+      content="Read the Dog Table documentation with installation, quick start, options, modular architecture, API methods, hooks, plugins, and demo references."
     />
     <meta
       name="twitter:image"
@@ -66,9 +69,22 @@
         color: var(--ink);
         font-family: "Averta Std", "Nunito Sans", "Segoe UI", sans-serif;
         background:
-          radial-gradient(circle at top left, rgba(125, 211, 252, 0.24), transparent 24%),
-          radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 26%),
-          linear-gradient(180deg, #f9fdff 0%, var(--bg) 55%, var(--bg-deep) 100%);
+          radial-gradient(
+            circle at top left,
+            rgba(125, 211, 252, 0.24),
+            transparent 24%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(59, 130, 246, 0.18),
+            transparent 26%
+          ),
+          linear-gradient(
+            180deg,
+            #f9fdff 0%,
+            var(--bg) 55%,
+            var(--bg-deep) 100%
+          );
       }
 
       a {
@@ -343,6 +359,7 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 14px;
+        margin: 5px 0;
       }
 
       .mini-card {
@@ -431,8 +448,11 @@
         padding: 28px;
         border: 1px solid var(--border);
         border-radius: 28px;
-        background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(237, 247, 255, 0.88));
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.92),
+          rgba(237, 247, 255, 0.88)
+        );
         box-shadow: var(--shadow);
       }
 
@@ -563,7 +583,9 @@
             title="GitHub"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z" />
+              <path
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z"
+              />
             </svg>
           </a>
         </div>
@@ -576,92 +598,148 @@
           <span>Documentation</span>
         </div>
         <div class="top-actions">
-          <select class="version-switch" id="docs-version-select" aria-label="Documentation version">
+          <select
+            class="version-switch"
+            id="docs-version-select"
+            aria-label="Documentation version"
+          >
             <option value="./docs.html" selected>v2 (DogTable)</option>
             <option value="./docs-v1.html">v1 (DataTable)</option>
           </select>
-          <a class="button button-secondary" href="./index.html">Back to gallery</a>
-          <a class="button button-primary" href="./demo/basic.html">Open a demo</a>
+          <a class="button button-secondary" href="./index.html"
+            >Back to gallery</a
+          >
+          <a class="button button-primary" href="./demo/basic.html"
+            >Open a demo</a
+          >
         </div>
       </div>
 
       <main>
-
-      <section class="hero">
-        <div class="hero-copy">
-          <div class="eyebrow">Dog Table Docs</div>
-          <h1>Vanilla tables with the practical stuff already built in.</h1>
-          <p class="lede">
-            Dog Table gives you search, sorting, pagination, remote data loading, grouping, selection, CSV export, inline editing, localization, persistence, and live refresh without bringing in a framework.
-          </p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="#quick-start">Quick start</a>
-            <a class="button button-secondary" href="#api-methods">API methods</a>
-            <a class="button button-secondary" href="#hooks">Hooks</a>
-          </div>
-        </div>
-
-        <aside class="hero-panel">
-          <h2 class="section-title">On this page</h2>
-          <div class="toc">
-            <a href="#installation">Installation</a>
-            <a href="#quick-start">Quick Start</a>
-            <a href="#core-concepts">Core concepts</a>
-            <a href="#table-options">Table options</a>
-            <a href="#columns">Column definition</a>
-            <a href="#api-methods">API methods</a>
-            <a href="#hooks">Hooks</a>
-            <a href="#plugins">Plugins and modules</a>
-            <a href="#demos">Demo map</a>
-          </div>
-        </aside>
-      </section>
-
-      <section class="stats">
-        <div class="card">
-          <strong>1 constructor</strong>
-          <span>Create a table with <code>new DogTable(container, options)</code> and call <code>init()</code>.</span>
-        </div>
-        <div class="card">
-          <strong>Remote-ready</strong>
-          <span><code>fetch()</code> requests are abortable and react to page, sort, and search state.</span>
-        </div>
-        <div class="card">
-          <strong>Progressive features</strong>
-          <span>Selection, export, editing, persistence, and live sync layer on only when enabled.</span>
-        </div>
-      </section>
-
-      <div class="content">
-        <section class="panel" id="installation">
-          <h2 class="section-title">Installation</h2>
-          <p class="section-copy">Use the package from npm, or load the source files directly in a browser module setup.</p>
-          <div class="grid-2">
-            <div class="mini-card">
-              <h3>npm</h3>
-              <pre><code>npm install dog-table</code></pre>
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow">Dog Table Docs</div>
+            <h1>Vanilla tables with the practical stuff already built in.</h1>
+            <p class="lede">
+              Dog Table gives you search, sorting, pagination, remote data
+              loading, grouping, selection, CSV export, inline editing,
+              localization, persistence, and live refresh without bringing in a
+              framework, while keeping the internals split into focused modules.
+            </p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="#quick-start"
+                >Quick start</a
+              >
+              <a class="button button-secondary" href="#api-methods"
+                >API methods</a
+              >
+              <a class="button button-secondary" href="#hooks">Hooks</a>
+              <a class="button button-secondary" href="./query-cache.html"
+                >Query cache guide</a
+              >
             </div>
-            <div class="mini-card">
-              <h3>Package entry points</h3>
-              <ul>
-                <li><code>dog-table</code> - exports <code>dist/data-table.js</code> by default, with <code>dog-table/min</code> for the minified bundle</li>
-                <li><code>dog-table/css</code> - exports <code>dist/data-table.css</code>, with <code>dog-table/css/min</code> for minified CSS</li>
-                <li><code>dog-table/locale/*</code> - maps to <code>dist/locale/*.js</code></li>
-                <li><code>dog-table/plugin/*</code> - maps to <code>dist/plugin/*.js</code></li>
-                <li><code>dog-table/utils</code> - exports <code>dist/utils/index.js</code></li>
-                <li><code>src/core/</code> contains internal support modules and is not exported as a package subpath</li>
-              </ul>
+          </div>
+
+          <aside class="hero-panel">
+            <h2 class="section-title">On this page</h2>
+            <div class="toc">
+              <a href="#installation">Installation</a>
+              <a href="#quick-start">Quick Start</a>
+              <a href="#core-concepts">Core concepts</a>
+              <a href="#architecture">Architecture</a>
+              <a href="#table-options">Table options</a>
+              <a href="#columns">Column definition</a>
+              <a href="#api-methods">API methods</a>
+              <a href="#hooks">Hooks</a>
+              <a href="#plugins">Plugins and modules</a>
+              <a href="./query-cache.html">Query cache guide</a>
+              <a href="#demos">Demo map</a>
             </div>
+          </aside>
+        </section>
+
+        <section class="stats">
+          <div class="card">
+            <strong>1 constructor</strong>
+            <span
+              >Create a table with
+              <code>new DogTable(container, options)</code> and call
+              <code>init()</code>.</span
+            >
+          </div>
+          <div class="card">
+            <strong>Remote-ready</strong>
+            <span
+              ><code>fetch()</code> requests are abortable and react to page,
+              sort, and search state.</span
+            >
+          </div>
+          <div class="card">
+            <strong>Progressive features</strong>
+            <span
+              >Selection, export, editing, persistence, and live sync layer on
+              only when enabled.</span
+            >
           </div>
         </section>
 
-        <section class="panel" id="quick-start">
-          <h2 class="section-title">Quick Start</h2>
-          <p class="section-copy">The basic flow is: load CSS, create a <code>DogTable</code>, pass <code>data</code> and <code>columns</code>, then call <code>init()</code>.</p>
-          <div class="grid-2">
-            <div class="mini-card">
-              <h3>Browser modules</h3>
-              <pre><code>&lt;link rel="stylesheet" href="./src/data-table.css" /&gt;
+        <div class="content">
+          <section class="panel" id="installation">
+            <h2 class="section-title">Installation</h2>
+            <p class="section-copy">
+              Use the package from npm, or load the source files directly in a
+              browser module setup.
+            </p>
+            <div class="grid-2">
+              <div class="mini-card">
+                <h3>npm</h3>
+                <pre><code>npm install dog-table</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>Package entry points</h3>
+                <ul>
+                  <li>
+                    <code>dog-table</code> - exports
+                    <code>dist/data-table.js</code> by default, with
+                    <code>dog-table/min</code> for the minified bundle
+                  </li>
+                  <li>
+                    <code>dog-table/css</code> - exports
+                    <code>dist/data-table.css</code>, with
+                    <code>dog-table/css/min</code> for minified CSS
+                  </li>
+                  <li>
+                    <code>dog-table/locale/*</code> - maps to
+                    <code>dist/locale/*.js</code>
+                  </li>
+                  <li>
+                    <code>dog-table/plugin/*</code> - maps to
+                    <code>dist/plugin/*.js</code>
+                  </li>
+                  <li>
+                    <code>dog-table/utils</code> - exports
+                    <code>dist/utils/index.js</code>
+                  </li>
+                  <li>
+                    <code>src/core/</code> contains internal support modules and
+                    is not exported as a package subpath
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" id="quick-start">
+            <h2 class="section-title">Quick Start</h2>
+            <p class="section-copy">
+              The basic flow is: load CSS, create a <code>DogTable</code>, pass
+              <code>data</code> and <code>columns</code>, then call
+              <code>init()</code>.
+            </p>
+            <div class="grid-2">
+              <div class="mini-card">
+                <h3>Browser modules</h3>
+                <pre><code>&lt;link rel="stylesheet" href="./src/data-table.css" /&gt;
 &lt;div id="dogs"&gt;&lt;/div&gt;
 &lt;script type="module"&gt;
   import { DogTable } from "./src/data-table.js";
@@ -680,10 +758,10 @@
 
   table.init();
 &lt;/script&gt;</code></pre>
-            </div>
-            <div class="mini-card">
-              <h3>Bundlers</h3>
-              <pre><code>import { DogTable } from "dog-table";
+              </div>
+              <div class="mini-card">
+                <h3>Bundlers</h3>
+                <pre><code>import { DogTable } from "dog-table";
 import "dog-table/css";
 
 const table = new DogTable("#dogs", {
@@ -696,43 +774,131 @@ const table = new DogTable("#dogs", {
 });
 
 table.init();</code></pre>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="panel" id="core-concepts">
-          <h2 class="section-title">Core Concepts</h2>
-          <div class="mini-grid">
-            <div class="mini-card">
-              <h3>Local data</h3>
-              <p>Client-side search, sort, and pagination happen automatically when you pass <code>data</code> and <code>columns</code>.</p>
+          <section class="panel" id="core-concepts">
+            <h2 class="section-title">Core Concepts</h2>
+            <div class="mini-grid">
+              <div class="mini-card">
+                <h3>Local data</h3>
+                <p>
+                  Client-side search, sort, and pagination happen automatically
+                  when you pass <code>data</code> and <code>columns</code>.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Remote data</h3>
+                <p>
+                  Add a <code>remote</code> config to fetch server data. Page,
+                  sort, and search state are converted into query params, while
+                  repeated query contexts keep their own pagination state.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Columns</h3>
+                <p>
+                  Columns define labels, sort rules, formatting, search
+                  behavior, custom rendering, visibility, and editability.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Hooks</h3>
+                <p>
+                  Lifecycle hooks expose init, fetch, update, sort, search,
+                  paging, row detail, selection, and loading changes.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Grouping and detail</h3>
+                <p>
+                  Use <code>groupBy</code>, <code>groupLabel</code>,
+                  <code>rowKey</code>, and <code>rowDetail.render()</code> to
+                  build grouped tables with expandable rows.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Progressive enhancement</h3>
+                <p>
+                  Persistence, CSV export, inline editing, locale switching, and
+                  live polling are already wired into the table instance.
+                </p>
+              </div>
             </div>
-            <div class="mini-card">
-              <h3>Remote data</h3>
-              <p>Add a <code>remote</code> config to fetch server data. Page, sort, and search state are converted into query params.</p>
-            </div>
-            <div class="mini-card">
-              <h3>Columns</h3>
-              <p>Columns define labels, sort rules, formatting, search behavior, custom rendering, visibility, and editability.</p>
-            </div>
-            <div class="mini-card">
-              <h3>Hooks</h3>
-              <p>Lifecycle hooks expose init, fetch, update, sort, search, paging, row detail, selection, and loading changes.</p>
-            </div>
-            <div class="mini-card">
-              <h3>Grouping and detail</h3>
-              <p>Use <code>groupBy</code>, <code>groupLabel</code>, <code>rowKey</code>, and <code>rowDetail.render()</code> to build grouped tables with expandable rows.</p>
-            </div>
-            <div class="mini-card">
-              <h3>Progressive enhancement</h3>
-              <p>Persistence, CSV export, inline editing, locale switching, and live polling are already wired into the table instance.</p>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <section class="panel">
-          <h2 class="section-title">Remote Example</h2>
-          <pre><code>const table = new DogTable("#dogs", {
+          <section class="panel" id="architecture">
+            <h2 class="section-title">Architecture</h2>
+            <p class="section-copy">
+              Phase 1 keeps the public <code>DogTable</code> API stable while
+              separating state management, data processing, rendering, remote
+              loading, event binding, and plugin bootstrapping.
+            </p>
+            <div class="mini-grid">
+              <div class="mini-card">
+                <h3><code>DogTable</code></h3>
+                <p>
+                  The main controller coordinates update flow, public methods,
+                  hooks, and module lifecycles.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>TableState</code></h3>
+                <p>
+                  Owns page, page size, search query, sort state, error/loading
+                  state, and pagination guard constraints.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>DataEngine</code></h3>
+                <p>
+                  Handles filtering, sorting, pagination slicing, grouping, and
+                  cache reuse without touching the DOM.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>RemoteAdapter</code></h3>
+                <p>
+                  Wraps remote fetching, aliases identical datasets in memory,
+                  and keeps pagination metadata isolated per query context.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Query cache guide</h3>
+                <p>
+                  Use the dedicated guide for the full separation rules between
+                  shared remote data and per-query pagination state.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3>Renderers</h3>
+                <p>
+                  <code>TableRenderer</code>, <code>PaginationRenderer</code>,
+                  and <code>MetaRenderer</code> keep UI output separate from
+                  business logic.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>EventBinder</code></h3>
+                <p>
+                  Centralizes DOM bind/unbind behavior for header sorting,
+                  pagination, row actions, search, and create/live controls.
+                </p>
+              </div>
+            </div>
+            <pre>
+<code>await table.update();
+// -> fetch remote rows when needed
+// -> process state through DataEngine
+// -> render header/body/meta/pagination
+</code>
+          </pre>
+          </section>
+
+          <section class="panel">
+            <h2 class="section-title">Remote Example</h2>
+            <pre><code>const table = new DogTable("#dogs", {
   columns: [
     { key: "name", label: "Name" },
     { key: "age", label: "Age" },
@@ -756,221 +922,661 @@ table.init();</code></pre>
 });
 
 table.init();</code></pre>
-          <p class="footer-note">
-            Remote requests are abortable. If a newer fetch starts, the previous one is canceled with <code>AbortController</code>.
-          </p>
-        </section>
+            <p class="footer-note">
+              Remote requests are abortable. If a newer fetch starts, the
+              previous one is canceled with <code>AbortController</code>.
+            </p>
+          </section>
 
-        <section class="table-wrap" id="table-options">
-          <h2 class="section-title">Table Options</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Option</th>
-                <th>Type</th>
-                <th>Default</th>
-                <th>Purpose</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td><code>data</code></td><td><code>Array&lt;object&gt;</code></td><td><code>[]</code></td><td>Raw local rows.</td></tr>
-              <tr><td><code>columns</code></td><td><code>Array&lt;object&gt;</code></td><td><code>[]</code></td><td>Column definitions used for rendering and behavior.</td></tr>
-              <tr><td><code>pageSize</code></td><td><code>number</code></td><td><code>5</code></td><td>Rows shown per page.</td></tr>
-              <tr><td><code>paginationGuard</code></td><td><code>boolean | { maxPage, minPageSize, maxPageSize }</code></td><td><code>false</code></td><td>Optional guardrails for page/page-size bounds. Use <code>true</code> for defaults (25 / 1 / 100).</td></tr>
-              <tr><td><code>searchable</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Shows or hides the built-in search control.</td></tr>
-              <tr><td><code>searchDebounce</code></td><td><code>number</code></td><td><code>250</code></td><td>Debounce delay for the search input.</td></tr>
-              <tr><td><code>language</code></td><td><code>object</code></td><td>built-in labels</td><td>Overrides visible UI copy such as search, paging, empty, and loading text.</td></tr>
-              <tr><td><code>initialSort</code></td><td><code>{ key, direction } | null</code></td><td><code>null</code></td><td>Initial sort state.</td></tr>
-              <tr><td><code>theme</code></td><td><code>string | object</code></td><td><code>"default"</code></td><td>Preset name or custom theme map.</td></tr>
-              <tr><td><code>classNames</code></td><td><code>object</code></td><td><code>{}</code></td><td>Additional class name overrides merged with the active theme.</td></tr>
-              <tr><td><code>remote</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables server-driven data loading through <code>fetch()</code>.</td></tr>
-              <tr><td><code>groupBy</code></td><td><code>string | function | null</code></td><td><code>null</code></td><td>Groups rows before rendering.</td></tr>
-              <tr><td><code>groupLabel</code></td><td><code>function | null</code></td><td><code>null</code></td><td>Builds custom labels for group header rows.</td></tr>
-              <tr><td><code>rowKey</code></td><td><code>string | function | null</code></td><td><code>null</code></td><td>Stable id source for row detail and selection features.</td></tr>
-              <tr><td><code>rowDetail</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables expandable detail rows.</td></tr>
-              <tr><td><code>persistence</code></td><td><code>"url" | "local" | "session" | null</code></td><td><code>null</code></td><td>Persists search, paging, sort, and page size state.</td></tr>
-              <tr><td><code>persistenceKey</code></td><td><code>string | null</code></td><td><code>null</code></td><td>Custom storage or URL key prefix.</td></tr>
-              <tr><td><code>selectable</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Adds row selection checkboxes.</td></tr>
-              <tr><td><code>create</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables built-in creation workflows with modal forms and validation.</td></tr>
-              <tr><td><code>hooks</code></td><td><code>object</code></td><td><code>{}</code></td><td>Lifecycle callbacks.</td></tr>
-            </tbody>
-          </table>
-        </section>
+          <section class="table-wrap" id="table-options">
+            <h2 class="section-title">Table Options</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Option</th>
+                  <th>Type</th>
+                  <th>Default</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>data</code></td>
+                  <td><code>Array&lt;object&gt;</code></td>
+                  <td><code>[]</code></td>
+                  <td>Raw local rows.</td>
+                </tr>
+                <tr>
+                  <td><code>columns</code></td>
+                  <td><code>Array&lt;object&gt;</code></td>
+                  <td><code>[]</code></td>
+                  <td>Column definitions used for rendering and behavior.</td>
+                </tr>
+                <tr>
+                  <td><code>pageSize</code></td>
+                  <td><code>number</code></td>
+                  <td><code>5</code></td>
+                  <td>Rows shown per page.</td>
+                </tr>
+                <tr>
+                  <td><code>paginationGuard</code></td>
+                  <td>
+                    <code>boolean | { maxPage, minPageSize, maxPageSize }</code>
+                  </td>
+                  <td><code>false</code></td>
+                  <td>
+                    Optional guardrails for page/page-size bounds. Use
+                    <code>true</code> for defaults (25 / 1 / 100).
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>searchable</code></td>
+                  <td><code>boolean</code></td>
+                  <td><code>true</code></td>
+                  <td>Shows or hides the built-in search control.</td>
+                </tr>
+                <tr>
+                  <td><code>searchDebounce</code></td>
+                  <td><code>number</code></td>
+                  <td><code>250</code></td>
+                  <td>Debounce delay for the search input.</td>
+                </tr>
+                <tr>
+                  <td><code>language</code></td>
+                  <td><code>object</code></td>
+                  <td>built-in labels</td>
+                  <td>
+                    Overrides visible UI copy such as search, paging, empty, and
+                    loading text.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>initialSort</code></td>
+                  <td><code>{ key, direction } | null</code></td>
+                  <td><code>null</code></td>
+                  <td>Initial sort state.</td>
+                </tr>
+                <tr>
+                  <td><code>theme</code></td>
+                  <td><code>string | object</code></td>
+                  <td><code>"default"</code></td>
+                  <td>Preset name or custom theme map.</td>
+                </tr>
+                <tr>
+                  <td><code>classNames</code></td>
+                  <td><code>object</code></td>
+                  <td><code>{}</code></td>
+                  <td>
+                    Additional class name overrides merged with the active
+                    theme.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>remote</code></td>
+                  <td><code>object | null</code></td>
+                  <td><code>null</code></td>
+                  <td>
+                    Enables server-driven data loading through
+                    <code>fetch()</code>.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>groupBy</code></td>
+                  <td><code>string | function | null</code></td>
+                  <td><code>null</code></td>
+                  <td>Groups rows before rendering.</td>
+                </tr>
+                <tr>
+                  <td><code>groupLabel</code></td>
+                  <td><code>function | null</code></td>
+                  <td><code>null</code></td>
+                  <td>Builds custom labels for group header rows.</td>
+                </tr>
+                <tr>
+                  <td><code>rowKey</code></td>
+                  <td><code>string | function | null</code></td>
+                  <td><code>null</code></td>
+                  <td>
+                    Stable id source for row detail and selection features.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>rowDetail</code></td>
+                  <td><code>object | null</code></td>
+                  <td><code>null</code></td>
+                  <td>Enables expandable detail rows.</td>
+                </tr>
+                <tr>
+                  <td><code>persistence</code></td>
+                  <td><code>"url" | "local" | "session" | null</code></td>
+                  <td><code>null</code></td>
+                  <td>Persists search, paging, sort, and page size state.</td>
+                </tr>
+                <tr>
+                  <td><code>persistenceKey</code></td>
+                  <td><code>string | null</code></td>
+                  <td><code>null</code></td>
+                  <td>Custom storage or URL key prefix.</td>
+                </tr>
+                <tr>
+                  <td><code>selectable</code></td>
+                  <td><code>boolean</code></td>
+                  <td><code>false</code></td>
+                  <td>Adds row selection checkboxes.</td>
+                </tr>
+                <tr>
+                  <td><code>create</code></td>
+                  <td><code>object | null</code></td>
+                  <td><code>null</code></td>
+                  <td>
+                    Enables built-in creation workflows with modal forms and
+                    validation.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>hooks</code></td>
+                  <td><code>object</code></td>
+                  <td><code>{}</code></td>
+                  <td>Lifecycle callbacks.</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-        <section class="table-wrap" id="columns">
-          <h2 class="section-title">Column Definition</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Field</th>
-                <th>Type</th>
-                <th>Purpose</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td><code>key</code></td><td><code>string</code></td><td>Primary property used for value lookup, sort state, and default filtering.</td></tr>
-              <tr><td><code>label</code></td><td><code>string</code></td><td>Visible header label.</td></tr>
-              <tr><td><code>accessor</code></td><td><code>string</code></td><td>Alternate row property used for rendering and editing.</td></tr>
-              <tr><td><code>sortable</code></td><td><code>boolean</code></td><td>Disable built-in sorting for a column.</td></tr>
-              <tr><td><code>searchable</code></td><td><code>boolean</code></td><td>Exclude a column from local search matching.</td></tr>
-              <tr><td><code>visible</code></td><td><code>boolean</code></td><td>Hide a column while keeping it in state.</td></tr>
-              <tr><td><code>editable</code></td><td><code>boolean</code></td><td>Makes body cells editable through the editor plugin.</td></tr>
-              <tr><td><code>render(value, row)</code></td><td><code>function</code></td><td>Custom cell rendering. Can return a <code>Node</code>, string, or primitive.</td></tr>
-              <tr><td><code>sortValue(value, row)</code></td><td><code>function</code></td><td>Transforms values before local sorting.</td></tr>
-              <tr><td><code>filter({ value, row, query })</code></td><td><code>function</code></td><td>Custom local-search matching for the column.</td></tr>
-              <tr><td><code>format</code> or <code>type</code></td><td><code>string</code></td><td>Used by the formatter plugin for built-in display formatting.</td></tr>
-              <tr><td><code>formatOptions</code></td><td><code>object</code></td><td>Options passed to the formatter logic.</td></tr>
-              <tr><td><code>locale</code></td><td><code>string</code></td><td>Locale override for formatted output.</td></tr>
-            </tbody>
-          </table>
-        </section>
+          <section class="table-wrap" id="columns">
+            <h2 class="section-title">Column Definition</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Type</th>
+                  <th>Purpose</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>key</code></td>
+                  <td><code>string</code></td>
+                  <td>
+                    Primary property used for value lookup, sort state, and
+                    default filtering.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>label</code></td>
+                  <td><code>string</code></td>
+                  <td>Visible header label.</td>
+                </tr>
+                <tr>
+                  <td><code>accessor</code></td>
+                  <td><code>string</code></td>
+                  <td>
+                    Alternate row property used for rendering and editing.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>sortable</code></td>
+                  <td><code>boolean</code></td>
+                  <td>Disable built-in sorting for a column.</td>
+                </tr>
+                <tr>
+                  <td><code>searchable</code></td>
+                  <td><code>boolean</code></td>
+                  <td>Exclude a column from local search matching.</td>
+                </tr>
+                <tr>
+                  <td><code>visible</code></td>
+                  <td><code>boolean</code></td>
+                  <td>Hide a column while keeping it in state.</td>
+                </tr>
+                <tr>
+                  <td><code>editable</code></td>
+                  <td><code>boolean</code></td>
+                  <td>Makes body cells editable through the editor plugin.</td>
+                </tr>
+                <tr>
+                  <td><code>render(value, row)</code></td>
+                  <td><code>function</code></td>
+                  <td>
+                    Custom cell rendering. Can return a <code>Node</code>,
+                    string, or primitive.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>sortValue(value, row)</code></td>
+                  <td><code>function</code></td>
+                  <td>Transforms values before local sorting.</td>
+                </tr>
+                <tr>
+                  <td><code>filter({ value, row, query })</code></td>
+                  <td><code>function</code></td>
+                  <td>Custom local-search matching for the column.</td>
+                </tr>
+                <tr>
+                  <td><code>format</code> or <code>type</code></td>
+                  <td><code>string</code></td>
+                  <td>
+                    Used by the formatter plugin for built-in display
+                    formatting.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>formatOptions</code></td>
+                  <td><code>object</code></td>
+                  <td>Options passed to the formatter logic.</td>
+                </tr>
+                <tr>
+                  <td><code>locale</code></td>
+                  <td><code>string</code></td>
+                  <td>Locale override for formatted output.</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-        <section class="table-wrap" id="api-methods">
-          <h2 class="section-title">API Methods</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th>What it does</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td><code>init()</code></td><td>Builds the table UI, binds events, initializes live mode, and renders the first state.</td></tr>
-              <tr><td><code>loadState()</code> / <code>saveState()</code></td><td>Manually interact with the persistence plugin.</td></tr>
-              <tr><td><code>setPage(pageNumber)</code></td><td>Changes the active page and updates the table.</td></tr>
-              <tr><td><code>setSearch(query)</code></td><td>Updates the search term, resets to page 1, and rerenders.</td></tr>
-              <tr><td><code>clearSearch()</code></td><td>Clears the search input and filter state.</td></tr>
-              <tr><td><code>setPageSize(size)</code></td><td>Updates page size and resets to page 1.</td></tr>
-              <tr><td><code>setSort(key, direction)</code></td><td>Applies a specific sort state.</td></tr>
-              <tr><td><code>clearSort()</code></td><td>Removes active sorting.</td></tr>
-              <tr><td><code>setData(data)</code></td><td>Replaces local row data and clears error/detail state.</td></tr>
-              <tr><td><code>setColumns(columns)</code></td><td>Replaces the current columns and rerenders.</td></tr>
-              <tr><td><code>setTheme(theme, classNames)</code></td><td>Swaps theme mapping and rebuilds the DOM shell.</td></tr>
-              <tr><td><code>setLanguage(language)</code></td><td>Merges language overrides and rebuilds visible UI text.</td></tr>
-              <tr><td><code>toggleRowDetail(rowId)</code></td><td>Expands or collapses a detail row.</td></tr>
-              <tr><td><code>expandRowDetail(rowId)</code> / <code>collapseRowDetail(rowId)</code></td><td>Explicit detail row control.</td></tr>
-              <tr><td><code>toggleRowSelection(rowId, isSelected)</code></td><td>Selects or deselects a row when selection is enabled.</td></tr>
-              <tr><td><code>selectAll(isSelected)</code></td><td>Selects or clears all rows in the current processed set.</td></tr>
-              <tr><td><code>toggleColumnVisibility(columnKey, isVisible)</code></td><td>Shows or hides a column.</td></tr>
-              <tr><td><code>getSelectedData()</code></td><td>Returns selected row objects.</td></tr>
-              <tr><td><code>getState()</code></td><td>Returns a copy of the current table state.</td></tr>
-              <tr><td><code>setLoading(isLoading)</code></td><td>Manually updates loading state and triggers <code>onLoadingChange</code>.</td></tr>
-              <tr><td><code>exportCSV(filename)</code></td><td>Exports visible columns from the current raw data to CSV.</td></tr>
-              <tr><td><code>openCreateModal()</code></td><td>Opens the record creation modal if the feature is enabled.</td></tr>
-              <tr><td><code>reset()</code></td><td>Clears search, sort, errors, and expanded detail rows.</td></tr>
-              <tr><td><code>destroy()</code></td><td>Removes event listeners, aborts fetches, stops live mode, and clears the container.</td></tr>
-            </tbody>
-          </table>
-        </section>
+          <section class="table-wrap" id="api-methods">
+            <h2 class="section-title">API Methods</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Method</th>
+                  <th>What it does</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>init()</code></td>
+                  <td>
+                    Builds the table UI, binds events, initializes live mode,
+                    and renders the first state.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>loadState()</code> / <code>saveState()</code></td>
+                  <td>Manually interact with the persistence plugin.</td>
+                </tr>
+                <tr>
+                  <td><code>setPage(pageNumber)</code></td>
+                  <td>Changes the active page and updates the table.</td>
+                </tr>
+                <tr>
+                  <td><code>setSearch(query)</code></td>
+                  <td>
+                    Updates the search term. New queries start at page 1, while
+                    previously seen remote queries restore their cached
+                    pagination state.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>clearSearch()</code></td>
+                  <td>Clears the search input and filter state.</td>
+                </tr>
+                <tr>
+                  <td><code>setPageSize(size)</code></td>
+                  <td>Updates page size and resets to page 1.</td>
+                </tr>
+                <tr>
+                  <td><code>setSort(key, direction)</code></td>
+                  <td>
+                    Applies a specific sort state and preserves pagination
+                    independently for each remote query context.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>clearSort()</code></td>
+                  <td>Removes active sorting.</td>
+                </tr>
+                <tr>
+                  <td><code>setData(data)</code></td>
+                  <td>
+                    Replaces local row data and clears error/detail state.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>setColumns(columns)</code></td>
+                  <td>Replaces the current columns and rerenders.</td>
+                </tr>
+                <tr>
+                  <td><code>setTheme(theme, classNames)</code></td>
+                  <td>Swaps theme mapping and rebuilds the DOM shell.</td>
+                </tr>
+                <tr>
+                  <td><code>setLanguage(language)</code></td>
+                  <td>
+                    Merges language overrides and rebuilds visible UI text.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>toggleRowDetail(rowId)</code></td>
+                  <td>Expands or collapses a detail row.</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>expandRowDetail(rowId)</code> /
+                    <code>collapseRowDetail(rowId)</code>
+                  </td>
+                  <td>Explicit detail row control.</td>
+                </tr>
+                <tr>
+                  <td><code>toggleRowSelection(rowId, isSelected)</code></td>
+                  <td>Selects or deselects a row when selection is enabled.</td>
+                </tr>
+                <tr>
+                  <td><code>selectAll(isSelected)</code></td>
+                  <td>
+                    Selects or clears all rows in the current processed set.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>toggleColumnVisibility(columnKey, isVisible)</code>
+                  </td>
+                  <td>Shows or hides a column.</td>
+                </tr>
+                <tr>
+                  <td><code>getSelectedData()</code></td>
+                  <td>Returns selected row objects.</td>
+                </tr>
+                <tr>
+                  <td><code>getState()</code></td>
+                  <td>Returns a copy of the current table state.</td>
+                </tr>
+                <tr>
+                  <td><code>setLoading(isLoading)</code></td>
+                  <td>
+                    Manually updates loading state and triggers
+                    <code>onLoadingChange</code>.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>exportCSV(filename)</code></td>
+                  <td>
+                    Exports visible columns from the current raw data to CSV.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>openCreateModal()</code></td>
+                  <td>
+                    Opens the record creation modal if the feature is enabled.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>reset()</code></td>
+                  <td>
+                    Clears search, sort, errors, and expanded detail rows.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>destroy()</code></td>
+                  <td>
+                    Removes event listeners, aborts fetches, stops live mode,
+                    and clears the container.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-        <section class="table-wrap" id="hooks">
-          <h2 class="section-title">Hooks</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Hook</th>
-                <th>When it fires</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td><code>onInit(state)</code></td><td>After the first <code>init()</code> render completes.</td></tr>
-              <tr><td><code>onFetchStart(state)</code></td><td>Before a remote request begins.</td></tr>
-              <tr><td><code>onFetchSuccess(payload)</code></td><td>After remote data is mapped successfully.</td></tr>
-              <tr><td><code>onFetchError(error)</code></td><td>When a remote request fails.</td></tr>
-              <tr><td><code>onDataUpdated(rows)</code></td><td>After fresh remote rows are stored.</td></tr>
-              <tr><td><code>onLoadingChange(isLoading)</code></td><td>Whenever loading state changes.</td></tr>
-              <tr><td><code>onPageChange(page)</code></td><td>When the visible page changes.</td></tr>
-              <tr><td><code>onSortChange({ sortKey, sortDirection })</code></td><td>When sort state changes.</td></tr>
-              <tr><td><code>onSearchChange(query)</code></td><td>When the normalized search query changes.</td></tr>
-              <tr><td><code>onRowToggle({ rowId, expanded })</code></td><td>When a detail row is opened or closed.</td></tr>
-              <tr><td><code>onSelectionChange(selectedRows)</code></td><td>When row selection changes.</td></tr>
-              <tr><td><code>onUpdate(snapshot)</code></td><td>After a successful render/update cycle.</td></tr>
-              <tr><td><code>onCreateSuccess(row)</code></td><td>After a new record is successfully created and added.</td></tr>
-              <tr><td><code>onCreateError(error)</code></td><td>When a create request fails.</td></tr>
-            </tbody>
-          </table>
-        </section>
+          <section class="table-wrap" id="hooks">
+            <h2 class="section-title">Hooks</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Hook</th>
+                  <th>When it fires</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>onInit(state)</code></td>
+                  <td>After the first <code>init()</code> render completes.</td>
+                </tr>
+                <tr>
+                  <td><code>onFetchStart(state)</code></td>
+                  <td>Before a remote request begins.</td>
+                </tr>
+                <tr>
+                  <td><code>onFetchSuccess(payload)</code></td>
+                  <td>After remote data is mapped successfully.</td>
+                </tr>
+                <tr>
+                  <td><code>onFetchError(error)</code></td>
+                  <td>When a remote request fails.</td>
+                </tr>
+                <tr>
+                  <td><code>onDataUpdated(rows)</code></td>
+                  <td>After fresh remote rows are stored.</td>
+                </tr>
+                <tr>
+                  <td><code>onLoadingChange(isLoading)</code></td>
+                  <td>Whenever loading state changes.</td>
+                </tr>
+                <tr>
+                  <td><code>onPageChange(page)</code></td>
+                  <td>When the visible page changes.</td>
+                </tr>
+                <tr>
+                  <td><code>onSortChange({ sortKey, sortDirection })</code></td>
+                  <td>When sort state changes.</td>
+                </tr>
+                <tr>
+                  <td><code>onSearchChange(query)</code></td>
+                  <td>When the normalized search query changes.</td>
+                </tr>
+                <tr>
+                  <td><code>onRowToggle({ rowId, expanded })</code></td>
+                  <td>When a detail row is opened or closed.</td>
+                </tr>
+                <tr>
+                  <td><code>onSelectionChange(selectedRows)</code></td>
+                  <td>When row selection changes.</td>
+                </tr>
+                <tr>
+                  <td><code>onUpdate(snapshot)</code></td>
+                  <td>After a successful render/update cycle.</td>
+                </tr>
+                <tr>
+                  <td><code>onCreateSuccess(row)</code></td>
+                  <td>After a new record is successfully created and added.</td>
+                </tr>
+                <tr>
+                  <td><code>onCreateError(error)</code></td>
+                  <td>When a create request fails.</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
 
-        <section class="panel" id="plugins">
-          <h2 class="section-title">Plugins and Modules</h2>
-          <div class="mini-grid">
-            <div class="mini-card">
-              <h3><code>PersistencePlugin</code></h3>
-              <p>Stores search, page, sort, and page size in <code>url</code>, <code>localStorage</code>, or <code>sessionStorage</code>.</p>
+          <section class="panel" id="plugins">
+            <h2 class="section-title">Plugins and Modules</h2>
+            <div class="mini-grid">
+              <div class="mini-card">
+                <h3><code>PersistencePlugin</code></h3>
+                <p>
+                  Stores search, page, sort, and page size in <code>url</code>,
+                  <code>localStorage</code>, or <code>sessionStorage</code>.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>SelectionPlugin</code></h3>
+                <p>
+                  Tracks selected row ids and exposes
+                  <code>getSelectedData()</code>, <code>toggleRow()</code>, and
+                  <code>selectAll()</code>.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>ExportPlugin</code></h3>
+                <p>
+                  Exports visible columns to CSV with
+                  <code>toCSV(filename)</code>.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>FormatterPlugin</code></h3>
+                <p>
+                  Formats output values before render using column formatting
+                  hints.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>EditorPlugin</code></h3>
+                <p>
+                  Starts inline editing for cells marked
+                  <code>editable</code> in column definitions.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>LivePlugin</code></h3>
+                <p>
+                  Handles auto-refresh timers, visibility pausing, and adaptive
+                  backoff for remote tables.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>CreatePlugin</code></h3>
+                <p>
+                  Manages the built-in record creation workflow, field
+                  validation, and modal state.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>DataFetcher</code></h3>
+                <p>
+                  Builds request URLs from table state, supports query param
+                  remapping, and aborts stale requests.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>PluginManager</code></h3>
+                <p>
+                  Initializes persistence, selection, export, formatter, editor,
+                  live, and create plugins for the controller.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>ThemeManager</code></h3>
+                <p>
+                  Resolves built-in theme slots and class-name overrides used
+                  throughout the rendered UI.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>utils</code></h3>
+                <p>
+                  Exports <code>escapeHtml(value)</code> and
+                  <code>debounce(callback, wait)</code>.
+                </p>
+              </div>
             </div>
-            <div class="mini-card">
-              <h3><code>SelectionPlugin</code></h3>
-              <p>Tracks selected row ids and exposes <code>getSelectedData()</code>, <code>toggleRow()</code>, and <code>selectAll()</code>.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>ExportPlugin</code></h3>
-              <p>Exports visible columns to CSV with <code>toCSV(filename)</code>.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>FormatterPlugin</code></h3>
-              <p>Formats output values before render using column formatting hints.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>EditorPlugin</code></h3>
-              <p>Starts inline editing for cells marked <code>editable</code> in column definitions.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>LivePlugin</code></h3>
-              <p>Handles auto-refresh timers, visibility pausing, and adaptive backoff for remote tables.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>CreatePlugin</code></h3>
-              <p>Manages the built-in record creation workflow, field validation, and modal state.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>DataFetcher</code></h3>
-              <p>Builds request URLs from table state, supports query param remapping, and aborts stale requests.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>ThemeManager</code></h3>
-              <p>Resolves built-in theme slots and class-name overrides used throughout the rendered UI.</p>
-            </div>
-            <div class="mini-card">
-              <h3><code>utils</code></h3>
-              <p>Exports <code>escapeHtml(value)</code> and <code>debounce(callback, wait)</code>.</p>
-            </div>
-          </div>
-          <p class="footer-note">Built-in locales currently include <code>en</code>, <code>es</code>, <code>fr</code>, <code>de</code>, <code>zh-CN</code>, and <code>id</code>.</p>
-        </section>
+            <p class="footer-note">
+              Built-in locales currently include <code>en</code>,
+              <code>es</code>, <code>fr</code>, <code>de</code>,
+              <code>zh-CN</code>, and <code>id</code>.
+            </p>
+            <p class="footer-note">
+              For the remote caching model, see
+              <a href="./query-cache.html"><code>query-cache.html</code></a
+              >.
+            </p>
+          </section>
 
-        <section class="panel">
-          <h2 class="section-title">Good Defaults to Know</h2>
-          <div class="tag-row">
-            <span class="tag"><code>pageSize</code> defaults to <code>5</code></span>
-            <span class="tag"><code>paginationGuard</code> is <code>false</code> by default</span>
-            <span class="tag"><code>paginationGuard: true</code> uses <code>maxPage 25</code> and <code>maxPageSize 100</code></span>
-            <span class="tag">Search is enabled by default</span>
-            <span class="tag">Search input debounce is <code>250ms</code></span>
-            <span class="tag">Sort direction starts at <code>asc</code></span>
-            <span class="tag">Remote responses expect <code>data</code> and <code>total</code> unless mapped</span>
-            <span class="tag">Grouping labels fall back to <code>Ungrouped (count)</code></span>
-          </div>
-        </section>
+          <section class="panel">
+            <h2 class="section-title">Good Defaults to Know</h2>
+            <div class="tag-row">
+              <span class="tag"
+                ><code>pageSize</code> defaults to <code>5</code></span
+              >
+              <span class="tag"
+                ><code>paginationGuard</code> is <code>false</code> by
+                default</span
+              >
+              <span class="tag"
+                ><code>paginationGuard: true</code> uses
+                <code>maxPage 25</code> and <code>maxPageSize 100</code></span
+              >
+              <span class="tag">Search is enabled by default</span>
+              <span class="tag"
+                >Search input debounce is <code>250ms</code></span
+              >
+              <span class="tag">Sort direction starts at <code>asc</code></span>
+              <span class="tag"
+                >Remote responses expect <code>data</code> and
+                <code>total</code> unless mapped</span
+              >
+              <span class="tag"
+                >Grouping labels fall back to
+                <code>Ungrouped (count)</code></span
+              >
+            </div>
+          </section>
 
-        <section class="panel" id="demos">
-          <h2 class="section-title">Demo Map</h2>
-          <p class="section-copy">Use the demos as working reference implementations for each feature area.</p>
-          <div class="mini-grid">
-            <a class="mini-card" href="./demo/basic.html"><h3>Basic</h3><p>Local data, search, sort, pagination, and starter config.</p></a>
-            <a class="mini-card" href="./demo/custom-cells.html"><h3>Custom Cells</h3><p>Render functions, DOM nodes, and custom search behavior.</p></a>
-            <a class="mini-card" href="./demo/themes.html"><h3>Themes</h3><p>Default, Bootstrap, and Tailwind-oriented class maps.</p></a>
-            <a class="mini-card" href="./demo/remote.html"><h3>Remote</h3><p>Server-style fetch flow with sorting and paging.</p></a>
-            <a class="mini-card" href="./demo/grouping-detail.html"><h3>Grouping + Detail</h3><p>Grouped rows with expandable detail panels.</p></a>
-            <a class="mini-card" href="./demo/localization.html"><h3>Localization</h3><p>Language overrides and built-in locale usage.</p></a>
-            <a class="mini-card" href="./demo/advanced-features.html"><h3>Advanced Features</h3><p>Selection, export, persistence, and visibility control.</p></a>
-            <a class="mini-card" href="./demo/formatting.html"><h3>Formatting</h3><p>Formatter helpers for dates, numbers, and currencies.</p></a>
-            <a class="mini-card" href="./demo/inline-editing.html"><h3>Inline Editing</h3><p>Editable cells and update flow.</p></a>
-            <a class="mini-card" href="./demo/live-sync.html"><h3>Live Sync</h3><p>Auto-refresh and status UI behavior.</p></a>
-            <a class="mini-card" href="./demo/pagination-guard.html"><h3>Pagination Guard</h3><p>Optional caps for max page and page-size validation.</p></a>
-            <a class="mini-card" href="./demo/create-record.html"><h3>Create Record</h3><p>Built-in modal workflows for adding new rows with validation.</p></a>
-          </div>
-        </section>
-      </div>
+          <section class="panel" id="demos">
+            <h2 class="section-title">Demo Map</h2>
+            <p class="section-copy">
+              Use the demos as working reference implementations for each
+              feature area.
+            </p>
+            <div class="mini-grid">
+              <a class="mini-card" href="./demo/basic.html"
+                ><h3>Basic</h3>
+                <p>
+                  Local data, search, sort, pagination, and starter config.
+                </p></a
+              >
+              <a class="mini-card" href="./demo/custom-cells.html"
+                ><h3>Custom Cells</h3>
+                <p>
+                  Render functions, DOM nodes, and custom search behavior.
+                </p></a
+              >
+              <a class="mini-card" href="./demo/themes.html"
+                ><h3>Themes</h3>
+                <p>Default, Bootstrap, and Tailwind-oriented class maps.</p></a
+              >
+              <a class="mini-card" href="./demo/remote.html"
+                ><h3>Remote</h3>
+                <p>Server-style fetch flow with sorting and paging.</p></a
+              >
+              <a class="mini-card" href="./demo/grouping-detail.html"
+                ><h3>Grouping + Detail</h3>
+                <p>Grouped rows with expandable detail panels.</p></a
+              >
+              <a class="mini-card" href="./demo/localization.html"
+                ><h3>Localization</h3>
+                <p>Language overrides and built-in locale usage.</p></a
+              >
+              <a class="mini-card" href="./demo/advanced-features.html"
+                ><h3>Advanced Features</h3>
+                <p>
+                  Selection, export, persistence, and visibility control.
+                </p></a
+              >
+              <a class="mini-card" href="./demo/formatting.html"
+                ><h3>Formatting</h3>
+                <p>Formatter helpers for dates, numbers, and currencies.</p></a
+              >
+              <a class="mini-card" href="./demo/inline-editing.html"
+                ><h3>Inline Editing</h3>
+                <p>Editable cells and update flow.</p></a
+              >
+              <a class="mini-card" href="./demo/live-sync.html"
+                ><h3>Live Sync</h3>
+                <p>Auto-refresh and status UI behavior.</p></a
+              >
+              <a class="mini-card" href="./demo/pagination-guard.html"
+                ><h3>Pagination Guard</h3>
+                <p>Optional caps for max page and page-size validation.</p></a
+              >
+              <a class="mini-card" href="./demo/create-record.html"
+                ><h3>Create Record</h3>
+                <p>
+                  Built-in modal workflows for adding new rows with validation.
+                </p></a
+              >
+            </div>
+          </section>
+        </div>
       </main>
 
       <footer class="site-footer">
@@ -981,7 +1587,9 @@ table.init();</code></pre>
               <span>Dog Table</span>
             </div>
             <p>
-              Vanilla JavaScript data tables with practical features for real app flows: search, sorting, remote data, editing, create workflows, export, and live refresh.
+              Vanilla JavaScript data tables with practical features for real
+              app flows: search, sorting, remote data, editing, create
+              workflows, export, and live refresh.
             </p>
             <div class="nav-actions">
               <a
@@ -991,7 +1599,9 @@ table.init();</code></pre>
                 title="GitHub"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z" />
+                  <path
+                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z"
+                  />
                 </svg>
               </a>
               <a
@@ -1014,6 +1624,7 @@ table.init();</code></pre>
               <a href="#api-methods">API Reference</a>
               <a href="#hooks">Hooks</a>
               <a href="#plugins">Plugins</a>
+              <a href="./query-cache.html">Query Cache Guide</a>
             </div>
           </div>
 
@@ -1039,7 +1650,10 @@ table.init();</code></pre>
         </div>
 
         <div class="footer-bottom">
-          <span>Built for teams that want practical table features without a framework-sized dependency.</span>
+          <span
+            >Built for teams that want practical table features without a
+            framework-sized dependency.</span
+          >
           <span>MIT Licensed</span>
         </div>
       </footer>
