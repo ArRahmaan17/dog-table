@@ -168,18 +168,25 @@ export class DataEngine {
   }
 
   process(state) {
+    const paginationEnabled = this.table.isPaginationEnabled();
     const filteredRows = this.filterRows(state);
     const sortedRows = this.sortRows(state, filteredRows);
     const totalItems = this.isRemote() ? state.totalItems : sortedRows.length;
     const guard = this.table.tableState.getPaginationGuardConfig();
-    const rawTotalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
-    const totalPages = guard ? Math.min(rawTotalPages, guard.maxPage) : rawTotalPages;
-    const currentPage = Math.min(
-      Math.max(1, this.table.tableState.clampPage(state.currentPage)),
-      totalPages
-    );
+    const rawTotalPages = paginationEnabled
+      ? Math.max(1, Math.ceil(totalItems / state.pageSize))
+      : 1;
+    const totalPages = paginationEnabled && guard
+      ? Math.min(rawTotalPages, guard.maxPage)
+      : rawTotalPages;
+    const currentPage = paginationEnabled
+      ? Math.min(
+          Math.max(1, this.table.tableState.clampPage(state.currentPage)),
+          totalPages
+        )
+      : 1;
     const start = (currentPage - 1) * state.pageSize;
-    const rows = this.isRemote()
+    const rows = this.isRemote() || !paginationEnabled
       ? sortedRows
       : sortedRows.slice(start, start + state.pageSize);
 
@@ -191,10 +198,12 @@ export class DataEngine {
       totalPages,
       currentPage,
       pageSize: state.pageSize,
-      startIndex: totalItems === 0 ? 0 : start + 1,
+      startIndex: totalItems === 0 ? 0 : paginationEnabled ? start + 1 : 1,
       endIndex: this.isRemote()
         ? Math.min(start + rows.length, totalItems)
-        : Math.min(start + state.pageSize, totalItems),
+        : paginationEnabled
+          ? Math.min(start + state.pageSize, totalItems)
+          : totalItems,
     };
   }
 }

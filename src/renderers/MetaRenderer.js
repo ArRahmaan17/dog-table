@@ -27,7 +27,9 @@ export class MetaRenderer {
 
     elements.tbody.innerHTML = rowsHtml;
     elements.meta.textContent = options.language.loading;
-    elements.pagination.innerHTML = "";
+    if (elements.pagination) {
+      elements.pagination.innerHTML = "";
+    }
   }
 
   renderError() {
@@ -43,7 +45,9 @@ export class MetaRenderer {
       </tr>
     `;
     elements.meta.textContent = options.language.error;
-    elements.pagination.innerHTML = "";
+    if (elements.pagination) {
+      elements.pagination.innerHTML = "";
+    }
   }
 
   renderMeta(processed) {

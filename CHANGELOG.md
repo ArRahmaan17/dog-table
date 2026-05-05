@@ -2,6 +2,14 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
+## [1.5.1-beta] — 2026-05-01
+### Added
+* **Optional Pagination Disablement:** Menambahkan opsi `pagination: false` untuk menonaktifkan slicing per halaman dan menyembunyikan kontrol pagination pada tabel lokal maupun remote.
+
+### Changed
+* **Remote Query Behavior:** Saat `pagination: false`, request remote tidak lagi mengirim parameter `page` dan `pageSize`, sehingga endpoint bisa mengembalikan seluruh dataset yang tersedia.
+* **Guardrail Handling:** `paginationGuard` sekarang diabaikan sepenuhnya saat `pagination: false`, dan library akan menampilkan `console.warn` untuk menandai mismatch konfigurasi.
+* **Documentation:** README dan wiki configuration reference diperbarui dengan penjelasan opsi `pagination` baru beserta contoh penggunaannya.
 
 ## [1.5.0] — 2026-04-30
 ### Changed

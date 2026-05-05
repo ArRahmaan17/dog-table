@@ -53,7 +53,7 @@ export class DataFetcher {
     return baseUrl.toString();
   }
 
-  async fetch(state) {
+  async fetch(state, { includePagination = true } = {}) {
     if (this.controller) {
       this.controller.abort();
     }
@@ -61,7 +61,7 @@ export class DataFetcher {
     this.controller = new AbortController();
 
     const { payload } = await requestJson({
-      url: this.buildUrl(state),
+      url: this.buildUrl(state, { includePagination }),
       method: this.config.method || "GET",
       headers: this.config.headers,
       credentials: this.config.credentials,

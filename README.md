@@ -67,6 +67,7 @@ table.init();
 ## Features
 
 - Client-side sorting, search, and pagination
+- Optional pagination disablement for full-table rendering
 - Remote data loading with abortable requests
 - Remote query caching with shared dataset aliasing and per-query pagination state
 - Modular core with dedicated state, data, rendering, event, and remote layers
@@ -116,6 +117,23 @@ const table = new DogTable("#app", {
     minPageSize: 1,
     maxPageSize: 100,
   },
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "status", label: "Status" },
+  ],
+});
+```
+
+## Disable Pagination
+
+Pagination stays enabled by default for backward compatibility. Set `pagination: false` to render all available rows and hide the pagination controls.
+
+If you also pass `paginationGuard`, DogTable ignores it and prints a `console.warn`, because guardrails only apply when pagination is active.
+
+```js
+const table = new DogTable("#app", {
+  data,
+  pagination: false,
   columns: [
     { key: "name", label: "Name" },
     { key: "status", label: "Status" },

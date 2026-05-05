@@ -35,7 +35,11 @@ export class TableRenderer {
             <tbody class="${theme.get("tbody")}"></tbody>
           </table>
         </div>
-        <div class="${theme.get("pagination")}" aria-label="Pagination controls"></div>
+        <div
+          class="${theme.get("pagination")}"
+          aria-label="Pagination controls"
+          ${this.table.isPaginationEnabled() ? "" : "hidden"}
+        ></div>
         <div class="dt-modal-region"></div>
         <div class="dt-toast-region" aria-live="polite"></div>
       </div>

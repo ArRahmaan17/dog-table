@@ -24,6 +24,7 @@ export class DogTable {
     this.options = {
       data: [],
       columns: [],
+      pagination: true,
       pageSize: DEFAULT_PAGE_SIZE,
       searchable: true,
       language: {
@@ -74,6 +75,12 @@ export class DogTable {
       hooks: {},
       ...options,
     };
+
+    if (this.options.pagination === false && this.options.paginationGuard) {
+      console.warn(
+        "DogTable: `paginationGuard` is ignored when `pagination` is false."
+      );
+    }
 
     const initialSort =
       this.options.initialSort &&
@@ -172,6 +179,10 @@ export class DogTable {
 
   clampPageSize(pageSize) {
     return this.tableState.clampPageSize(pageSize);
+  }
+
+  isPaginationEnabled() {
+    return this.options.pagination !== false;
   }
 
   normalizeStateConstraints() {
@@ -613,12 +624,16 @@ export class DogTable {
     }
 
     try {
-      const payload = await this.remoteAdapter.fetch(this.state);
+      const payload = await this.remoteAdapter.fetch(this.state, {
+        includePagination: this.isPaginationEnabled(),
+      });
 
       this.tableState.setRemoteData(payload);
       this.dataEngine.reset();
 
-      const totalPages = Math.max(1, Math.ceil(this.state.totalItems / this.state.pageSize));
+      const totalPages = this.isPaginationEnabled()
+        ? Math.max(1, Math.ceil(this.state.totalItems / this.state.pageSize))
+        : 1;
       if (this.state.currentPage > totalPages && totalPages > 0) {
         this.tableState.syncCurrentPage(totalPages);
         return this.fetchData();

@@ -21,6 +21,18 @@ export class PaginationRenderer {
 
   render(processed) {
     const { elements, theme, options } = this.table;
+
+    if (!elements.pagination) {
+      return;
+    }
+
+    if (!this.table.isPaginationEnabled()) {
+      elements.pagination.innerHTML = "";
+      elements.pagination.hidden = true;
+      return;
+    }
+
+    elements.pagination.hidden = false;
     const prevDisabled = processed.currentPage <= 1;
     const nextDisabled = processed.currentPage >= processed.totalPages;
     const pageNumbers = this.getVisiblePageNumbers(
