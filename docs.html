@@ -786,6 +786,8 @@ table.init();</code></pre>
                 <p>
                   Client-side search, sort, and pagination happen automatically
                   when you pass <code>data</code> and <code>columns</code>.
+                  Set <code>pagination: false</code> if you want to render all
+                  loaded rows without page controls.
                 </p>
               </div>
               <div class="mini-card">
@@ -926,6 +928,22 @@ table.init();</code></pre>
               Remote requests are abortable. If a newer fetch starts, the
               previous one is canceled with <code>AbortController</code>.
             </p>
+            <pre><code>const allRowsTable = new DogTable("#all-dogs", {
+  data,
+  pagination: false,
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age" },
+  ],
+});
+
+allRowsTable.init();</code></pre>
+            <p class="footer-note">
+              When <code>pagination: false</code> is set, Dog Table shows all
+              loaded rows and ignores <code>paginationGuard</code>. If both are
+              passed together, the library prints a <code>console.warn</code>.
+            </p>
           </section>
 
           <section class="table-wrap" id="table-options">
@@ -953,6 +971,15 @@ table.init();</code></pre>
                   <td>Column definitions used for rendering and behavior.</td>
                 </tr>
                 <tr>
+                  <td><code>pagination</code></td>
+                  <td><code>boolean</code></td>
+                  <td><code>true</code></td>
+                  <td>
+                    Enables page slicing and pagination controls. Set
+                    <code>false</code> to render all loaded rows.
+                  </td>
+                </tr>
+                <tr>
                   <td><code>pageSize</code></td>
                   <td><code>number</code></td>
                   <td><code>5</code></td>
@@ -966,7 +993,8 @@ table.init();</code></pre>
                   <td><code>false</code></td>
                   <td>
                     Optional guardrails for page/page-size bounds. Use
-                    <code>true</code> for defaults (25 / 1 / 100).
+                    <code>true</code> for defaults (25 / 1 / 100). Ignored
+                    when <code>pagination</code> is <code>false</code>.
                   </td>
                 </tr>
                 <tr>
@@ -1485,11 +1513,18 @@ table.init();</code></pre>
             <h2 class="section-title">Good Defaults to Know</h2>
             <div class="tag-row">
               <span class="tag"
+                ><code>pagination</code> defaults to <code>true</code></span
+              >
+              <span class="tag"
                 ><code>pageSize</code> defaults to <code>5</code></span
               >
               <span class="tag"
                 ><code>paginationGuard</code> is <code>false</code> by
                 default</span
+              >
+              <span class="tag"
+                ><code>paginationGuard</code> is ignored when
+                <code>pagination: false</code></span
               >
               <span class="tag"
                 ><code>paginationGuard: true</code> uses
@@ -1521,7 +1556,8 @@ table.init();</code></pre>
               <a class="mini-card" href="./demo/basic.html"
                 ><h3>Basic</h3>
                 <p>
-                  Local data, search, sort, pagination, and starter config.
+                  Local data, search, sort, pagination, and the simplest
+                  <code>pagination: false</code> example.
                 </p></a
               >
               <a class="mini-card" href="./demo/custom-cells.html"
