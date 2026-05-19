@@ -88,7 +88,9 @@ export class LivePlugin {
   }
 
   scheduleNext(delay = this.baseInterval) {
+    console.log("[live.scheduleNext] delay:", delay, "active:", this.active, "baseInterval:", this.baseInterval, "hidden:", this.isDocumentHidden());
     if (!this.active || !this.baseInterval || this.isDocumentHidden()) {
+      console.log("[live.scheduleNext] clearing timer - inactive/no base/tab hidden");
       this.clearTimer();
       return;
     }
@@ -97,7 +99,9 @@ export class LivePlugin {
     this.timerId = window.setTimeout(async () => {
       this.timerId = null;
 
-      if (!this.active || this.isDocumentHidden()) {
+      console.log("[live.scheduleNext] timer fired - loading:", this.table.state.loading, "active:", this.active, "hidden:", this.isDocumentHidden());
+      if (!this.active || this.isDocumentHidden() || this.table.state.loading) {
+        console.log("[live.scheduleNext] rescheduling - skipped due to loading/inactive/hidden");
         this.scheduleNext(this.currentInterval || this.baseInterval);
         return;
       }
@@ -106,13 +110,16 @@ export class LivePlugin {
         this.table.options.hooks.onBeforeRefresh();
       }
 
+      console.log("[live.scheduleNext] calling table.update()");
       try {
         await this.table.update();
+        console.log("[live.scheduleNext] table.update() resolved");
       } catch (error) {
         console.error("LivePlugin: refresh failed", error);
       }
 
       if (this.active && !this.isDocumentHidden()) {
+        console.log("[live.scheduleNext] scheduling next with interval:", this.currentInterval || this.baseInterval);
         this.scheduleNext(this.currentInterval || this.baseInterval);
       }
     }, delay);

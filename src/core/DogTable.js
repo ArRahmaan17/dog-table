@@ -650,8 +650,10 @@ export class DogTable {
   }
 
   async _doFetch() {
+    console.log("[_doFetch] START - setting loading=true");
     this.setLoading(true);
     this.tableState.setError(null);
+    console.log("[_doFetch] renderLoading() called, state.loading =", this.state.loading);
     this.renderLoading();
 
     if (typeof this.options.hooks.onFetchStart === "function") {
@@ -663,17 +665,22 @@ export class DogTable {
         includePagination: this.isPaginationEnabled(),
       });
 
+      console.log("[_doFetch] FETCH SUCCESS - payload rows:", payload?.rows?.length, "totalItems:", payload?.totalItems);
+
       this.tableState.setRemoteData(payload);
       this.dataEngine.reset();
 
       const totalPages = this.isPaginationEnabled()
         ? Math.max(1, Math.ceil(this.state.totalItems / this.state.pageSize))
         : 1;
+      console.log("[_doFetch] totalPages:", totalPages, "currentPage:", this.state.currentPage);
       if (this.state.currentPage > totalPages && totalPages > 0) {
+        console.log("[_doFetch] currentPage > totalPages, recursive _doFetch()");
         this.tableState.syncCurrentPage(totalPages);
         return this._doFetch();
       }
 
+      console.log("[_doFetch] calling live.handleFetchSuccess()");
       this.live.handleFetchSuccess(payload);
 
       if (typeof this.options.hooks.onFetchSuccess === "function") {
@@ -686,7 +693,10 @@ export class DogTable {
     } catch (error) {
       this.dataEngine.reset();
 
+      console.log("[_doFetch] CATCH - error:", error.name, error.message);
+
       if (error.name === "AbortError") {
+        console.log("[_doFetch] AbortError - returning early");
         return;
       }
 
@@ -697,6 +707,7 @@ export class DogTable {
         this.options.hooks.onFetchError(error);
       }
     } finally {
+      console.log("[_doFetch] FINALLY - setting loading=false");
       this.setLoading(false);
     }
   }
@@ -783,7 +794,9 @@ export class DogTable {
   }
 
   async update({ skipFetch = false } = {}) {
+    console.log("[update] called - skipFetch:", skipFetch, "_pendingUpdate:", this._pendingUpdate, "isRemote:", this.isRemote());
     if (this._pendingUpdate) {
+      console.log("[update] waiting for pendingUpdate to clear");
       return new Promise((resolve) => {
         const check = () => {
           if (!this._pendingUpdate) {
@@ -800,15 +813,19 @@ export class DogTable {
 
     return new Promise((resolve) => {
       requestAnimationFrame(async () => {
+        console.log("[update] requestAnimationFrame fired - starting work");
         if (this.isRemote() && !skipFetch) {
+          console.log("[update] calling fetchData()");
           await this.fetchData();
         }
 
         const processed = this.getProcessedData();
+        console.log("[update] processed data - rows:", processed.rows?.length, "loading:", this.state.loading, "error:", this.state.error);
 
         this.renderHeader(processed.rows);
 
         if (this.state.error) {
+          console.log("[update] rendering error state");
           this.renderError();
           this._pendingUpdate = false;
           resolve();
@@ -816,12 +833,14 @@ export class DogTable {
         }
 
         if (this.state.loading) {
+          console.log("[update] STUCK ON LOADING - state.loading is true, rendering skeleton");
           this.renderLoading();
           this._pendingUpdate = false;
           resolve();
           return;
         }
 
+        console.log("[update] rendering success - displayRows:", processed.displayRows?.length);
         this.saveState();
         this.renderBody(processed.displayRows);
         this.renderMeta(processed);
@@ -835,6 +854,7 @@ export class DogTable {
         this.live.updateUI();
         this.emitHooks(processed);
         this._pendingUpdate = false;
+        console.log("[update] COMPLETE - resolved");
         resolve();
       });
     });

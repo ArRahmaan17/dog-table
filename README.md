@@ -1,4 +1,4 @@
-# Dog Table v1.5.1-beta
+# Dog Table v1.5.1
 
 [![npm version](https://img.shields.io/npm/v/dog-table)](https://www.npmjs.com/package/dog-table)
 [![license](https://img.shields.io/npm/l/dog-table)](./LICENSE)
@@ -6,7 +6,7 @@
 
 Dog Table is a lightweight vanilla JavaScript data table library for projects that want a clean API, useful built-in features, and no framework lock-in. It supports local data, remote fetching, inline editing, create workflows, selection, formatting, grouping, localization, and live sync in one package.
 
-**v1.5.1-beta** adds performance optimizations: request debouncing, request deduplication, memoized display rows, precomputed sort keys, rAF-batched renders, DOM diffing, optimized HTML escaping, CSS content-visibility for groups, virtual scrolling support, and Map/Set lookup optimizations.
+**v1.5.1** adds performance optimizations: request debouncing, request deduplication, memoized display rows, precomputed sort keys, rAF-batched renders, DOM diffing, optimized HTML escaping, CSS content-visibility for groups, virtual scrolling support, and Map/Set lookup optimizations. It also fixes a critical live-sync bug where the table would get stuck on the loading skeleton when the response data was identical.
 
 Current constructor: `new DogTable(container, options)`.
 Backward compatibility: `DataTable` is still exported as an alias.

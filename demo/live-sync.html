@@ -66,17 +66,11 @@
         color: #102a43;
       }
 
-      .bug-label {
-        display: inline-block;
-        margin-left: 12px;
-        padding: 4px 12px;
-        border-radius: 999px;
-        background: #dc2626;
-        color: #fff;
-        font-size: 0.75rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        vertical-align: middle;
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
       }
 
       p {
@@ -254,7 +248,6 @@
         <span>Live Sync</span>
       </nav>
       <h1>Advanced Data & Live Sync</h1>
-      <span class="bug-label">BUG</span>
       <p>
         The table refreshes every 5 seconds, backs off automatically when the
         payload is unchanged, and pauses while the tab is inactive. This page

@@ -2,7 +2,7 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
-## [1.5.1-beta] — 2026-05-19
+## [1.5.1] — 2026-05-20
 ### Added
 * **Request Debouncing:** Menambahkan opsi `fetchDebounce` untuk menunda request remote secara konfigurabel, mencegah spam fetch saat perubahan state cepat (pagination, search, sort). Default `0` (disabled) untuk backward compatibility.
 * **Request Deduplication:** In-flight fetch request sekarang di-deduplicate. Panggilan `update()` bersamaan akan berbagi promise yang sama, bukan membuat banyak request yang kemudian di-abort.
@@ -10,6 +10,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **New Public Methods:**
   * `table.fetchNow()` - Bypass debounce dan langsung eksekusi fetch
   * `table.updateSync()` - Update tanpa rAF batching untuk kasus yang butuh render langsung
+* **Fetch Timeout:** Menambahkan opsi `fetchTimeout` pada remote config dengan default 15 detik. Request yang melebihi batas akan di-abort otomatis.
 
 ### Changed
 * **Memoized Display Rows:** `buildDisplayRows()` sekarang di-cache berdasarkan `rawData` reference dan `groupBy` config. Tidak rebuild wrapper rows jika data tidak berubah.
@@ -22,6 +23,8 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Hook Payload Standardization:** `onUpdate` hook sekarang menerima `processed` object langsung (bukan `{ state, columns }`), dengan defensive guards untuk semua properti.
 
 ### Fixed
+* **Live Sync Loading Stuck:** Memperbaiki bug kritis di mana auto-refresh (`autoRefresh`) akan stuck pada skeleton loading saat payload response identik dengan sebelumnya. Penyebabnya: `renderLoading()` menghancurkan DOM rows tapi `_rowNodes` cache masih memegang referensi ke node yang sudah detached. Fix: cache dibersihkan sebelum `tbody.innerHTML` overwrite, dan `renderBody()` sekarang memeriksa `parentNode` pada cached nodes.
+* **Live Polling Overlap:** Menambahkan guard `state.loading` pada `LivePlugin.scheduleNext()` untuk mencegah polling baru saat fetch masih berjalan.
 * **Hook Payload Safety:** Menambahkan defensive guards di `emitHooks()` dan `getProcessedData()` untuk mencegah `TypeError` saat `processed` undefined atau null.
 * **MetaRenderer Safety:** Menambahkan fallback untuk `options.language.showing`, `noResults`, `emptyState` di `renderMeta()`.
 * **PaginationRenderer Safety:** Menambahkan nullish coalescing untuk `currentPage`, `totalPages`, dan safe fallbacks untuk `language.page`, `previous`, `next`.

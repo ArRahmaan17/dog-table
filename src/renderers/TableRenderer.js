@@ -6,6 +6,11 @@ export class TableRenderer {
     this._rowNodes = new Map();
   }
 
+  clearRowCache() {
+    console.log("[TableRenderer.clearRowCache] purging", this._rowNodes.size, "cached nodes");
+    this._rowNodes.clear();
+  }
+
   renderStructure() {
     const { container, theme, options, state } = this.table;
 
@@ -136,6 +141,8 @@ export class TableRenderer {
 
   renderBody(displayRows) {
     const { elements, state, theme, options, formatter } = this.table;
+    const detachedCount = [...this._rowNodes.values()].filter(n => !n.parentNode).length;
+    console.log("[TableRenderer.renderBody] displayRows:", displayRows?.length, "_rowNodes:", this._rowNodes.size, "detached:", detachedCount);
 
     if (displayRows.length === 0) {
       this._rowNodes.clear();
@@ -176,7 +183,8 @@ export class TableRenderer {
 
       let tr = this._rowNodes.get(rowId);
 
-      if (!tr) {
+      if (!tr || !tr.parentNode) {
+        console.log("[TableRenderer.renderBody] row", rowId, "cache", !tr ? "MISS" : "DETACHED");
         needsFullRebuild = true;
         return;
       }

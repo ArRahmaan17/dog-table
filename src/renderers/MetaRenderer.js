@@ -7,6 +7,11 @@ export class MetaRenderer {
 
   renderLoading() {
     const { elements, theme, options, state } = this.table;
+    console.log("[MetaRenderer.renderLoading] rendering skeleton - pageSize:", state.pageSize, "cols:", this.table.getVisibleColumnCount());
+    console.log("[MetaRenderer.renderLoading] clearing _rowNodes cache before tbody.innerHTML overwrite");
+    if (this.table.tableRenderer) {
+      this.table.tableRenderer.clearRowCache();
+    }
     const rowsCount = state.pageSize;
     const colsCount = this.table.getVisibleColumnCount();
     let rowsHtml = "";

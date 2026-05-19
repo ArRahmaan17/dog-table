@@ -196,6 +196,7 @@ export class TableState {
   }
 
   setLoading(isLoading) {
+    console.log("[TableState.setLoading] from:", this.state.loading, "to:", Boolean(isLoading));
     this.state.loading = Boolean(isLoading);
   }
 
