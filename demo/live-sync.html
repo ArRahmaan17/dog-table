@@ -38,7 +38,7 @@
       content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
     />
     <link rel="stylesheet" href="../src/data-table.css" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
       body {
         margin: 0;
@@ -263,6 +263,7 @@
   const table = new DogTable("#app", {
     remote: {
       url: "/api/live-market",
+      fetchTimeout: 15000,
       mapResponse(payload) {
         return { rows: payload.data, totalItems: payload.total };
       },
@@ -357,6 +358,7 @@
         autoRefresh: 5000,
         remote: {
           url: API_URL,
+          fetchTimeout: 15000,
           mapResponse: (payload, state) => {
             updateCount++;
             totalUpdatesEl.textContent = updateCount;
@@ -385,9 +387,6 @@
       });
 
       table.init();
-      if (typeof tailwind !== "undefined") {
-        tailwind.scan();
-      }
       syncTimeoutDisplay();
       document.addEventListener("visibilitychange", syncTimeoutDisplay);
       table.container.addEventListener("click", (event) => {

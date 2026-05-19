@@ -652,7 +652,6 @@ export class DogTable {
   async _doFetch() {
     this.setLoading(true);
     this.tableState.setError(null);
-    this.renderHeader(this.getProcessedData().rows);
     this.renderLoading();
 
     if (typeof this.options.hooks.onFetchStart === "function") {
@@ -685,6 +684,8 @@ export class DogTable {
         this.options.hooks.onDataUpdated(this.state.rawData);
       }
     } catch (error) {
+      this.dataEngine.reset();
+
       if (error.name === "AbortError") {
         return;
       }
