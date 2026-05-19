@@ -33,12 +33,12 @@ export class PaginationRenderer {
     }
 
     elements.pagination.hidden = false;
-    const prevDisabled = processed.currentPage <= 1;
-    const nextDisabled = processed.currentPage >= processed.totalPages;
-    const pageNumbers = this.getVisiblePageNumbers(
-      processed.currentPage,
-      processed.totalPages
-    );
+    const currentPage = processed.currentPage ?? 1;
+    const totalPages = processed.totalPages ?? 1;
+    const prevDisabled = currentPage <= 1;
+    const nextDisabled = currentPage >= totalPages;
+    const pageNumbers = this.getVisiblePageNumbers(currentPage, totalPages);
+    const pageTemplate = options.language?.page || "Page {page} of {total}";
     const numberedButtons = pageNumbers
       .map((page, index) => {
         const previous = pageNumbers[index - 1];
@@ -51,14 +51,14 @@ export class PaginationRenderer {
             type="button"
             class="${[
               theme.get("paginationPage"),
-              page === processed.currentPage
+              page === currentPage
                 ? theme.get("paginationPageActive")
                 : "",
             ]
               .filter(Boolean)
               .join(" ")}"
             data-page="${page}"
-            aria-current="${page === processed.currentPage ? "page" : "false"}"
+            aria-current="${page === currentPage ? "page" : "false"}"
           >
             ${page}
           </button>
@@ -72,26 +72,26 @@ export class PaginationRenderer {
       <button
         type="button"
         class="${theme.get("button")}"
-        data-page="${processed.currentPage - 1}"
+        data-page="${currentPage - 1}"
         ${prevDisabled ? "disabled" : ""}
       >
-        ${escapeHtml(options.language.previous)}
+        ${escapeHtml(options.language?.previous || "Prev")}
       </button>
       <div class="${theme.get("paginationPages")}">${numberedButtons}</div>
       <span class="${theme.get("paginationStatus")}">
         ${escapeHtml(
-          options.language.page
-            .replace("{page}", processed.currentPage)
-            .replace("{total}", processed.totalPages)
+          pageTemplate
+            .replace("{page}", currentPage)
+            .replace("{total}", totalPages)
         )}
       </span>
       <button
         type="button"
         class="${theme.get("button")}"
-        data-page="${processed.currentPage + 1}"
+        data-page="${currentPage + 1}"
         ${nextDisabled ? "disabled" : ""}
       >
-        ${escapeHtml(options.language.next)}
+        ${escapeHtml(options.language?.next || "Next")}
       </button>
     `;
   }

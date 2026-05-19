@@ -389,7 +389,9 @@ table.init();</code></pre>
           onSelectionChange: (selectedRows) => {
             selectedCountEl.textContent = `${selectedRows.length} row${selectedRows.length === 1 ? "" : "s"}`;
           },
-          onUpdate: ({ state, columns }) => {
+          onUpdate: (processed) => {
+            const columns = table.state.columns;
+            const state = table.state;
             const visible = columns.filter((column) => column.visible !== false).length;
             visibleColumnsEl.textContent = `${visible}`;
 
@@ -397,7 +399,7 @@ table.init();</code></pre>
               ? `, ${state.sortKey} ${state.sortDirection}`
               : "";
 
-            viewSummaryEl.textContent = `Page ${state.currentPage}${sortSummary}`;
+            viewSummaryEl.textContent = `Page ${processed.currentPage ?? state.currentPage}${sortSummary}`;
           },
         },
       });
