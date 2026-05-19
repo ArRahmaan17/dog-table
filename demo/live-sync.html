@@ -38,6 +38,7 @@
       content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
     />
     <link rel="stylesheet" href="../src/data-table.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
         margin: 0;
@@ -351,6 +352,7 @@
       };
 
       const table = new DogTable("#app", {
+        theme: "tailwind",
         pageSize: 10,
         autoRefresh: 5000,
         remote: {
@@ -383,6 +385,9 @@
       });
 
       table.init();
+      if (typeof tailwind !== "undefined") {
+        tailwind.scan();
+      }
       syncTimeoutDisplay();
       document.addEventListener("visibilitychange", syncTimeoutDisplay);
       table.container.addEventListener("click", (event) => {

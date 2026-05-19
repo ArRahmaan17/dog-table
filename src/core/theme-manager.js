@@ -104,6 +104,10 @@ function appendClassNames(...sources) {
   return tokens.join(" ");
 }
 
+function prependClassNames(base, override) {
+  return appendClassNames(override, base);
+}
+
 function resolveTheme(theme) {
   if (typeof theme === "string") {
     return presets[theme] || presets.default;
@@ -127,7 +131,7 @@ function mergeTheme(theme, overrides = {}) {
   const merged = {};
 
   Object.keys(theme).forEach((key) => {
-    merged[key] = appendClassNames(theme[key], overrides[key]);
+    merged[key] = prependClassNames(theme[key], overrides[key]);
   });
 
   Object.keys(overrides).forEach((key) => {
