@@ -618,17 +618,24 @@
       <main>
         <section class="hero">
           <div class="hero-copy">
-            <div class="eyebrow">Dog Table Docs</div>
+            <div class="eyebrow">Dog Table Docs v1.5.1-beta</div>
             <h1>Vanilla tables with the practical stuff already built in.</h1>
             <p class="lede">
               Dog Table gives you search, sorting, pagination, remote data
               loading, grouping, selection, CSV export, inline editing,
               localization, persistence, and live refresh without bringing in a
               framework, while keeping the internals split into focused modules.
+              <strong>v1.5.1-beta</strong> adds performance optimizations: request
+              debouncing &amp; deduplication, memoized data pipeline, DOM diffing,
+              rAF-batched renders, precomputed sort keys, virtual scrolling support,
+              and CSS content-visibility for grouped rows.
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#quick-start"
                 >Quick start</a
+              >
+              <a class="button button-secondary" href="#examples"
+                >Examples</a
               >
               <a class="button button-secondary" href="#api-methods"
                 >API methods</a
@@ -645,6 +652,7 @@
             <div class="toc">
               <a href="#installation">Installation</a>
               <a href="#quick-start">Quick Start</a>
+              <a href="#examples">Examples</a>
               <a href="#core-concepts">Core concepts</a>
               <a href="#architecture">Architecture</a>
               <a href="#table-options">Table options</a>
@@ -670,15 +678,15 @@
           <div class="card">
             <strong>Remote-ready</strong>
             <span
-              ><code>fetch()</code> requests are abortable and react to page,
-              sort, and search state.</span
+              ><code>fetch()</code> requests are abortable, deduplicated, and react to page,
+              sort, and search state. Optional <code>fetchDebounce</code> prevents request spam.</span
             >
           </div>
           <div class="card">
-            <strong>Progressive features</strong>
+            <strong>Performance optimized</strong>
             <span
-              >Selection, export, editing, persistence, and live sync layer on
-              only when enabled.</span
+              >Memoized data pipeline, DOM diffing, rAF-batched renders, precomputed sort keys,
+              and virtual scrolling support for large datasets.</span
             >
           </div>
         </section>
@@ -778,6 +786,320 @@ table.init();</code></pre>
             </div>
           </section>
 
+          <section class="panel" id="examples">
+            <h2 class="section-title">Examples</h2>
+            <p class="section-copy">
+              Ten focused examples covering all major DogTable features.
+            </p>
+            <div class="grid-2">
+              <div class="mini-card">
+                <h3>1. Basic Local Table</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3 },
+    { id: 2, name: "Pepper", breed: "Border Collie", age: 5 },
+  ],
+  columns: [
+    { key: "name", label: "Name", sortable: true },
+    { key: "breed", label: "Breed", sortable: true },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  pageSize: 5,
+  searchable: true,
+  pagination: true,
+});
+
+table.init();</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>2. Remote Data with API</h3>
+                <pre><code>const table = new DogTable("#app", {
+  remote: {
+    url: "https://api.example.com/dogs",
+    dataKey: "results",
+    totalKey: "count",
+    headers: { Authorization: "Bearer TOKEN" },
+    queryParams: {
+      page: "page",
+      pageSize: "limit",
+      sort: "sort_by",
+      order: "order",
+      search: "q",
+    },
+  },
+  columns: [
+    { key: "name", label: "Name", sortable: true },
+    { key: "breed", label: "Breed", sortable: true },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  pageSize: 10,
+});
+
+table.init();</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>3. Inline Editing</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", age: 3, status: "Ready" },
+  ],
+  columns: [
+    { key: "name", label: "Name", editable: true },
+    { key: "age", label: "Age", type: "number", editable: true },
+    { key: "status", label: "Status", editable: true },
+  ],
+  remote: {
+    url: "https://api.example.com/dogs",
+    update: {
+      url: "https://api.example.com/dogs/{id}",
+      method: "PUT",
+      headers: { Authorization: "Bearer TOKEN" },
+      buildBody: (ctx) => JSON.stringify({ [ctx.field]: ctx.value }),
+      mapResponse: (payload) => payload.data,
+    },
+  },
+  hooks: {
+    onUpdateSuccess: ({ rowId, field, value, row }) => {
+      console.log(`Row ${rowId}: ${field} = ${value}`, row);
+    },
+  },
+});
+
+table.init();</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>4. Create New Records</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [],
+  columns: [
+    { key: "name", label: "Name", required: true },
+    { key: "breed", label: "Breed", required: true },
+    { key: "age", label: "Age", type: "number", required: true },
+    {
+      key: "status",
+      label: "Status",
+      inputType: "select",
+      options: ["Ready", "Pending", "Adopted"],
+      defaultValue: "Ready",
+    },
+  ],
+  create: {
+    triggerLabel: "Add Dog",
+    title: "Register New Dog",
+    submitLabel: "Save Dog",
+    initialValues: { status: "Ready" },
+    remote: {
+      url: "https://api.example.com/dogs",
+      method: "POST",
+      headers: { Authorization: "Bearer TOKEN" },
+      buildBody: (ctx) => JSON.stringify(ctx.data),
+      mapResponse: (payload) => payload.data,
+    },
+    refetchAfterSubmit: true,
+  },
+});
+
+table.init();</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>5. Row Selection &amp; CSV Export</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3 },
+    { id: 2, name: "Pepper", breed: "Border Collie", age: 5 },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  selectable: true,
+  rowKey: "id",
+  hooks: {
+    onSelectionChange: (selectedData) => {
+      console.log("Selected:", selectedData);
+    },
+  },
+});
+
+table.init();
+
+// API usage
+table.getSelectedData();
+table.exportCSV("dogs-export.csv");</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>6. Data Formatting</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", price: 1500.50, birthDate: "2021-03-15" },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    {
+      key: "price",
+      label: "Price",
+      type: "currency",
+      currency: "USD",
+      formatOptions: { minimumFractionDigits: 2 },
+    },
+    {
+      key: "birthDate",
+      label: "Birth Date",
+      type: "date",
+      formatOptions: { year: "numeric", month: "long", day: "numeric" },
+    },
+  ],
+});
+
+table.init();</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>7. Grouped Rows</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", category: "Small", age: 3 },
+    { id: 2, name: "Pepper", category: "Medium", age: 5 },
+    { id: 3, name: "Buddy", category: "Large", age: 2 },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "category", label: "Category" },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  groupBy: "category",
+  groupLabel: (value, rows) => `${value} Dogs (${rows.length})`,
+  initialSort: { key: "category", direction: "asc" },
+});
+
+table.init();</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>8. Expandable Row Details</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [
+    {
+      id: 1,
+      name: "Mochi",
+      breed: "Shiba Inu",
+      description: "A loyal Shiba Inu.",
+    },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+  ],
+  rowDetail: {
+    render: (row) => `
+      &lt;div class="dog-details"&gt;
+        &lt;p&gt;&lt;strong&gt;Description:&lt;/strong&gt; ${row.description}&lt;/p&gt;
+      &lt;/div&gt;
+    `,
+    toggleLabel: (row, isExpanded) =>
+      isExpanded ? "Hide Details" : "Show Details",
+  },
+});
+
+table.init();
+
+// Programmatic control
+table.expandRowDetail(1);
+table.collapseRowDetail(1);</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>9. State Persistence &amp; Live Sync</h3>
+                <pre><code>const table = new DogTable("#app", {
+  remote: {
+    url: "https://api.example.com/dogs",
+    dataKey: "results",
+    totalKey: "count",
+  },
+  columns: [
+    { key: "name", label: "Name", sortable: true },
+    { key: "breed", label: "Breed", sortable: true },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  persistence: "local",
+  persistenceKey: "my-dog-table",
+  autoRefresh: 5000,
+  hooks: {
+    onBeforeRefresh: () => console.log("Refreshing..."),
+  },
+});
+
+table.init();
+
+// Live sync controls
+table.live.start();
+table.live.stop();
+table.live.toggle();</code></pre>
+              </div>
+              <div class="mini-card">
+                <h3>10. Custom Rendering, Sorting &amp; Hooks</h3>
+                <pre><code>const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", age: 3, score: 85 },
+    { id: 2, name: "Pepper", age: 5, score: 92 },
+  ],
+  columns: [
+    {
+      key: "name",
+      label: "Name",
+      sortable: true,
+      render: (value, row) => `&lt;a href="/dogs/${row.id}"&gt;${value}&lt;/a&gt;`,
+    },
+    {
+      key: "age",
+      label: "Age",
+      sortable: true,
+      sortValue: (value) => value * 7,
+      render: (value) => `${value} years`,
+    },
+    {
+      key: "score",
+      label: "Score",
+      sortable: true,
+      render: (value) => `&lt;div class="progress"&gt;&lt;span&gt;${value}%&lt;/span&gt;&lt;/div&gt;`,
+    },
+  ],
+  initialSort: { key: "score", direction: "desc" },
+  searchDebounce: 300,
+  theme: "default",
+  paginationGuard: { maxPage: 50, minPageSize: 5, maxPageSize: 100 },
+  hooks: {
+    onInit: (state) => console.log("Initialized", state),
+    onUpdate: (processed) => console.log("Updated", processed),
+    onPageChange: (page) => console.log("Page:", page),
+    onSortChange: ({ sortKey, sortDirection }) =>
+      console.log(`Sort: ${sortKey} (${sortDirection})`),
+    onSearchChange: (query) => console.log("Search:", query),
+    onFetchStart: () => console.log("Fetching..."),
+    onFetchSuccess: (payload) => console.log("Loaded:", payload),
+    onFetchError: (error) => console.error("Fetch failed:", error),
+    onLoadingChange: (isLoading) => console.log("Loading:", isLoading),
+    onDataUpdated: (rawData) => console.log("Data:", rawData.length, "rows"),
+    onDestroy: () => console.log("Destroyed"),
+  },
+});
+
+table.init();
+
+// Programmatic API
+table.setPage(2);
+table.setSearch("Mochi");
+table.setSort("age", "asc");
+table.setPageSize(10);
+table.clearSearch();
+table.clearSort();
+table.reset();
+table.setData(newData);
+table.setColumns(newColumns);
+table.setTheme("bootstrap");
+table.destroy();</code></pre>
+              </div>
+            </div>
+          </section>
+
           <section class="panel" id="core-concepts">
             <h2 class="section-title">Core Concepts</h2>
             <div class="mini-grid">
@@ -786,6 +1108,8 @@ table.init();</code></pre>
                 <p>
                   Client-side search, sort, and pagination happen automatically
                   when you pass <code>data</code> and <code>columns</code>.
+                  Set <code>pagination: false</code> if you want to render all
+                  loaded rows without page controls.
                 </p>
               </div>
               <div class="mini-card">
@@ -831,16 +1155,19 @@ table.init();</code></pre>
           <section class="panel" id="architecture">
             <h2 class="section-title">Architecture</h2>
             <p class="section-copy">
-               keeps the public <code>DogTable</code> API stable while
+              keeps the public <code>DogTable</code> API stable while
               separating state management, data processing, rendering, remote
               loading, event binding, and plugin bootstrapping.
+              <strong>v1.5.1-beta</strong> adds performance optimizations across all layers.
             </p>
             <div class="mini-grid">
               <div class="mini-card">
                 <h3><code>DogTable</code></h3>
                 <p>
                   The main controller coordinates update flow, public methods,
-                  hooks, and module lifecycles.
+                  hooks, and module lifecycles. Uses <code>requestAnimationFrame</code>
+                  batching to prevent multiple renders per frame, and deduplicates
+                  in-flight fetch requests.
                 </p>
               </div>
               <div class="mini-card">
@@ -854,7 +1181,10 @@ table.init();</code></pre>
                 <h3><code>DataEngine</code></h3>
                 <p>
                   Handles filtering, sorting, pagination slicing, grouping, and
-                  cache reuse without touching the DOM.
+                  cache reuse without touching the DOM. Precomputes sort keys
+                  before comparison (O(n) instead of O(n log n) property access),
+                  and memoizes <code>buildDisplayRows()</code> to avoid rebuilds
+                  when data hasn't changed.
                 </p>
               </div>
               <div class="mini-card">
@@ -862,6 +1192,16 @@ table.init();</code></pre>
                 <p>
                   Wraps remote fetching, aliases identical datasets in memory,
                   and keeps pagination metadata isolated per query context.
+                  Fetch requests are deduplicated so concurrent calls share
+                  the same promise.
+                </p>
+              </div>
+              <div class="mini-card">
+                <h3><code>TableRenderer</code></h3>
+                <p>
+                  Uses DOM diffing to track row nodes via <code>Map</code> and
+                  only rebuilds changed rows instead of full <code>innerHTML</code>
+                  replacement. Preserves scroll position and reduces DOM churn.
                 </p>
               </div>
               <div class="mini-card">
@@ -886,12 +1226,19 @@ table.init();</code></pre>
                   pagination, row actions, search, and create/live controls.
                 </p>
               </div>
+              <div class="mini-card">
+                <h3><code>VirtualScroller</code></h3>
+                <p>
+                  Optional virtual scrolling module that renders only visible rows
+                  plus a buffer. Enable for large datasets with 100+ rows per page.
+                </p>
+              </div>
             </div>
             <pre>
 <code>await table.update();
-// -> fetch remote rows when needed
-// -> process state through DataEngine
-// -> render header/body/meta/pagination
+// -> fetch remote rows when needed (deduplicated + debounced)
+// -> process state through DataEngine (memoized + precomputed sort keys)
+// -> render header/body/meta/pagination (rAF-batched + DOM diffing)
 </code>
           </pre>
           </section>
@@ -926,6 +1273,22 @@ table.init();</code></pre>
               Remote requests are abortable. If a newer fetch starts, the
               previous one is canceled with <code>AbortController</code>.
             </p>
+            <pre><code>const allRowsTable = new DogTable("#all-dogs", {
+  data,
+  pagination: false,
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age" },
+  ],
+});
+
+allRowsTable.init();</code></pre>
+            <p class="footer-note">
+              When <code>pagination: false</code> is set, Dog Table shows all
+              loaded rows and ignores <code>paginationGuard</code>. If both are
+              passed together, the library prints a <code>console.warn</code>.
+            </p>
           </section>
 
           <section class="table-wrap" id="table-options">
@@ -953,6 +1316,15 @@ table.init();</code></pre>
                   <td>Column definitions used for rendering and behavior.</td>
                 </tr>
                 <tr>
+                  <td><code>pagination</code></td>
+                  <td><code>boolean</code></td>
+                  <td><code>true</code></td>
+                  <td>
+                    Enables page slicing and pagination controls. Set
+                    <code>false</code> to render all loaded rows.
+                  </td>
+                </tr>
+                <tr>
                   <td><code>pageSize</code></td>
                   <td><code>number</code></td>
                   <td><code>5</code></td>
@@ -966,7 +1338,8 @@ table.init();</code></pre>
                   <td><code>false</code></td>
                   <td>
                     Optional guardrails for page/page-size bounds. Use
-                    <code>true</code> for defaults (25 / 1 / 100).
+                    <code>true</code> for defaults (25 / 1 / 100). Ignored
+                    when <code>pagination</code> is <code>false</code>.
                   </td>
                 </tr>
                 <tr>
@@ -980,6 +1353,12 @@ table.init();</code></pre>
                   <td><code>number</code></td>
                   <td><code>250</code></td>
                   <td>Debounce delay for the search input.</td>
+                </tr>
+                <tr>
+                  <td><code>fetchDebounce</code></td>
+                  <td><code>number</code></td>
+                  <td><code>0</code></td>
+                  <td>Debounce delay for remote fetch requests. Set to a positive value to prevent request spam during rapid state changes. Use <code>table.fetchNow()</code> to bypass.</td>
                 </tr>
                 <tr>
                   <td><code>language</code></td>
@@ -1189,6 +1568,30 @@ table.init();</code></pre>
                   <td>
                     Builds the table UI, binds events, initializes live mode,
                     and renders the first state.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>update({ skipFetch })</code></td>
+                  <td>
+                    Re-renders the table. Scheduled via <code>requestAnimationFrame</code> to batch multiple calls. Use <code>updateSync()</code> for immediate render.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>updateSync({ skipFetch })</code></td>
+                  <td>
+                    Synchronous version of <code>update()</code> that renders immediately without rAF batching. Use when you need instant visual feedback.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>fetchData()</code></td>
+                  <td>
+                    Triggers a remote fetch. Respects <code>fetchDebounce</code> if configured. In-flight requests are deduplicated.
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>fetchNow()</code></td>
+                  <td>
+                    Bypasses fetch debounce and executes the fetch immediately. Cancels any pending debounced fetch.
                   </td>
                 </tr>
                 <tr>
@@ -1468,6 +1871,14 @@ table.init();</code></pre>
                   <code>debounce(callback, wait)</code>.
                 </p>
               </div>
+              <div class="mini-card">
+                <h3><code>VirtualScroller</code></h3>
+                <p>
+                  Optional virtual scrolling for large datasets. Enable with
+                  <code>table.virtualScroller.enable({ rowHeight, bufferSize })</code>
+                  and disable with <code>table.virtualScroller.disable()</code>.
+                </p>
+              </div>
             </div>
             <p class="footer-note">
               Built-in locales currently include <code>en</code>,
@@ -1485,11 +1896,18 @@ table.init();</code></pre>
             <h2 class="section-title">Good Defaults to Know</h2>
             <div class="tag-row">
               <span class="tag"
+                ><code>pagination</code> defaults to <code>true</code></span
+              >
+              <span class="tag"
                 ><code>pageSize</code> defaults to <code>5</code></span
               >
               <span class="tag"
                 ><code>paginationGuard</code> is <code>false</code> by
                 default</span
+              >
+              <span class="tag"
+                ><code>paginationGuard</code> is ignored when
+                <code>pagination: false</code></span
               >
               <span class="tag"
                 ><code>paginationGuard: true</code> uses
@@ -1498,6 +1916,9 @@ table.init();</code></pre>
               <span class="tag">Search is enabled by default</span>
               <span class="tag"
                 >Search input debounce is <code>250ms</code></span
+              >
+              <span class="tag"
+                >Fetch debounce is <code>0</code> (disabled) by default</span
               >
               <span class="tag">Sort direction starts at <code>asc</code></span>
               <span class="tag"
@@ -1521,7 +1942,8 @@ table.init();</code></pre>
               <a class="mini-card" href="./demo/basic.html"
                 ><h3>Basic</h3>
                 <p>
-                  Local data, search, sort, pagination, and starter config.
+                  Local data, search, sort, pagination, and the simplest
+                  <code>pagination: false</code> example.
                 </p></a
               >
               <a class="mini-card" href="./demo/custom-cells.html"

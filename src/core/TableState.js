@@ -34,6 +34,10 @@ export class TableState {
   }
 
   getPaginationGuardConfig() {
+    if (this.options.pagination === false) {
+      return null;
+    }
+
     const guard = this.options.paginationGuard;
 
     if (!guard) {

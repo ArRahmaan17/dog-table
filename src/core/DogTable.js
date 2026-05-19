@@ -7,6 +7,7 @@ import { TableRenderer } from "../renderers/TableRenderer.js";
 import { PaginationRenderer } from "../renderers/PaginationRenderer.js";
 import { MetaRenderer } from "../renderers/MetaRenderer.js";
 import { PluginManager } from "../plugin/PluginManager.js";
+import { debounce } from "../utils/index.js";
 
 const DEFAULT_PAGE_SIZE = 5;
 
@@ -24,6 +25,7 @@ export class DogTable {
     this.options = {
       data: [],
       columns: [],
+      pagination: true,
       pageSize: DEFAULT_PAGE_SIZE,
       searchable: true,
       language: {
@@ -59,6 +61,7 @@ export class DogTable {
       },
       initialSort: null,
       searchDebounce: 250,
+      fetchDebounce: 0,
       theme: "default",
       classNames: {},
       remote: null,
@@ -74,6 +77,12 @@ export class DogTable {
       hooks: {},
       ...options,
     };
+
+    if (this.options.pagination === false && this.options.paginationGuard) {
+      console.warn(
+        "DogTable: `paginationGuard` is ignored when `pagination` is false."
+      );
+    }
 
     const initialSort =
       this.options.initialSort &&
@@ -96,6 +105,8 @@ export class DogTable {
     this.highlightTimeoutId = null;
     this.syncStatusTimeoutId = null;
     this.toastTimeoutId = null;
+    this._pendingUpdate = false;
+    this._fetchPromise = null;
     this.tableRenderer = new TableRenderer(this);
     this.paginationRenderer = new PaginationRenderer(this);
     this.metaRenderer = new MetaRenderer(this);
@@ -106,6 +117,12 @@ export class DogTable {
     this.plugins = new PluginManager(this);
     this.plugins.initialize();
     this.tableState.normalizeConstraints();
+
+    if (this.options.fetchDebounce > 0) {
+      this._debouncedFetch = debounce(() => {
+        this._executeFetch();
+      }, this.options.fetchDebounce);
+    }
   }
 
   init() {
@@ -172,6 +189,10 @@ export class DogTable {
 
   clampPageSize(pageSize) {
     return this.tableState.clampPageSize(pageSize);
+  }
+
+  isPaginationEnabled() {
+    return this.options.pagination !== false;
   }
 
   normalizeStateConstraints() {
@@ -598,11 +619,23 @@ export class DogTable {
     this.paginationRenderer.render(processed);
   }
 
-  async fetchData() {
+  async _executeFetch() {
     if (!this.isRemote()) {
       return;
     }
 
+    if (this._fetchPromise) {
+      return this._fetchPromise;
+    }
+
+    this._fetchPromise = this._doFetch().finally(() => {
+      this._fetchPromise = null;
+    });
+
+    return this._fetchPromise;
+  }
+
+  async _doFetch() {
     this.setLoading(true);
     this.tableState.setError(null);
     this.renderHeader(this.getProcessedData().rows);
@@ -613,15 +646,19 @@ export class DogTable {
     }
 
     try {
-      const payload = await this.remoteAdapter.fetch(this.state);
+      const payload = await this.remoteAdapter.fetch(this.state, {
+        includePagination: this.isPaginationEnabled(),
+      });
 
       this.tableState.setRemoteData(payload);
       this.dataEngine.reset();
 
-      const totalPages = Math.max(1, Math.ceil(this.state.totalItems / this.state.pageSize));
+      const totalPages = this.isPaginationEnabled()
+        ? Math.max(1, Math.ceil(this.state.totalItems / this.state.pageSize))
+        : 1;
       if (this.state.currentPage > totalPages && totalPages > 0) {
         this.tableState.syncCurrentPage(totalPages);
-        return this.fetchData();
+        return this._doFetch();
       }
 
       this.live.handleFetchSuccess(payload);
@@ -647,6 +684,25 @@ export class DogTable {
     } finally {
       this.setLoading(false);
     }
+  }
+
+  fetchData() {
+    if (!this.isRemote()) {
+      return;
+    }
+
+    if (this._debouncedFetch) {
+      this._debouncedFetch();
+    } else {
+      return this._executeFetch();
+    }
+  }
+
+  fetchNow() {
+    if (this._debouncedFetch) {
+      this._debouncedFetch.cancel();
+    }
+    return this._executeFetch();
   }
 
   emitHooks(processed) {
@@ -696,36 +752,97 @@ export class DogTable {
   }
 
   async update({ skipFetch = false } = {}) {
-    if (this.isRemote() && !skipFetch) {
-      await this.fetchData();
-    }
-
-    const processed = this.getProcessedData();
-
-    this.renderHeader(processed.rows);
-
-    if (this.state.error) {
-      this.renderError();
+    if (this._pendingUpdate) {
       return;
     }
 
-    if (this.state.loading) {
-      this.renderLoading();
-      return;
-    }
+    this._pendingUpdate = true;
 
-    this.saveState();
-    this.renderBody(processed.displayRows);
-    this.renderMeta(processed);
-    this.renderPagination(processed);
-    this.rememberQueryPagination({
-      totalItems: processed.totalItems,
-      totalPages: processed.totalPages,
+    const runUpdate = async () => {
+      if (this.isRemote() && !skipFetch) {
+        await this.fetchData();
+      }
+
+      const processed = this.getProcessedData();
+
+      this.renderHeader(processed.rows);
+
+      if (this.state.error) {
+        this.renderError();
+        this._pendingUpdate = false;
+        return;
+      }
+
+      if (this.state.loading) {
+        this.renderLoading();
+        this._pendingUpdate = false;
+        return;
+      }
+
+      this.saveState();
+      this.renderBody(processed.displayRows);
+      this.renderMeta(processed);
+      this.renderPagination(processed);
+      this.rememberQueryPagination({
+        totalItems: processed.totalItems,
+        totalPages: processed.totalPages,
+      });
+      this.renderToast();
+      this.create.updateUI();
+      this.live.updateUI();
+      this.emitHooks(processed);
+      this._pendingUpdate = false;
+    };
+
+    requestAnimationFrame(() => {
+      runUpdate();
     });
-    this.renderToast();
-    this.create.updateUI();
-    this.live.updateUI();
-    this.emitHooks(processed);
+  }
+
+  updateSync({ skipFetch = false } = {}) {
+    if (this._pendingUpdate) {
+      return;
+    }
+
+    this._pendingUpdate = true;
+
+    const runUpdate = async () => {
+      if (this.isRemote() && !skipFetch) {
+        await this.fetchData();
+      }
+
+      const processed = this.getProcessedData();
+
+      this.renderHeader(processed.rows);
+
+      if (this.state.error) {
+        this.renderError();
+        this._pendingUpdate = false;
+        return;
+      }
+
+      if (this.state.loading) {
+        this.renderLoading();
+        this._pendingUpdate = false;
+        return;
+      }
+
+      this.saveState();
+      this.renderBody(processed.displayRows);
+      this.renderMeta(processed);
+      this.renderPagination(processed);
+      this.rememberQueryPagination({
+        totalItems: processed.totalItems,
+        totalPages: processed.totalPages,
+      });
+      this.renderToast();
+      this.create.updateUI();
+      this.live.updateUI();
+      this.emitHooks(processed);
+      this._pendingUpdate = false;
+    };
+
+    runUpdate();
   }
 
   destroy() {

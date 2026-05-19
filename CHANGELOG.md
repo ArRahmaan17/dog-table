@@ -2,6 +2,45 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
+## [1.5.1-beta] — 2026-05-19
+### Added
+* **Request Debouncing:** Menambahkan opsi `fetchDebounce` untuk menunda request remote secara konfigurabel, mencegah spam fetch saat perubahan state cepat (pagination, search, sort). Default `0` (disabled) untuk backward compatibility.
+* **Request Deduplication:** In-flight fetch request sekarang di-deduplicate. Panggilan `update()` bersamaan akan berbagi promise yang sama, bukan membuat banyak request yang kemudian di-abort.
+* **Virtual Scrolling Module:** Menambahkan `src/core/VirtualScroller.js` untuk merender hanya baris yang terlihat di viewport. Cocok untuk dataset besar dengan page size 100+ baris.
+* **New Public Methods:**
+  * `table.fetchNow()` - Bypass debounce dan langsung eksekusi fetch
+  * `table.updateSync()` - Update tanpa rAF batching untuk kasus yang butuh render langsung
+
+### Changed
+* **Memoized Display Rows:** `buildDisplayRows()` sekarang di-cache berdasarkan `rawData` reference dan `groupBy` config. Tidak rebuild wrapper rows jika data tidak berubah.
+* **Precomputed Sort Keys:** Sorting sekarang pre-extract sort values sebelum comparison, mengurangi property access dari O(n log n) menjadi O(n).
+* **rAF-Batched Renders:** `update()` sekarang di-schedule via `requestAnimationFrame`, mencegah multiple render dalam satu frame saat state berubah cepat.
+* **DOM Diffing:** `TableRenderer.renderBody()` sekarang melacak row nodes via `Map` dan hanya rebuild baris yang berubah, bukan `innerHTML` penuh setiap siklus.
+* **Optimized escapeHtml():** Implementasi `escapeHtml()` sekarang menggunakan single regex dengan lookup map, lebih cepat untuk hot path rendering.
+* **CSS Content-Visibility:** Group rows sekarang memakai `content-visibility: auto` dengan `contain-intrinsic-size`, browser skip rendering off-screen groups secara native.
+* **Map/Set Lookup Optimization:** Selection dan grouping logic menggunakan `Set` untuk O(1) lookups, sudah diterapkan di `TableState` untuk `selectedRows` dan `expandedRowIds`.
+
+### Performance
+* **Data Pipeline:** Memoization cache untuk `buildDisplayRows()` mengurangi rebuild overhead saat data tidak berubah.
+* **Sort Efficiency:** Precomputed sort keys mengurangi property access dan function call selama sorting.
+* **Render Batching:** `requestAnimationFrame` batching mencegah layout thrashing saat multiple `update()` dipanggil bersamaan.
+* **DOM Reuse:** DOM diffing mempertahankan existing row nodes, mengurangi DOM creation/destruction overhead.
+* **Network Efficiency:** Request deduplication dan debouncing mengurangi jumlah fetch yang tidak perlu.
+
+### Docs
+* **README:** Diperbarui dengan tag v1.5.1-beta dan ringkasan performance optimizations.
+* **index.html:** Eyebrow version diperbarui ke v1.5.1-beta.
+* **PLAN.md:** Menambahkan dokumen performance improvement plan dengan 12 saran optimasi terorganisir dalam 4 fase.
+* **wiki/Examples.md:** Menambahkan halaman contoh lengkap dengan 10 contoh penggunaan, API reference, hooks, dan konfigurasi.
+
+## [1.5.1-beta] — 2026-05-01
+### Added
+* **Optional Pagination Disablement:** Menambahkan opsi `pagination: false` untuk menonaktifkan slicing per halaman dan menyembunyikan kontrol pagination pada tabel lokal maupun remote.
+
+### Changed
+* **Remote Query Behavior:** Saat `pagination: false`, request remote tidak lagi mengirim parameter `page` dan `pageSize`, sehingga endpoint bisa mengembalikan seluruh dataset yang tersedia.
+* **Guardrail Handling:** `paginationGuard` sekarang diabaikan sepenuhnya saat `pagination: false`, dan library akan menampilkan `console.warn` untuk menandai mismatch konfigurasi.
+* **Documentation:** README dan wiki configuration reference diperbarui dengan penjelasan opsi `pagination` baru beserta contoh penggunaannya.
 
 ## [1.5.0] — 2026-04-30
 ### Changed

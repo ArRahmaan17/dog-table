@@ -60,22 +60,19 @@
   border-collapse: collapse;
 }
 
-.dt-table th,
-.dt-table td {
+:where(.dt-table th, .dt-table td) {
   padding: 12px 14px;
   border-bottom: 1px solid #e4e7eb;
   text-align: left;
 }
 
-.dt-table th,
-.dt-header-cell {
+:where(.dt-table th, .dt-header-cell) {
   font-size: 0.88rem;
   color: #334e68;
   background: #f0f4f8;
 }
 
-.dt-table th.is-sortable,
-.dt-header-cell.is-sortable {
+:where(.dt-table th.is-sortable, .dt-header-cell.is-sortable) {
   cursor: pointer;
   user-select: none;
 }
@@ -91,6 +88,11 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.dt-group-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 40px;
 }
 
 .dt-detail-toggle-cell {
@@ -706,4 +708,3 @@ select.dt-create-input {
     width: 100%;
   }
 }
-

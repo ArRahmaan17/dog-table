@@ -35,12 +35,12 @@ export class RemoteAdapter {
     return this.fetcher.buildUrl(state, { includePagination: false });
   }
 
-  getRequestKey(state) {
+  getRequestKey(state, { includePagination = true } = {}) {
     if (!this.fetcher) {
       return "";
     }
 
-    return this.fetcher.buildUrl(state);
+    return this.fetcher.buildUrl(state, { includePagination });
   }
 
   getPagination(state) {
@@ -74,10 +74,10 @@ export class RemoteAdapter {
     };
   }
 
-  rememberResult(state, payload) {
+  rememberResult(state, payload, { includePagination = true } = {}) {
     const rows = Array.isArray(payload?.rows) ? payload.rows : [];
     const { dataHash, rows: aliasedRows } = this.aliasRows(rows);
-    const requestKey = this.getRequestKey(state);
+    const requestKey = this.getRequestKey(state, { includePagination });
     const queryKey = this.getQueryKey(state);
     const existing = this.queryCache.get(queryKey) || {};
 
@@ -101,13 +101,13 @@ export class RemoteAdapter {
     };
   }
 
-  async fetch(state) {
+  async fetch(state, { includePagination = true } = {}) {
     if (!this.fetcher) {
       return null;
     }
 
-    const payload = await this.fetcher.fetch(state);
-    return this.rememberResult(state, payload);
+    const payload = await this.fetcher.fetch(state, { includePagination });
+    return this.rememberResult(state, payload, { includePagination });
   }
 
   abort() {

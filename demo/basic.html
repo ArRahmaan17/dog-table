@@ -6,7 +6,7 @@
     <title>Dog Table - Basic Demo</title>
     <meta
       name="description"
-      content="Dog Table basic demo showing local data, search, sorting, pagination, render callbacks, and lifecycle hooks."
+      content="Dog Table basic demo showing local data, search, sorting, pagination, plus the simplest way to disable pagination."
     />
     <link
       rel="canonical"
@@ -16,7 +16,7 @@
     <meta property="og:title" content="Dog Table - Basic Demo" />
     <meta
       property="og:description"
-      content="Dog Table basic demo showing local data, search, sorting, pagination, render callbacks, and lifecycle hooks."
+      content="Dog Table basic demo showing local data, search, sorting, pagination, plus the simplest way to disable pagination."
     />
     <meta
       property="og:url"
@@ -31,7 +31,7 @@
     <meta name="twitter:title" content="Dog Table - Basic Demo" />
     <meta
       name="twitter:description"
-      content="Dog Table basic demo showing local data, search, sorting, pagination, render callbacks, and lifecycle hooks."
+      content="Dog Table basic demo showing local data, search, sorting, pagination, plus the simplest way to disable pagination."
     />
     <meta
       name="twitter:image"
@@ -105,6 +105,10 @@
       .setup-card p {
         margin: 0 0 12px;
         font-size: 0.92rem;
+      }
+
+      .setup-card p:last-of-type {
+        margin-bottom: 0;
       }
 
       .setup-snippet {
@@ -200,7 +204,8 @@
       <h1>Basic Local Table</h1>
       <p>
         Vanilla JavaScript data table with sorting, search, pagination, render
-        callbacks, and lifecycle hooks.
+        callbacks, lifecycle hooks, and a simple opt-out path if you want all
+        rows visible.
       </p>
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
@@ -227,6 +232,25 @@
 
   table.init();
 &lt;/script&gt;</code></pre>
+        <p>
+          Want to remove pagination entirely? Add
+          <code>pagination: false</code>. If you also pass
+          <code>paginationGuard</code>, Dog Table will ignore it and print a
+          <code>console.warn</code>.
+        </p>
+        <pre
+          class="setup-snippet"
+        ><code>const fullListTable = new DogTable("#all-dogs", {
+  data,
+  pagination: false,
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age" },
+  ],
+});
+
+fullListTable.init();</code></pre>
       </section>
       <div id="app"></div>
 
@@ -263,9 +287,11 @@
         data,
         pageSize: 3,
         searchDebounce: 200,
-        searchPlaceholder: "Search dogs by name, breed, or adoption date",
-        emptyStateText: "No dogs have been added yet.",
-        noResultsText: "No dogs match your search.",
+        language: {
+          searchPlaceholder: "Search dogs by name, breed, or adoption date",
+          emptyState: "No dogs have been added yet.",
+          noResults: "No dogs match your search.",
+        },
         initialSort: {
           key: "name",
           direction: "asc",
