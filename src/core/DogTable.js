@@ -580,6 +580,20 @@ export class DogTable {
   getProcessedData() {
     const processed = this.dataEngine.process(this.state);
 
+    if (!processed || typeof processed !== "object") {
+      return {
+        rows: [],
+        filteredRows: [],
+        displayRows: [],
+        totalItems: 0,
+        totalPages: 1,
+        currentPage: 1,
+        pageSize: this.state.pageSize ?? 5,
+        startIndex: 0,
+        endIndex: 0,
+      };
+    }
+
     if (processed.currentPage !== this.state.currentPage) {
       this.tableState.syncCurrentPage(processed.currentPage);
     }
@@ -638,7 +652,6 @@ export class DogTable {
   async _doFetch() {
     this.setLoading(true);
     this.tableState.setError(null);
-    this.renderHeader(this.getProcessedData().rows);
     this.renderLoading();
 
     if (typeof this.options.hooks.onFetchStart === "function") {
@@ -671,6 +684,8 @@ export class DogTable {
         this.options.hooks.onDataUpdated(this.state.rawData);
       }
     } catch (error) {
+      this.dataEngine.reset();
+
       if (error.name === "AbortError") {
         return;
       }
@@ -706,12 +721,20 @@ export class DogTable {
   }
 
   emitHooks(processed) {
+    if (!processed || typeof processed !== "object") {
+      return;
+    }
+
+    const rows = Array.isArray(processed.rows) ? processed.rows : [];
+    const filteredRows = Array.isArray(processed.filteredRows) ? processed.filteredRows : [];
+    const displayRows = Array.isArray(processed.displayRows) ? processed.displayRows : [];
+
     if (
       typeof this.options.hooks.onPageChange === "function" &&
       this.lastEmittedPage !== processed.currentPage
     ) {
-      this.options.hooks.onPageChange(processed.currentPage);
-      this.lastEmittedPage = processed.currentPage;
+      this.options.hooks.onPageChange(processed.currentPage ?? 1);
+      this.lastEmittedPage = processed.currentPage ?? 1;
     }
 
     if (typeof this.options.hooks.onSortChange === "function") {
@@ -740,7 +763,15 @@ export class DogTable {
 
     if (typeof this.options.hooks.onUpdate === "function") {
       this.options.hooks.onUpdate({
-        ...processed,
+        rows,
+        filteredRows,
+        displayRows,
+        totalItems: processed.totalItems ?? 0,
+        totalPages: processed.totalPages ?? 1,
+        currentPage: processed.currentPage ?? 1,
+        pageSize: processed.pageSize ?? 5,
+        startIndex: processed.startIndex ?? 0,
+        endIndex: processed.endIndex ?? 0,
         loading: this.state.loading,
         error: this.state.error,
         searchQuery: this.state.searchQuery,
@@ -753,49 +784,59 @@ export class DogTable {
 
   async update({ skipFetch = false } = {}) {
     if (this._pendingUpdate) {
-      return;
+      return new Promise((resolve) => {
+        const check = () => {
+          if (!this._pendingUpdate) {
+            resolve();
+          } else {
+            requestAnimationFrame(check);
+          }
+        };
+        requestAnimationFrame(check);
+      });
     }
 
     this._pendingUpdate = true;
 
-    const runUpdate = async () => {
-      if (this.isRemote() && !skipFetch) {
-        await this.fetchData();
-      }
+    return new Promise((resolve) => {
+      requestAnimationFrame(async () => {
+        if (this.isRemote() && !skipFetch) {
+          await this.fetchData();
+        }
 
-      const processed = this.getProcessedData();
+        const processed = this.getProcessedData();
 
-      this.renderHeader(processed.rows);
+        this.renderHeader(processed.rows);
 
-      if (this.state.error) {
-        this.renderError();
+        if (this.state.error) {
+          this.renderError();
+          this._pendingUpdate = false;
+          resolve();
+          return;
+        }
+
+        if (this.state.loading) {
+          this.renderLoading();
+          this._pendingUpdate = false;
+          resolve();
+          return;
+        }
+
+        this.saveState();
+        this.renderBody(processed.displayRows);
+        this.renderMeta(processed);
+        this.renderPagination(processed);
+        this.rememberQueryPagination({
+          totalItems: processed.totalItems,
+          totalPages: processed.totalPages,
+        });
+        this.renderToast();
+        this.create.updateUI();
+        this.live.updateUI();
+        this.emitHooks(processed);
         this._pendingUpdate = false;
-        return;
-      }
-
-      if (this.state.loading) {
-        this.renderLoading();
-        this._pendingUpdate = false;
-        return;
-      }
-
-      this.saveState();
-      this.renderBody(processed.displayRows);
-      this.renderMeta(processed);
-      this.renderPagination(processed);
-      this.rememberQueryPagination({
-        totalItems: processed.totalItems,
-        totalPages: processed.totalPages,
+        resolve();
       });
-      this.renderToast();
-      this.create.updateUI();
-      this.live.updateUI();
-      this.emitHooks(processed);
-      this._pendingUpdate = false;
-    };
-
-    requestAnimationFrame(() => {
-      runUpdate();
     });
   }
 

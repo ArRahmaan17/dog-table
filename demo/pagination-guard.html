@@ -305,14 +305,13 @@
             { key: "department", label: "Department" },
           ],
           hooks: {
-            onUpdate(snapshot) {
-              const state = snapshot.state;
-              const processed = snapshot.processed;
+            onUpdate(processed) {
+              const state = table.state;
               log.textContent = [
                 `guard=${guardToggle.checked ? "on" : "off"}`,
-                `page=${processed.currentPage}/${processed.totalPages}`,
+                `page=${processed.currentPage ?? 1}/${processed.totalPages ?? 1}`,
                 `pageSize=${state.pageSize}`,
-                `showing=${processed.startIndex}-${processed.endIndex} of ${processed.totalItems}`,
+                `showing=${processed.startIndex ?? 0}-${processed.endIndex ?? 0} of ${processed.totalItems ?? 0}`,
               ].join(" | ");
             },
           },

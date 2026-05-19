@@ -4,7 +4,11 @@ export class DataFetcher {
   constructor(config) {
     this.config = config;
     this.controller = null;
+    this.timeoutId = null;
     this.baseUrl = new URL(this.config.url, window.location.href);
+    this.timeout = Number.isFinite(config.fetchTimeout) && config.fetchTimeout > 0
+      ? config.fetchTimeout
+      : 15000;
   }
 
   buildUrl(state, { includePagination = true } = {}) {
@@ -58,9 +62,26 @@ export class DataFetcher {
       this.controller.abort();
     }
 
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+
     this.controller = new AbortController();
 
-    const { payload } = await requestJson({
+    const timeoutError = new Error(`Request timed out after ${this.timeout}ms`);
+    timeoutError.name = "TimeoutError";
+    timeoutError.status = 408;
+
+    const timeoutPromise = new Promise((_, reject) => {
+      this.timeoutId = setTimeout(() => {
+        this.timeoutId = null;
+        this.controller.abort(timeoutError);
+        reject(timeoutError);
+      }, this.timeout);
+    });
+
+    const fetchPromise = requestJson({
       url: this.buildUrl(state, { includePagination }),
       method: this.config.method || "GET",
       headers: this.config.headers,
@@ -71,6 +92,13 @@ export class DataFetcher {
       action: "fetch",
       state,
     });
+
+    const { payload } = await Promise.race([fetchPromise, timeoutPromise]);
+
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
 
     if (typeof this.config.mapResponse === "function") {
       const mapped = this.config.mapResponse(payload, state);
@@ -92,6 +120,11 @@ export class DataFetcher {
   }
 
   abort() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+
     if (this.controller) {
       this.controller.abort();
       this.controller = null;

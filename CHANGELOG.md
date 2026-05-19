@@ -19,6 +19,13 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Optimized escapeHtml():** Implementasi `escapeHtml()` sekarang menggunakan single regex dengan lookup map, lebih cepat untuk hot path rendering.
 * **CSS Content-Visibility:** Group rows sekarang memakai `content-visibility: auto` dengan `contain-intrinsic-size`, browser skip rendering off-screen groups secara native.
 * **Map/Set Lookup Optimization:** Selection dan grouping logic menggunakan `Set` untuk O(1) lookups, sudah diterapkan di `TableState` untuk `selectedRows` dan `expandedRowIds`.
+* **Hook Payload Standardization:** `onUpdate` hook sekarang menerima `processed` object langsung (bukan `{ state, columns }`), dengan defensive guards untuk semua properti.
+
+### Fixed
+* **Hook Payload Safety:** Menambahkan defensive guards di `emitHooks()` dan `getProcessedData()` untuk mencegah `TypeError` saat `processed` undefined atau null.
+* **MetaRenderer Safety:** Menambahkan fallback untuk `options.language.showing`, `noResults`, `emptyState` di `renderMeta()`.
+* **PaginationRenderer Safety:** Menambahkan nullish coalescing untuk `currentPage`, `totalPages`, dan safe fallbacks untuk `language.page`, `previous`, `next`.
+* **Demo Fixes:** Memperbaiki `advanced-features.html` dan `pagination-guard.html` yang menggunakan signature hook lama.
 
 ### Performance
 * **Data Pipeline:** Memoization cache untuk `buildDisplayRows()` mengurangi rebuild overhead saat data tidak berubah.
@@ -32,6 +39,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **index.html:** Eyebrow version diperbarui ke v1.5.1-beta.
 * **PLAN.md:** Menambahkan dokumen performance improvement plan dengan 12 saran optimasi terorganisir dalam 4 fase.
 * **wiki/Examples.md:** Menambahkan halaman contoh lengkap dengan 10 contoh penggunaan, API reference, hooks, dan konfigurasi.
+* **docs.html:** Diperbarui dengan 10 examples section, performance notes, dan VirtualScroller documentation.
 
 ## [1.5.1-beta] — 2026-05-01
 ### Added

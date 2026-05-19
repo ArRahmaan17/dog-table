@@ -52,15 +52,16 @@ export class MetaRenderer {
 
   renderMeta(processed) {
     const { elements, options, state } = this.table;
+    const showingTemplate = options.language?.showing || "Showing {start}-{end} of {total}";
 
-    if (processed.totalItems === 0) {
+    if (!processed || processed.totalItems === 0) {
       elements.meta.textContent = state.searchQuery
-        ? options.language.noResults
-        : options.language.emptyState;
+        ? options.language?.noResults || "No matching rows"
+        : options.language?.emptyState || "No data to display.";
       return;
     }
 
-    elements.meta.textContent = options.language.showing
+    elements.meta.textContent = showingTemplate
       .replace("{start}", processed.startIndex)
       .replace("{end}", processed.endIndex)
       .replace("{total}", processed.totalItems);

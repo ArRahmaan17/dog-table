@@ -82,6 +82,47 @@ const presets = {
   },
 };
 
+function appendClassNames(...sources) {
+  const tokens = [];
+  const seen = new Set();
+
+  sources.forEach((source) => {
+    if (!source || typeof source !== "string") {
+      return;
+    }
+
+    source.split(/\s+/).forEach((token) => {
+      if (!token || seen.has(token)) {
+        return;
+      }
+
+      seen.add(token);
+      tokens.push(token);
+    });
+  });
+
+  return tokens.join(" ");
+}
+
+function prependClassNames(base, override) {
+  return appendClassNames(override, base);
+}
+
+function resolveTheme(theme) {
+  if (typeof theme === "string") {
+    return presets[theme] || presets.default;
+  }
+
+  if (!theme || typeof theme !== "object") {
+    return presets.default;
+  }
+
+  return {
+    ...baseTheme,
+    ...theme,
+  };
+}
+
 function mergeTheme(theme, overrides = {}) {
   if (!overrides || Object.keys(overrides).length === 0) {
     return { ...theme };
@@ -90,12 +131,12 @@ function mergeTheme(theme, overrides = {}) {
   const merged = {};
 
   Object.keys(theme).forEach((key) => {
-    merged[key] = [theme[key], overrides[key]].filter(Boolean).join(" ").trim();
+    merged[key] = prependClassNames(theme[key], overrides[key]);
   });
 
   Object.keys(overrides).forEach((key) => {
     if (!(key in merged)) {
-      merged[key] = overrides[key];
+      merged[key] = appendClassNames(overrides[key]);
     }
   });
 
@@ -104,8 +145,7 @@ function mergeTheme(theme, overrides = {}) {
 
 export class ThemeManager {
   constructor(theme = "default", overrides = {}) {
-    const preset =
-      typeof theme === "string" ? presets[theme] || presets.default : theme;
+    const preset = resolveTheme(theme);
 
     this.theme = mergeTheme(preset || presets.default, overrides);
     this._primaryCache = {};
