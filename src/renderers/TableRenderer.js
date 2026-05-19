@@ -3,6 +3,7 @@ import { escapeHtml } from "../utils/index.js";
 export class TableRenderer {
   constructor(table) {
     this.table = table;
+    this._rowNodes = new Map();
   }
 
   renderStructure() {
@@ -137,6 +138,7 @@ export class TableRenderer {
     const { elements, state, theme, options, formatter } = this.table;
 
     if (displayRows.length === 0) {
+      this._rowNodes.clear();
       elements.tbody.innerHTML = `
         <tr>
           <td colspan="${this.table.getVisibleColumnCount()}" class="${theme.get(
@@ -153,124 +155,250 @@ export class TableRenderer {
       return;
     }
 
-    elements.tbody.innerHTML = "";
-
+    const newRowIds = new Set();
     const fragment = document.createDocumentFragment();
+    let needsFullRebuild = false;
 
-    displayRows.forEach((item) => {
+    displayRows.forEach((item, index) => {
       if (item.type === "group") {
-        const groupRow = document.createElement("tr");
-        groupRow.className = theme.get("groupRow");
+        const groupKey = `group-${item.groupValue}-${index}`;
+        newRowIds.add(groupKey);
 
-        const groupCell = document.createElement("td");
-        groupCell.className = theme.get("groupCell");
-        groupCell.colSpan = this.table.getVisibleColumnCount();
-        groupCell.textContent = item.label;
-
-        groupRow.appendChild(groupCell);
-        fragment.appendChild(groupRow);
+        if (!this._rowNodes.has(groupKey)) {
+          needsFullRebuild = true;
+          return;
+        }
         return;
       }
 
       const { row, rowId } = item;
-      const tr = document.createElement("tr");
-      tr.className = theme.get("bodyRow");
-      tr.dataset.rowId = rowId;
+      newRowIds.add(rowId);
 
-      if (state.highlightedRowId === rowId) {
-        tr.classList.add("dt-row--highlight");
+      let tr = this._rowNodes.get(rowId);
+
+      if (!tr) {
+        needsFullRebuild = true;
+        return;
       }
 
-      if (this.table.hasRowDetail()) {
-        const detailToggleCell = document.createElement("td");
-        detailToggleCell.className = theme.get("detailToggleCell");
+      this._updateRowContent(tr, item, state, theme, options, formatter);
+    });
 
-        const detailButton = document.createElement("button");
-        detailButton.type = "button";
-        detailButton.className = theme.get("detailToggle");
-        detailButton.dataset.detailToggle = rowId;
-        detailButton.setAttribute(
-          "aria-expanded",
-          state.expandedRowIds.has(rowId) ? "true" : "false"
-        );
-        detailButton.setAttribute("aria-controls", `dt-detail-${rowId}`);
-        detailButton.textContent = this.table.getRowDetailLabel(
-          row,
-          state.expandedRowIds.has(rowId)
-        );
+    if (needsFullRebuild || this._rowNodes.size === 0) {
+      this._rowNodes.clear();
+      elements.tbody.innerHTML = "";
 
-        detailToggleCell.appendChild(detailButton);
-        tr.appendChild(detailToggleCell);
-      }
+      displayRows.forEach((item) => {
+        if (item.type === "group") {
+          const groupRow = document.createElement("tr");
+          groupRow.className = theme.get("groupRow");
 
-      if (options.selectable) {
-        const selectionCell = document.createElement("td");
-        selectionCell.className = theme.get("bodyCell");
+          const groupCell = document.createElement("td");
+          groupCell.className = theme.get("groupCell");
+          groupCell.colSpan = this.table.getVisibleColumnCount();
+          groupCell.textContent = item.label;
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.dataset.rowCheckbox = rowId;
-        checkbox.checked = state.selectedRows.has(rowId);
-        checkbox.setAttribute("aria-label", `Select row ${rowId}`);
-
-        selectionCell.appendChild(checkbox);
-        tr.appendChild(selectionCell);
-      }
-
-      state.columns.forEach((column) => {
-        if (column.visible === false) {
+          groupRow.appendChild(groupCell);
+          elements.tbody.appendChild(groupRow);
           return;
         }
 
-        const td = document.createElement("td");
-        td.className = theme.get("bodyCell");
-        const key = column.accessor || column.key;
-        td.dataset.field = key;
+        const { row, rowId } = item;
+        const tr = document.createElement("tr");
+        tr.className = theme.get("bodyRow");
+        tr.dataset.rowId = rowId;
 
-        if (column.editable) {
-          td.classList.add("dt-editable");
+        if (state.highlightedRowId === rowId) {
+          tr.classList.add("dt-row--highlight");
         }
 
-        const value = row[key];
-        const formatted = formatter.format(value, column, row);
-        const hasCustomRenderer = typeof column.render === "function";
-        const rendered = hasCustomRenderer ? column.render(formatted, row) : formatted;
+        this._buildRowContent(tr, item, state, theme, options, formatter);
 
-        if (rendered instanceof Node) {
-          td.appendChild(rendered);
-        } else if (hasCustomRenderer && typeof rendered === "string") {
-          td.innerHTML = rendered;
-        } else if (rendered != null) {
-          td.textContent = String(rendered);
+        elements.tbody.appendChild(tr);
+        this._rowNodes.set(rowId, tr);
+
+        if (this.table.hasRowDetail() && state.expandedRowIds.has(rowId)) {
+          const detailRow = document.createElement("tr");
+          detailRow.className = theme.get("detailRow");
+
+          const detailCell = document.createElement("td");
+          detailCell.className = theme.get("detailCell");
+          detailCell.colSpan = this.table.getVisibleColumnCount();
+          detailCell.id = `dt-detail-${rowId}`;
+
+          const detailContent = this.renderDetailContent(row, rowId);
+
+          if (detailContent instanceof Node) {
+            detailCell.appendChild(detailContent);
+          } else if (detailContent != null) {
+            detailCell.textContent = String(detailContent);
+          }
+
+          detailRow.appendChild(detailCell);
+          elements.tbody.appendChild(detailRow);
         }
-
-        tr.appendChild(td);
       });
+    }
 
-      fragment.appendChild(tr);
+    const removedKeys = [...this._rowNodes.keys()].filter(
+      (key) => !newRowIds.has(key)
+    );
+    removedKeys.forEach((key) => {
+      const node = this._rowNodes.get(key);
+      if (node && node.parentNode) {
+        node.parentNode.removeChild(node);
+      }
+      this._rowNodes.delete(key);
+    });
+  }
 
-      if (this.table.hasRowDetail() && state.expandedRowIds.has(rowId)) {
-        const detailRow = document.createElement("tr");
-        detailRow.className = theme.get("detailRow");
+  _buildRowContent(tr, item, state, theme, options, formatter) {
+    const { row, rowId } = item;
 
-        const detailCell = document.createElement("td");
-        detailCell.className = theme.get("detailCell");
-        detailCell.colSpan = this.table.getVisibleColumnCount();
-        detailCell.id = `dt-detail-${rowId}`;
+    if (this.table.hasRowDetail()) {
+      const detailToggleCell = document.createElement("td");
+      detailToggleCell.className = theme.get("detailToggleCell");
 
-        const detailContent = this.renderDetailContent(row, rowId);
+      const detailButton = document.createElement("button");
+      detailButton.type = "button";
+      detailButton.className = theme.get("detailToggle");
+      detailButton.dataset.detailToggle = rowId;
+      detailButton.setAttribute(
+        "aria-expanded",
+        state.expandedRowIds.has(rowId) ? "true" : "false"
+      );
+      detailButton.setAttribute("aria-controls", `dt-detail-${rowId}`);
+      detailButton.textContent = this.table.getRowDetailLabel(
+        row,
+        state.expandedRowIds.has(rowId)
+      );
 
-        if (detailContent instanceof Node) {
-          detailCell.appendChild(detailContent);
-        } else if (detailContent != null) {
-          detailCell.textContent = String(detailContent);
+      detailToggleCell.appendChild(detailButton);
+      tr.appendChild(detailToggleCell);
+    }
+
+    if (options.selectable) {
+      const selectionCell = document.createElement("td");
+      selectionCell.className = theme.get("bodyCell");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.dataset.rowCheckbox = rowId;
+      checkbox.checked = state.selectedRows.has(rowId);
+      checkbox.setAttribute("aria-label", `Select row ${rowId}`);
+
+      selectionCell.appendChild(checkbox);
+      tr.appendChild(selectionCell);
+    }
+
+    state.columns.forEach((column) => {
+      if (column.visible === false) {
+        return;
+      }
+
+      const td = document.createElement("td");
+      td.className = theme.get("bodyCell");
+      const key = column.accessor || column.key;
+      td.dataset.field = key;
+
+      if (column.editable) {
+        td.classList.add("dt-editable");
+      }
+
+      const value = row[key];
+      const formatted = formatter.format(value, column, row);
+      const hasCustomRenderer = typeof column.render === "function";
+      const rendered = hasCustomRenderer ? column.render(formatted, row) : formatted;
+
+      if (rendered instanceof Node) {
+        td.appendChild(rendered);
+      } else if (hasCustomRenderer && typeof rendered === "string") {
+        td.innerHTML = rendered;
+      } else if (rendered != null) {
+        td.textContent = String(rendered);
+      }
+
+      tr.appendChild(td);
+    });
+  }
+
+  _updateRowContent(tr, item, state, theme, options, formatter) {
+    const { row, rowId } = item;
+
+    tr.dataset.rowId = rowId;
+
+    if (state.highlightedRowId === rowId) {
+      tr.classList.add("dt-row--highlight");
+    } else {
+      tr.classList.remove("dt-row--highlight");
+    }
+
+    let cellIndex = 0;
+    const cells = tr.children;
+
+    if (this.table.hasRowDetail()) {
+      const detailToggleCell = cells[cellIndex++];
+      if (detailToggleCell) {
+        const detailButton = detailToggleCell.querySelector("button");
+        if (detailButton) {
+          detailButton.dataset.detailToggle = rowId;
+          detailButton.setAttribute(
+            "aria-expanded",
+            state.expandedRowIds.has(rowId) ? "true" : "false"
+          );
+          detailButton.setAttribute("aria-controls", `dt-detail-${rowId}`);
+          detailButton.textContent = this.table.getRowDetailLabel(
+            row,
+            state.expandedRowIds.has(rowId)
+          );
         }
+      }
+    }
 
-        detailRow.appendChild(detailCell);
-        fragment.appendChild(detailRow);
+    if (options.selectable) {
+      const selectionCell = cells[cellIndex++];
+      if (selectionCell) {
+        const checkbox = selectionCell.querySelector("input");
+        if (checkbox) {
+          checkbox.dataset.rowCheckbox = rowId;
+          checkbox.checked = state.selectedRows.has(rowId);
+          checkbox.setAttribute("aria-label", `Select row ${rowId}`);
+        }
+      }
+    }
+
+    state.columns.forEach((column) => {
+      if (column.visible === false) {
+        return;
+      }
+
+      const td = cells[cellIndex++];
+      if (!td) return;
+
+      const key = column.accessor || column.key;
+      td.dataset.field = key;
+
+      if (column.editable) {
+        td.classList.add("dt-editable");
+      } else {
+        td.classList.remove("dt-editable");
+      }
+
+      const value = row[key];
+      const formatted = formatter.format(value, column, row);
+      const hasCustomRenderer = typeof column.render === "function";
+      const rendered = hasCustomRenderer ? column.render(formatted, row) : formatted;
+
+      if (rendered instanceof Node) {
+        td.innerHTML = "";
+        td.appendChild(rendered);
+      } else if (hasCustomRenderer && typeof rendered === "string") {
+        td.innerHTML = rendered;
+      } else if (rendered != null) {
+        td.textContent = String(rendered);
+      } else {
+        td.textContent = "";
       }
     });
-
-    elements.tbody.appendChild(fragment);
   }
 }

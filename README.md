@@ -1,12 +1,12 @@
-# Dog Table
+# Dog Table v1.5.1-beta
 
 [![npm version](https://img.shields.io/npm/v/dog-table)](https://www.npmjs.com/package/dog-table)
 [![license](https://img.shields.io/npm/l/dog-table)](./LICENSE)
-[![demo site](https://img.shields.io/badge/demo-live-0f766e)](https://arrahmaan17.github.io/dog-table/)
+[![demo site](https://img.shields.io/badge/demo/live-0f766e)](https://arrahmaan17.github.io/dog-table/)
 
 Dog Table is a lightweight vanilla JavaScript data table library for projects that want a clean API, useful built-in features, and no framework lock-in. It supports local data, remote fetching, inline editing, create workflows, selection, formatting, grouping, localization, and live sync in one package.
 
-The README is the fast path. If you want deeper setup guides, API details, troubleshooting, or architecture notes, use the wiki pages in [`wiki/`](./wiki/Home.md).
+**v1.5.1-beta** adds performance optimizations: request debouncing, request deduplication, memoized display rows, precomputed sort keys, rAF-batched renders, DOM diffing, optimized HTML escaping, CSS content-visibility for groups, virtual scrolling support, and Map/Set lookup optimizations.
 
 Current constructor: `new DogTable(container, options)`.
 Backward compatibility: `DataTable` is still exported as an alias.
@@ -85,7 +85,7 @@ table.init();
 
 ## Internal Architecture
 
-`DogTable` remains the public controller, but  refactors the implementation into focused modules:
+`DogTable` remains the public controller, but refactors the implementation into focused modules:
 
 - `src/core/DogTable.js`: orchestration and public API
 - `src/core/TableState.js`: state mutation and pagination constraints
@@ -96,6 +96,347 @@ table.init();
 - `src/plugin/PluginManager.js`: plugin bootstrapping for persistence, selection, export, formatting, editor, live, and create workflows
 
 The public constructor and methods stay the same: `new DogTable(container, options)`.
+
+## Examples
+
+### 1. Basic Local Table
+
+```js
+const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3, status: "Ready" },
+    { id: 2, name: "Pepper", breed: "Border Collie", age: 5, status: "Pending" },
+  ],
+  columns: [
+    { key: "name", label: "Name", sortable: true },
+    { key: "breed", label: "Breed", sortable: true },
+    { key: "age", label: "Age", type: "number", sortable: true },
+    { key: "status", label: "Status" },
+  ],
+  pageSize: 5,
+  searchable: true,
+  pagination: true,
+});
+
+table.init();
+```
+
+### 2. Remote Data with API
+
+```js
+const table = new DogTable("#app", {
+  remote: {
+    url: "https://api.example.com/dogs",
+    dataKey: "results",
+    totalKey: "count",
+    headers: { Authorization: "Bearer YOUR_TOKEN" },
+    queryParams: {
+      page: "page",
+      pageSize: "limit",
+      sort: "sort_by",
+      order: "order",
+      search: "q",
+    },
+  },
+  columns: [
+    { key: "name", label: "Name", sortable: true },
+    { key: "breed", label: "Breed", sortable: true },
+    { key: "age", label: "Age", type: "number" },
+    { key: "status", label: "Status" },
+  ],
+  pageSize: 10,
+});
+
+table.init();
+```
+
+### 3. Inline Editing
+
+```js
+const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", age: 3, status: "Ready" },
+    { id: 2, name: "Pepper", age: 5, status: "Pending" },
+  ],
+  columns: [
+    { key: "name", label: "Name", editable: true },
+    { key: "age", label: "Age", type: "number", editable: true },
+    { key: "status", label: "Status", editable: true },
+  ],
+  remote: {
+    url: "https://api.example.com/dogs",
+    update: {
+      url: "https://api.example.com/dogs/{id}",
+      method: "PUT",
+      headers: { Authorization: "Bearer YOUR_TOKEN" },
+      buildBody: (context) => JSON.stringify({ [context.field]: context.value }),
+      mapResponse: (payload) => payload.data,
+    },
+  },
+  hooks: {
+    onUpdateSuccess: ({ rowId, field, value, row }) => {
+      console.log(`Row ${rowId}: ${field} updated to ${value}`, row);
+    },
+  },
+});
+
+table.init();
+```
+
+### 4. Create New Records
+
+```js
+const table = new DogTable("#app", {
+  data: [],
+  columns: [
+    { key: "name", label: "Name", required: true },
+    { key: "breed", label: "Breed", required: true },
+    { key: "age", label: "Age", type: "number", required: true },
+    {
+      key: "status",
+      label: "Status",
+      inputType: "select",
+      options: ["Ready", "Pending", "Adopted"],
+      defaultValue: "Ready",
+    },
+  ],
+  create: {
+    triggerLabel: "Add Dog",
+    title: "Register New Dog",
+    submitLabel: "Save Dog",
+    initialValues: { status: "Ready" },
+    remote: {
+      url: "https://api.example.com/dogs",
+      method: "POST",
+      headers: { Authorization: "Bearer YOUR_TOKEN" },
+      buildBody: (context) => JSON.stringify(context.data),
+      mapResponse: (payload) => payload.data,
+    },
+    refetchAfterSubmit: true,
+  },
+});
+
+table.init();
+```
+
+### 5. Row Selection & CSV Export
+
+```js
+const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3 },
+    { id: 2, name: "Pepper", breed: "Border Collie", age: 5 },
+    { id: 3, name: "Buddy", breed: "Golden Retriever", age: 2 },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  selectable: true,
+  rowKey: "id",
+  hooks: {
+    onSelectionChange: (selectedData) => {
+      console.log("Selected rows:", selectedData);
+    },
+  },
+});
+
+table.init();
+
+// API usage
+table.getSelectedData();
+table.exportCSV("dogs-export.csv");
+```
+
+### 6. Data Formatting (Money, Dates, Numbers)
+
+```js
+const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", price: 1500.50, birthDate: "2021-03-15", weight: 12.5 },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    {
+      key: "price",
+      label: "Price",
+      type: "currency",
+      currency: "USD",
+      formatOptions: { minimumFractionDigits: 2 },
+    },
+    {
+      key: "birthDate",
+      label: "Birth Date",
+      type: "date",
+      formatOptions: { year: "numeric", month: "long", day: "numeric" },
+    },
+    {
+      key: "weight",
+      label: "Weight (kg)",
+      type: "number",
+      formatOptions: { minimumFractionDigits: 1 },
+    },
+  ],
+});
+
+table.init();
+```
+
+### 7. Grouped Rows
+
+```js
+const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", breed: "Shiba Inu", category: "Small", age: 3 },
+    { id: 2, name: "Pepper", breed: "Border Collie", category: "Medium", age: 5 },
+    { id: 3, name: "Buddy", breed: "Golden Retriever", category: "Large", age: 2 },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "category", label: "Category" },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  groupBy: "category",
+  groupLabel: (value, rows) => `${value} Dogs (${rows.length})`,
+  initialSort: { key: "category", direction: "asc" },
+});
+
+table.init();
+```
+
+### 8. Expandable Row Details
+
+```js
+const table = new DogTable("#app", {
+  data: [
+    {
+      id: 1,
+      name: "Mochi",
+      breed: "Shiba Inu",
+      age: 3,
+      description: "A loyal and spirited Shiba Inu.",
+      owner: "John Doe",
+    },
+  ],
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age", type: "number" },
+  ],
+  rowDetail: {
+    render: (row) => `
+      <div class="dog-details">
+        <p><strong>Description:</strong> ${row.description}</p>
+        <p><strong>Owner:</strong> ${row.owner}</p>
+      </div>
+    `,
+    toggleLabel: (row, isExpanded) => isExpanded ? "Hide Details" : "Show Details",
+  },
+});
+
+table.init();
+
+// Programmatic control
+table.expandRowDetail(1);
+table.collapseRowDetail(1);
+```
+
+### 9. State Persistence & Live Sync
+
+```js
+const table = new DogTable("#app", {
+  remote: {
+    url: "https://api.example.com/dogs",
+    dataKey: "results",
+    totalKey: "count",
+  },
+  columns: [
+    { key: "name", label: "Name", sortable: true },
+    { key: "breed", label: "Breed", sortable: true },
+    { key: "age", label: "Age", type: "number" },
+    { key: "status", label: "Status" },
+  ],
+  persistence: "local",
+  persistenceKey: "my-dog-table",
+  autoRefresh: 5000,
+  hooks: {
+    onBeforeRefresh: () => console.log("Refreshing data..."),
+  },
+});
+
+table.init();
+
+// Live sync controls
+table.live.start();
+table.live.stop();
+table.live.toggle();
+```
+
+### 10. Custom Rendering, Sorting & Hooks
+
+```js
+const table = new DogTable("#app", {
+  data: [
+    { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3, score: 85 },
+    { id: 2, name: "Pepper", breed: "Border Collie", age: 5, score: 92 },
+  ],
+  columns: [
+    {
+      key: "name",
+      label: "Name",
+      sortable: true,
+      render: (value, row) => `<a href="/dogs/${row.id}">${value}</a>`,
+    },
+    {
+      key: "age",
+      label: "Age",
+      sortable: true,
+      sortValue: (value) => value * 7,
+      render: (value) => `${value} years`,
+    },
+    {
+      key: "score",
+      label: "Score",
+      sortable: true,
+      render: (value) => `<div class="progress"><span>${value}%</span></div>`,
+    },
+  ],
+  initialSort: { key: "score", direction: "desc" },
+  searchDebounce: 300,
+  theme: "default",
+  paginationGuard: { maxPage: 50, minPageSize: 5, maxPageSize: 100 },
+  hooks: {
+    onInit: (state) => console.log("Table initialized", state),
+    onUpdate: (processed) => console.log("Table updated", processed),
+    onPageChange: (page) => console.log("Page:", page),
+    onSortChange: ({ sortKey, sortDirection }) => console.log(`Sort: ${sortKey} (${sortDirection})`),
+    onSearchChange: (query) => console.log("Search:", query),
+    onFetchStart: () => console.log("Fetching..."),
+    onFetchSuccess: (payload) => console.log("Loaded:", payload),
+    onFetchError: (error) => console.error("Fetch failed:", error),
+    onLoadingChange: (isLoading) => console.log("Loading:", isLoading),
+    onDataUpdated: (rawData) => console.log("Data updated:", rawData.length, "rows"),
+    onDestroy: () => console.log("Table destroyed"),
+  },
+});
+
+table.init();
+
+// Programmatic API
+table.setPage(2);
+table.setSearch("Mochi");
+table.setSort("age", "asc");
+table.setPageSize(10);
+table.clearSearch();
+table.clearSort();
+table.reset();
+table.setData(newData);
+table.setColumns(newColumns);
+table.setTheme("bootstrap");
+table.destroy();
+```
 
 ## Optional Pagination Guardrails
 
@@ -153,6 +494,76 @@ const table = new DogTable("#app", {
 
 Minified assets are generated by the build and published from `dist/`, not committed in `src/`.
 
+## Localization
+
+Use bundled locale files for i18n support.
+
+```js
+import { DogTable } from "dog-table";
+import { de } from "dog-table/locale/de";
+
+const table = new DogTable("#app", {
+  data: [...],
+  columns: [...],
+  language: de,
+});
+
+table.init();
+```
+
+**Available locales:** `en`, `de`, `es`, `fr`, `id`, `zh-CN`
+
+**Custom language override:**
+
+```js
+language: {
+  search: "Suche",
+  searchPlaceholder: "Suchbegriff eingeben...",
+  emptyState: "Keine Daten vorhanden.",
+  noResults: "Keine Ergebnisse gefunden",
+  loading: "Daten werden geladen...",
+  next: "Weiter",
+  previous: "Zurück",
+  showing: "Zeige {start}-{end} von {total}",
+  page: "Seite {page} von {total}",
+}
+```
+
+## Themes
+
+Switch between built-in theme presets.
+
+```js
+theme: "default"     // Default theme
+theme: "bootstrap"   // Bootstrap classes
+theme: "tailwind"    // Tailwind classes
+```
+
+**Custom class overrides:**
+
+```js
+theme: "default",
+classNames: {
+  table: "my-custom-table",
+  header: "my-custom-header",
+  body: "my-custom-body",
+}
+```
+
+## Utility Functions
+
+Access built-in utilities.
+
+```js
+import { debounce, escapeHtml } from "dog-table/utils";
+
+const debouncedSearch = debounce((query) => {
+  console.log("Searching:", query);
+}, 300);
+
+const safe = escapeHtml("<script>alert('xss')</script>");
+```
+
 ## Demos
 
 - Demo gallery: [index.html](./index.html)
@@ -161,9 +572,7 @@ Minified assets are generated by the build and published from `dist/`, not commi
 
 ## Documentation
 
-- Latest docs (v2, `DogTable`): [docs.html](./docs.html)
-- Legacy docs (v1, `DataTable`): [docs-v1.html](./docs-v1.html)
-- Query cache guide: [query-cache.html](./query-cache.html)
+- Full examples & API reference: [wiki/Examples.md](./wiki/Examples.md)
 - Wiki home: [wiki/Home.md](./wiki/Home.md)
 - Getting started: [wiki/Getting-Started.md](./wiki/Getting-Started.md)
 - Configuration reference: [wiki/Configuration-Reference.md](./wiki/Configuration-Reference.md)
