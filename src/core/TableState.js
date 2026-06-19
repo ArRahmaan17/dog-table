@@ -25,6 +25,10 @@ export class TableState {
       currentPage: 1,
       pageSize: this.clampPageSize(options.pageSize),
       totalItems: Array.isArray(options.data) ? options.data.length : 0,
+      cursor: null,
+      nextCursor: null,
+      prevCursor: null,
+      cursorHistory: { 1: null },
       loading: false,
       error: null,
       expandedRowIds: new Set(),
@@ -122,6 +126,19 @@ export class TableState {
     }
 
     this.state.currentPage = nextPage;
+    return true;
+  }
+
+  setCursorPage(pageNumber, cursor) {
+    const nextPage = this.clampPage(pageNumber);
+
+    if (this.state.currentPage === nextPage && this.state.cursor === cursor) {
+      return false;
+    }
+
+    this.state.currentPage = nextPage;
+    this.state.cursor = cursor ?? null;
+    this.state.cursorHistory[nextPage] = cursor ?? null;
     return true;
   }
 
@@ -338,7 +355,10 @@ export class TableState {
 
   setRemoteData(payload) {
     this.state.rawData = Array.isArray(payload?.rows) ? payload.rows : [];
-    this.state.totalItems = Number(payload?.totalItems) || 0;
+    this.state.totalItems =
+      Number(payload?.totalItems ?? payload?.total) || this.state.rawData.length;
+    this.state.nextCursor = payload?.nextCursor ?? null;
+    this.state.prevCursor = payload?.prevCursor ?? null;
     this.state.error = null;
     this.state.expandedRowIds.clear();
   }

@@ -236,16 +236,20 @@ export class CreatePlugin {
     return record;
   }
 
-  async handleSuccess(createdRow) {
+  async handleSuccess(createdRow, { optimisticRow = null } = {}) {
     const config = this.getConfig();
     const row = createdRow && typeof createdRow === "object" ? createdRow : {};
-    const nextRow = { ...this.buildRecord(), ...row };
+    const nextRow = optimisticRow || { ...this.buildRecord(), ...row };
+    Object.assign(nextRow, row);
     const shouldRefetch =
       this.table.isRemote() && (config.refetchAfterSubmit ?? true);
 
     if (shouldRefetch) {
       this.table.state.currentPage = 1;
       await this.table.update();
+    } else if (optimisticRow) {
+      this.table.dataEngine.reset();
+      this.table.update({ skipFetch: true });
     } else {
       this.table.state.rawData = [nextRow, ...this.table.state.rawData];
       this.table.state.totalItems = this.table.state.rawData.length;
@@ -288,6 +292,11 @@ export class CreatePlugin {
 
     const record = this.buildRecord();
     const config = this.getConfig();
+    const remoteConfig = this.getRemoteConfig();
+    const shouldOptimisticallyCreate =
+      Boolean(this.table.options.optimisticUpdates) &&
+      Boolean(this.table.isRemote() || remoteConfig?.url || config.onSubmit);
+    let optimisticRow = null;
 
     this.isSaving = true;
     this.formError = "";
@@ -299,7 +308,10 @@ export class CreatePlugin {
     this.updateUI();
 
     try {
-      const remoteConfig = this.getRemoteConfig();
+      if (shouldOptimisticallyCreate) {
+        optimisticRow = this.table.addRow({ ...record }, { skipRender: false });
+      }
+
       const createdRow =
         typeof config.onSubmit === "function"
           ? await config.onSubmit(record, {
@@ -311,8 +323,12 @@ export class CreatePlugin {
             ? await this.submitRemote(record)
             : record;
 
-      await this.handleSuccess(createdRow);
+      await this.handleSuccess(createdRow, { optimisticRow });
     } catch (error) {
+      if (optimisticRow) {
+        this.table.removeRow(this.table.getRowId(optimisticRow));
+      }
+
       this.formError =
         error?.message ||
         this.table.options.language.createError ||

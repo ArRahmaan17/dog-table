@@ -35,11 +35,18 @@ export class PaginationRenderer {
     elements.pagination.hidden = false;
     const currentPage = processed.currentPage ?? 1;
     const totalPages = processed.totalPages ?? 1;
-    const prevDisabled = currentPage <= 1;
-    const nextDisabled = currentPage >= totalPages;
+    const isCursor = this.table.isCursorPagination();
+    const prevDisabled = isCursor
+      ? currentPage <= 1 && !this.table.state.prevCursor
+      : currentPage <= 1;
+    const nextDisabled = isCursor
+      ? !this.table.state.nextCursor
+      : currentPage >= totalPages;
     const pageNumbers = this.getVisiblePageNumbers(currentPage, totalPages);
     const pageTemplate = options.language?.page || "Page {page} of {total}";
-    const numberedButtons = pageNumbers
+    const numberedButtons = isCursor
+      ? ""
+      : pageNumbers
       .map((page, index) => {
         const previous = pageNumbers[index - 1];
         const gap =
@@ -80,9 +87,11 @@ export class PaginationRenderer {
       <div class="${theme.get("paginationPages")}">${numberedButtons}</div>
       <span class="${theme.get("paginationStatus")}">
         ${escapeHtml(
-          pageTemplate
-            .replace("{page}", currentPage)
-            .replace("{total}", totalPages)
+          isCursor
+            ? `Page ${currentPage}`
+            : pageTemplate
+                .replace("{page}", currentPage)
+                .replace("{total}", totalPages)
         )}
       </span>
       <button

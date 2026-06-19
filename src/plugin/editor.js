@@ -82,6 +82,10 @@ export class EditorPlugin {
 
       if (save && newValue !== String(value)) {
         const previousValue = editingRow ? editingRow[field] : value;
+        const shouldOptimisticallyUpdate =
+          Boolean(this.table.options.optimisticUpdates) &&
+          Boolean(editingRow) &&
+          Boolean(this.getRemoteConfig());
 
         try {
           this.table.setSyncStatus({
@@ -89,6 +93,11 @@ export class EditorPlugin {
             label: this.table.options.language.syncSaving || "Saving",
             title: `Updating ${field}.`,
           });
+
+          if (shouldOptimisticallyUpdate) {
+            editingRow[field] = newValue;
+            this.table.update({ skipFetch: true });
+          }
 
           if (editingRow && this.getRemoteConfig()) {
             const updatedRow = await this.submitRemoteUpdate(
@@ -100,7 +109,7 @@ export class EditorPlugin {
 
             if (updatedRow && typeof updatedRow === "object") {
               Object.assign(editingRow, updatedRow);
-            } else {
+            } else if (!shouldOptimisticallyUpdate) {
               editingRow[field] = newValue;
             }
           } else if (editingRow) {

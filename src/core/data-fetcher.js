@@ -23,7 +23,17 @@ export class DataFetcher {
       ...(this.config.queryParams || {}),
     };
 
-    if (includePagination) {
+    if (includePagination && this.config.pagination === "cursor") {
+      params.delete(queryKeys.page);
+      params.set(queryKeys.pageSize, state.pageSize);
+
+      const cursorKey = this.config.cursorParam || "cursor";
+      if (state.cursor) {
+        params.set(cursorKey, state.cursor);
+      } else {
+        params.delete(cursorKey);
+      }
+    } else if (includePagination) {
       params.set(queryKeys.page, state.currentPage);
       params.set(queryKeys.pageSize, state.pageSize);
     } else {

@@ -67,6 +67,7 @@ export class DogTable {
       theme: "default",
       classNames: {},
       remote: null,
+      optimisticUpdates: false,
       groupBy: null,
       groupLabel: null,
       rowKey: null,
@@ -177,6 +178,10 @@ export class DogTable {
 
   isRemote() {
     return this.remoteAdapter.isEnabled();
+  }
+
+  isCursorPagination() {
+    return this.options.remote?.pagination === "cursor";
   }
 
   hasRowDetail() {
@@ -481,6 +486,30 @@ export class DogTable {
   }
 
   setPage(pageNumber) {
+    if (this.isCursorPagination()) {
+      const nextPage = this.clampPage(pageNumber);
+      let cursor = this.state.cursorHistory[nextPage];
+
+      if (nextPage > this.state.currentPage) {
+        cursor = this.state.nextCursor;
+      } else if (nextPage < this.state.currentPage) {
+        cursor = this.state.cursorHistory[nextPage] ?? this.state.prevCursor;
+      }
+
+      if (nextPage !== 1 && !cursor) {
+        return;
+      }
+
+      this.state.cursorHistory[this.state.currentPage] = this.state.cursor;
+
+      if (this.tableState.setCursorPage(nextPage, cursor)) {
+        this.saveState();
+        this.update();
+      }
+
+      return;
+    }
+
     if (this.tableState.setPage(pageNumber)) {
       this.rememberQueryPagination();
       this.saveState();
@@ -558,6 +587,70 @@ export class DogTable {
     this.resetRowLookup();
     this.dataEngine.reset();
     this.update();
+  }
+
+  addRow(row, { position = "start", skipRender = false } = {}) {
+    if (!row || typeof row !== "object") {
+      return null;
+    }
+
+    if (position === "end") {
+      this.state.rawData.push(row);
+    } else {
+      this.state.rawData.unshift(row);
+    }
+
+    this.state.totalItems += 1;
+    this.state.error = null;
+    this.resetRowLookup();
+    this.dataEngine.reset();
+
+    if (!skipRender) {
+      this.update({ skipFetch: true });
+    }
+
+    return row;
+  }
+
+  updateRow(rowId, patch, { skipRender = false } = {}) {
+    const row = this.getRowById(rowId);
+
+    if (!row || !patch || typeof patch !== "object") {
+      return null;
+    }
+
+    Object.assign(row, patch);
+    this.dataEngine.reset();
+
+    if (!skipRender) {
+      this.update({ skipFetch: true });
+    }
+
+    return row;
+  }
+
+  removeRow(rowId, { skipRender = false } = {}) {
+    const id = String(rowId);
+    const index = this.state.rawData.findIndex(
+      (row) => this.getRowId(row) === id
+    );
+
+    if (index < 0) {
+      return null;
+    }
+
+    const [removed] = this.state.rawData.splice(index, 1);
+    this.state.selectedRows.delete(id);
+    this.state.expandedRowIds.delete(id);
+    this.state.totalItems = Math.max(0, this.state.totalItems - 1);
+    this.resetRowLookup();
+    this.dataEngine.reset();
+
+    if (!skipRender) {
+      this.update({ skipFetch: true });
+    }
+
+    return removed;
   }
 
   setColumns(columns) {
