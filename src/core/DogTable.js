@@ -11,8 +11,21 @@ import { PluginManager } from "../plugin/PluginManager.js";
 import { debounce } from "../utils/index.js";
 
 const DEFAULT_PAGE_SIZE = 5;
+const globalPlugins = [];
 
 export class DogTable {
+  static use(plugin) {
+    if (plugin && !globalPlugins.includes(plugin)) {
+      globalPlugins.push(plugin);
+    }
+
+    return this;
+  }
+
+  static getGlobalPlugins() {
+    return [...globalPlugins];
+  }
+
   constructor(container, options = {}) {
     this.container =
       typeof container === "string"
@@ -86,6 +99,7 @@ export class DogTable {
       virtualScroll: false,
       dataWorker: false,
       lazyColumns: false,
+      plugins: [],
       hooks: {},
       ...options,
     };
@@ -120,6 +134,7 @@ export class DogTable {
     this.highlightTimeoutId = null;
     this.syncStatusTimeoutId = null;
     this.toastTimeoutId = null;
+    this.eventHandlers = new Map();
     this._pendingUpdate = false;
     this._fetchPromise = null;
     this._fetchRequestKey = null;
@@ -169,6 +184,49 @@ export class DogTable {
     }
 
     return this;
+  }
+
+  on(eventName, handler) {
+    if (!eventName || typeof handler !== "function") {
+      return () => {};
+    }
+
+    const key = String(eventName);
+    const handlers = this.eventHandlers.get(key) || new Set();
+    handlers.add(handler);
+    this.eventHandlers.set(key, handlers);
+
+    return () => this.off(key, handler);
+  }
+
+  off(eventName, handler) {
+    const handlers = this.eventHandlers.get(String(eventName));
+
+    if (!handlers) {
+      return;
+    }
+
+    handlers.delete(handler);
+
+    if (handlers.size === 0) {
+      this.eventHandlers.delete(String(eventName));
+    }
+  }
+
+  emit(eventName, payload) {
+    const handlers = this.eventHandlers.get(String(eventName));
+
+    if (!handlers) {
+      return;
+    }
+
+    handlers.forEach((handler) => {
+      try {
+        handler(payload, this);
+      } catch (error) {
+        console.warn(`DogTable event handler failed for ${eventName}`, error);
+      }
+    });
   }
 
   renderStructure() {
@@ -613,6 +671,8 @@ export class DogTable {
       this.update({ skipFetch: true });
     }
 
+    this.emit("row:add", { row });
+
     return row;
   }
 
@@ -629,6 +689,8 @@ export class DogTable {
     if (!skipRender) {
       this.update({ skipFetch: true });
     }
+
+    this.emit("row:update", { rowId: String(rowId), patch, row });
 
     return row;
   }
@@ -653,6 +715,8 @@ export class DogTable {
     if (!skipRender) {
       this.update({ skipFetch: true });
     }
+
+    this.emit("row:remove", { rowId: id, row: removed });
 
     return removed;
   }
@@ -973,6 +1037,7 @@ export class DogTable {
     if (typeof this.options.hooks.onFetchStart === "function") {
       this.options.hooks.onFetchStart(this.getState());
     }
+    this.emit("fetch:start", this.getState());
 
     try {
       const payload = await this.remoteAdapter.fetch(this.state, {
@@ -1000,6 +1065,7 @@ export class DogTable {
       if (typeof this.options.hooks.onFetchSuccess === "function") {
         this.options.hooks.onFetchSuccess(payload);
       }
+      this.emit("fetch:success", payload);
 
       if (typeof this.options.hooks.onDataUpdated === "function") {
         this.options.hooks.onDataUpdated(this.state.rawData);
@@ -1017,6 +1083,7 @@ export class DogTable {
       if (typeof this.options.hooks.onFetchError === "function") {
         this.options.hooks.onFetchError(error);
       }
+      this.emit("fetch:error", error);
     } finally {
       if (fetchSequence === this._activeFetchSequence) {
         this.setLoading(false);
@@ -1194,6 +1261,10 @@ export class DogTable {
     this.create.updateUI();
     this.live.updateUI();
     this.emitHooks(processed);
+    this.emit("state:change", {
+      state: this.getState(),
+      processed,
+    });
   }
 
   updateSync({ skipFetch = false } = {}) {
@@ -1233,6 +1304,7 @@ export class DogTable {
     this.container.innerHTML = "";
     this.elements = {};
     this.boundHandlers = {};
+    this.eventHandlers.clear();
 
     if (typeof this.options.hooks.onDestroy === "function") {
       this.options.hooks.onDestroy();
