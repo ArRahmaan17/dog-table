@@ -14,6 +14,9 @@ export class DataEngine {
     this._displayRowsGroupBy = null;
     this._displayRowsGroupLabel = null;
     this._displayRowsUngroupedLabel = null;
+    this.worker = null;
+    this.workerRequestId = 0;
+    this.workerCallbacks = new Map();
   }
 
   reset() {
@@ -32,6 +35,142 @@ export class DataEngine {
 
   isRemote() {
     return this.table.isRemote();
+  }
+
+  getWorkerConfig() {
+    const config = this.table.options.dataWorker;
+
+    if (!config) {
+      return null;
+    }
+
+    return config === true ? {} : typeof config === "object" ? config : null;
+  }
+
+  canUseWorker(state) {
+    const config = this.getWorkerConfig();
+
+    if (
+      !config ||
+      this.isRemote() ||
+      typeof Worker === "undefined" ||
+      typeof this.table.options.groupBy === "function"
+    ) {
+      return false;
+    }
+
+    const threshold = Number.isFinite(config.threshold)
+      ? config.threshold
+      : 1000;
+
+    if (state.rawData.length < threshold) {
+      return false;
+    }
+
+    return !state.columns.some(
+      (column) =>
+        typeof column.filter === "function" ||
+        typeof column.sortValue === "function"
+    );
+  }
+
+  ensureWorker() {
+    if (this.worker) {
+      return this.worker;
+    }
+
+    this.worker = new Worker(
+      new URL("../workers/data-processor.js", import.meta.url),
+      { type: "module" }
+    );
+
+    this.worker.addEventListener("message", (event) => {
+      const { id, result, error } = event.data || {};
+      const callbacks = this.workerCallbacks.get(id);
+
+      if (!callbacks) {
+        return;
+      }
+
+      this.workerCallbacks.delete(id);
+
+      if (error) {
+        callbacks.reject(new Error(error));
+      } else {
+        callbacks.resolve(result);
+      }
+    });
+
+    this.worker.addEventListener("error", (error) => {
+      this.workerCallbacks.forEach((callbacks) => {
+        callbacks.reject(error);
+      });
+      this.workerCallbacks.clear();
+    });
+
+    return this.worker;
+  }
+
+  async processAsync(state) {
+    if (!this.canUseWorker(state)) {
+      return this.process(state);
+    }
+
+    try {
+      return await this.processWithWorker(state);
+    } catch {
+      return this.process(state);
+    }
+  }
+
+  processWithWorker(state) {
+    const worker = this.ensureWorker();
+    const id = this.workerRequestId + 1;
+    const paginationEnabled = this.table.isPaginationEnabled();
+    const guard = this.table.tableState.getPaginationGuardConfig();
+
+    this.workerRequestId = id;
+
+    return new Promise((resolve, reject) => {
+      this.workerCallbacks.set(id, {
+        resolve: (result) => {
+          const rows = result.rowIndexes.map((index) => state.rawData[index]);
+          const filteredRows = result.filteredIndexes.map(
+            (index) => state.rawData[index]
+          );
+
+          resolve({
+            rows,
+            filteredRows,
+            displayRows: this.buildDisplayRows(rows),
+            totalItems: result.totalItems,
+            totalPages: result.totalPages,
+            currentPage: result.currentPage,
+            pageSize: result.pageSize,
+            startIndex: result.startIndex,
+            endIndex: result.endIndex,
+          });
+        },
+        reject,
+      });
+
+      worker.postMessage({
+        id,
+        rawData: state.rawData,
+        columns: state.columns.map((column) => ({
+          key: column.key,
+          accessor: column.accessor,
+          searchable: column.searchable,
+        })),
+        searchQuery: state.searchQuery,
+        sortKey: state.sortKey,
+        sortDirection: state.sortDirection,
+        currentPage: state.currentPage,
+        pageSize: state.pageSize,
+        paginationEnabled,
+        guard,
+      });
+    });
   }
 
   filterRows(state) {
@@ -261,5 +400,17 @@ export class DataEngine {
           ? Math.min(start + state.pageSize, totalItems)
           : totalItems,
     };
+  }
+
+  destroy() {
+    if (this.worker) {
+      this.worker.terminate();
+      this.worker = null;
+    }
+
+    this.workerCallbacks.forEach((callbacks) => {
+      callbacks.reject(new Error("DataEngine worker was destroyed."));
+    });
+    this.workerCallbacks.clear();
   }
 }

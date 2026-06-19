@@ -95,6 +95,17 @@
   contain-intrinsic-size: auto 40px;
 }
 
+.dt-virtual-spacer-top td,
+.dt-virtual-spacer-bottom td {
+  padding: 0;
+  border: 0;
+}
+
+.dt-lazy-column {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 160px;
+}
+
 .dt-detail-toggle-cell {
   width: 1%;
   white-space: nowrap;

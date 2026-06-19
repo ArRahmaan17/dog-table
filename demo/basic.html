@@ -243,6 +243,9 @@
         ><code>const fullListTable = new DogTable("#all-dogs", {
   data,
   pagination: false,
+  dataWorker: { threshold: 1000 },
+  lazyColumns: true,
+  virtualScroll: { maxHeight: 320, rowHeight: 48 },
   columns: [
     { key: "name", label: "Name" },
     { key: "breed", label: "Breed" },

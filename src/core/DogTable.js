@@ -2,6 +2,7 @@ import { ThemeManager } from "./theme-manager.js";
 import { TableState } from "./TableState.js";
 import { DataEngine } from "./DataEngine.js";
 import { EventBinder } from "./EventBinder.js";
+import { VirtualScroller } from "./VirtualScroller.js";
 import { RemoteAdapter } from "../data/RemoteAdapter.js";
 import { TableRenderer } from "../renderers/TableRenderer.js";
 import { PaginationRenderer } from "../renderers/PaginationRenderer.js";
@@ -74,6 +75,9 @@ export class DogTable {
       persistenceKey: null,
       selectable: false,
       paginationGuard: false,
+      virtualScroll: false,
+      dataWorker: false,
+      lazyColumns: false,
       hooks: {},
       ...options,
     };
@@ -120,6 +124,7 @@ export class DogTable {
     this.metaRenderer = new MetaRenderer(this);
     this.dataEngine = new DataEngine(this);
     this._pipelineCache = this.dataEngine.cache;
+    this.virtualScroller = new VirtualScroller(this);
     this.eventBinder = new EventBinder(this);
     this.boundHandlers = this.eventBinder.boundHandlers;
     this.plugins = new PluginManager(this);
@@ -143,6 +148,7 @@ export class DogTable {
   init() {
     this.renderStructure();
     this.bindEvents();
+    this.setupVirtualScroll();
     this.plugins.initRuntime();
     this.update();
 
@@ -208,6 +214,28 @@ export class DogTable {
 
   isPaginationEnabled() {
     return this.options.pagination !== false;
+  }
+
+  getVirtualScrollConfig() {
+    if (!this.options.virtualScroll) {
+      return null;
+    }
+
+    return this.options.virtualScroll === true
+      ? {}
+      : typeof this.options.virtualScroll === "object"
+        ? this.options.virtualScroll
+        : null;
+  }
+
+  setupVirtualScroll() {
+    const config = this.getVirtualScrollConfig();
+
+    this.virtualScroller.disable();
+
+    if (config) {
+      this.virtualScroller.enable(config);
+    }
   }
 
   normalizeStateConstraints() {
@@ -457,6 +485,7 @@ export class DogTable {
     this.metaRenderer = new MetaRenderer(this);
     this.renderStructure();
     this.bindEvents();
+    this.setupVirtualScroll();
     this.update({ skipFetch: true });
   }
 
@@ -467,6 +496,7 @@ export class DogTable {
     };
     this.renderStructure();
     this.bindEvents();
+    this.setupVirtualScroll();
     this.update({ skipFetch: true });
   }
 
@@ -595,6 +625,16 @@ export class DogTable {
   getProcessedData() {
     const processed = this.dataEngine.process(this.state);
 
+    return this.normalizeProcessedData(processed);
+  }
+
+  async getProcessedDataAsync() {
+    const processed = await this.dataEngine.processAsync(this.state);
+
+    return this.normalizeProcessedData(processed);
+  }
+
+  normalizeProcessedData(processed) {
     if (!processed || typeof processed !== "object") {
       return {
         rows: [],
@@ -637,6 +677,11 @@ export class DogTable {
   }
 
   renderBody(displayRows) {
+    if (this.virtualScroller.enabled && displayRows.length > 0) {
+      this.virtualScroller.render(displayRows);
+      return;
+    }
+
     this.tableRenderer.renderBody(displayRows);
   }
 
@@ -879,7 +924,7 @@ export class DogTable {
       await this.fetchData();
     }
 
-    const processed = this.getProcessedData();
+    const processed = await this.getProcessedDataAsync();
 
     this.renderHeader(processed.rows);
 
@@ -925,6 +970,8 @@ export class DogTable {
   destroy() {
     this.eventBinder.unbind();
     this.remoteAdapter.abort();
+    this.virtualScroller.destroy();
+    this.dataEngine.destroy();
     this.plugins.destroy();
 
     if (this.highlightTimeoutId) {

@@ -55,6 +55,9 @@ export class TableRenderer {
     this.table.elements.search = container.querySelector(theme.getSelector("search"));
     this.table.elements.searchInput = container.querySelector("input[type='search']");
     this.table.elements.meta = container.querySelector(theme.getSelector("meta"));
+    this.table.elements.tableWrap = container.querySelector(
+      theme.getSelector("tableWrap")
+    );
     this.table.elements.thead = container.querySelector("thead");
     this.table.elements.tbody = container.querySelector("tbody");
     this.table.elements.pagination = container.querySelector(
@@ -91,6 +94,7 @@ export class TableRenderer {
             class="${[
               theme.get("headerCell"),
               sortable ? theme.get("sortableHeader") : "",
+              options.lazyColumns ? "dt-lazy-column" : "",
             ]
               .filter(Boolean)
               .join(" ")}"
@@ -393,7 +397,12 @@ export class TableRenderer {
       }
 
       const td = document.createElement("td");
-      td.className = theme.get("bodyCell");
+      td.className = [
+        theme.get("bodyCell"),
+        options.lazyColumns ? "dt-lazy-column" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
       const key = column.accessor || column.key;
       td.dataset.field = key;
 
@@ -472,6 +481,12 @@ export class TableRenderer {
       if (!td) return;
 
       const key = column.accessor || column.key;
+      td.className = [
+        theme.get("bodyCell"),
+        options.lazyColumns ? "dt-lazy-column" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
       td.dataset.field = key;
 
       if (column.editable) {
