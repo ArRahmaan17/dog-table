@@ -60,6 +60,10 @@
   border-collapse: collapse;
 }
 
+.dt-resizable-table {
+  table-layout: fixed;
+}
+
 :where(.dt-table th, .dt-table td) {
   padding: 12px 14px;
   border-bottom: 1px solid #e4e7eb;
@@ -67,9 +71,40 @@
 }
 
 :where(.dt-table th, .dt-header-cell) {
+  position: relative;
   font-size: 0.88rem;
   color: #334e68;
   background: #f0f4f8;
+}
+
+.dt-sticky-header thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.dt-sticky-column {
+  position: sticky;
+  z-index: 2;
+  background: inherit;
+}
+
+thead .dt-sticky-column {
+  z-index: 4;
+}
+
+.dt-column-resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.dt-reorderable-table th[draggable="true"] {
+  cursor: grab;
 }
 
 :where(.dt-table th.is-sortable, .dt-header-cell.is-sortable) {

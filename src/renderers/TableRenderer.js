@@ -14,6 +14,14 @@ export class TableRenderer {
 
   renderStructure() {
     const { container, theme, options, state } = this.table;
+    const tableClass = [
+      theme.get("table"),
+      options.stickyHeader ? "dt-sticky-header" : "",
+      options.resizableColumns ? "dt-resizable-table" : "",
+      options.columnReorder ? "dt-reorderable-table" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
 
     container.innerHTML = `
       <div class="${theme.get("shell")}">
@@ -37,7 +45,7 @@ export class TableRenderer {
           </div>
         </div>
         <div class="${theme.get("tableWrap")}">
-          <table class="${theme.get("table")}">
+          <table class="${tableClass}">
             <thead class="${theme.get("thead")}"></thead>
             <tbody class="${theme.get("tbody")}"></tbody>
           </table>
@@ -76,16 +84,20 @@ export class TableRenderer {
     const isAllSelected = options.selectable && this.table.isAllSelected(rows);
     const visibleColumns = this.table.getVisibleColumns();
     const headers = visibleColumns
-      .map((column) => {
+      .map((column, index) => {
         const isSorted = state.sortKey === column.key;
         const direction = isSorted ? state.sortDirection : "none";
         const sortable = column.sortable !== false;
         const label = escapeHtml(column.label ?? column.key);
         const indicator =
           direction === "asc" ? " ▲" : direction === "desc" ? " ▼" : "";
-
+        const style = this.getColumnStyle(column, index);
+        const draggable = options.columnReorder ? 'draggable="true"' : "";
         const filter = options.filterRow
           ? this.renderFilterControl(column)
+          : "";
+        const resizeHandle = options.resizableColumns
+          ? '<span class="dt-column-resize" data-resize-handle aria-hidden="true"></span>'
           : "";
 
         return `
@@ -95,16 +107,20 @@ export class TableRenderer {
             data-sortable="${sortable}"
             aria-sort="${direction}"
             ${sortable ? 'tabindex="0"' : ""}
+            ${draggable}
+            ${style ? `style="${style}"` : ""}
             class="${[
               theme.get("headerCell"),
               sortable ? theme.get("sortableHeader") : "",
               options.lazyColumns ? "dt-lazy-column" : "",
+              this.isStickyColumn(column) ? "dt-sticky-column" : "",
             ]
               .filter(Boolean)
               .join(" ")}"
           >
             <span>${label}${indicator}</span>
             ${filter}
+            ${resizeHandle}
           </th>
         `;
       })
@@ -192,6 +208,49 @@ export class TableRenderer {
         aria-label="Filter ${escapeHtml(label)}"
       />
     `;
+  }
+
+  isStickyColumn(column) {
+    const stickyColumns = this.table.options.stickyColumns;
+    const key = column.accessor || column.key;
+
+    return Array.isArray(stickyColumns) && stickyColumns.map(String).includes(String(key));
+  }
+
+  getColumnWidth(column) {
+    const key = column.accessor || column.key;
+    return this.table.state.columnWidths[key] || column.width || null;
+  }
+
+  getStickyOffset(columnIndex) {
+    let offset = 0;
+    const columns = this.table.getVisibleColumns();
+
+    for (let index = 0; index < columnIndex; index += 1) {
+      const column = columns[index];
+
+      if (this.isStickyColumn(column)) {
+        offset += Number(this.getColumnWidth(column)) || 160;
+      }
+    }
+
+    return offset;
+  }
+
+  getColumnStyle(column, columnIndex) {
+    const declarations = [];
+    const width = this.getColumnWidth(column);
+
+    if (width) {
+      declarations.push(`width:${Number(width)}px`);
+      declarations.push(`min-width:${Number(width)}px`);
+    }
+
+    if (this.isStickyColumn(column)) {
+      declarations.push(`left:${this.getStickyOffset(columnIndex)}px`);
+    }
+
+    return declarations.join(";");
   }
 
   renderDetailContent(row, rowId) {
@@ -454,16 +513,18 @@ export class TableRenderer {
       tr.appendChild(selectionCell);
     }
 
-    this.table.getVisibleColumns().forEach((column) => {
+    this.table.getVisibleColumns().forEach((column, index) => {
       const td = document.createElement("td");
       td.className = [
         theme.get("bodyCell"),
         options.lazyColumns ? "dt-lazy-column" : "",
+        this.isStickyColumn(column) ? "dt-sticky-column" : "",
       ]
         .filter(Boolean)
         .join(" ");
       const key = column.accessor || column.key;
       td.dataset.field = key;
+      td.style.cssText = this.getColumnStyle(column, index);
 
       if (column.editable) {
         td.classList.add("dt-editable");
@@ -531,7 +592,7 @@ export class TableRenderer {
       }
     }
 
-    this.table.getVisibleColumns().forEach((column) => {
+    this.table.getVisibleColumns().forEach((column, index) => {
       const td = cells[cellIndex++];
       if (!td) return;
 
@@ -539,10 +600,12 @@ export class TableRenderer {
       td.className = [
         theme.get("bodyCell"),
         options.lazyColumns ? "dt-lazy-column" : "",
+        this.isStickyColumn(column) ? "dt-sticky-column" : "",
       ]
         .filter(Boolean)
         .join(" ");
       td.dataset.field = key;
+      td.style.cssText = this.getColumnStyle(column, index);
 
       if (column.editable) {
         td.classList.add("dt-editable");

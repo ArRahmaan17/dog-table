@@ -78,6 +78,10 @@ export class DogTable {
       urlState: false,
       selectable: false,
       filterRow: false,
+      stickyHeader: false,
+      stickyColumns: [],
+      resizableColumns: false,
+      columnReorder: false,
       paginationGuard: false,
       virtualScroll: false,
       dataWorker: false,
@@ -658,6 +662,25 @@ export class DogTable {
     this.rebuildColumnLookup();
     this.dataEngine.reset();
     this.update();
+  }
+
+  setColumnWidth(columnKey, width) {
+    if (this.tableState.setColumnWidth(columnKey, width)) {
+      this.saveState();
+      this.update({ skipFetch: true });
+    }
+  }
+
+  moveColumn(columnKey, beforeColumnKey) {
+    if (!this.options.columnReorder) {
+      return;
+    }
+
+    if (this.tableState.moveColumn(columnKey, beforeColumnKey)) {
+      this.rebuildColumnLookup();
+      this.saveState();
+      this.update({ skipFetch: true });
+    }
   }
 
   setTheme(theme, classNames = {}) {

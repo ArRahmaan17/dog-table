@@ -16,6 +16,8 @@ export class TableState {
       rawData: Array.isArray(options.data) ? [...options.data] : [],
       columns: normalizeColumns(options.columns),
       columnVisibility: {},
+      columnWidths: {},
+      columnOrder: [],
       selectedRows: new Set(),
       searchQuery: "",
       filters: {},
@@ -39,6 +41,7 @@ export class TableState {
     };
 
     this.syncColumnVisibility();
+    this.syncColumnOrder();
   }
 
   toPositiveInteger(value, fallback = 1) {
@@ -105,6 +108,14 @@ export class TableState {
     this.state.pageSize = this.clampPageSize(this.state.pageSize);
     this.state.currentPage = this.clampPage(this.state.currentPage);
     this.syncColumnVisibility();
+    this.syncColumnOrder();
+  }
+
+  syncColumnOrder() {
+    this.state.columnOrder = this.state.columns
+      .map((column) => column.key || column.accessor)
+      .filter((key) => key != null)
+      .map(String);
   }
 
   syncColumnVisibility() {
@@ -249,7 +260,83 @@ export class TableState {
   setColumns(columns) {
     this.state.columns = normalizeColumns(columns);
     this.syncColumnVisibility();
+    this.syncColumnOrder();
     this.state.currentPage = 1;
+  }
+
+  setColumnWidth(columnKey, width) {
+    const key = String(columnKey);
+    const nextWidth = Math.max(40, Math.floor(Number(width) || 0));
+
+    if (!this.state.columns.some((column) => String(column.key || column.accessor) === key)) {
+      return false;
+    }
+
+    if (this.state.columnWidths[key] === nextWidth) {
+      return false;
+    }
+
+    this.state.columnWidths = {
+      ...this.state.columnWidths,
+      [key]: nextWidth,
+    };
+    return true;
+  }
+
+  setColumnOrder(order) {
+    if (!Array.isArray(order)) {
+      return false;
+    }
+
+    const known = new Map(
+      this.state.columns.map((column) => [
+        String(column.key || column.accessor),
+        column,
+      ])
+    );
+    const nextColumns = [];
+    const used = new Set();
+
+    order.forEach((key) => {
+      const id = String(key);
+      const column = known.get(id);
+
+      if (column && !used.has(id)) {
+        nextColumns.push(column);
+        used.add(id);
+      }
+    });
+
+    this.state.columns.forEach((column) => {
+      const id = String(column.key || column.accessor);
+      if (!used.has(id)) {
+        nextColumns.push(column);
+      }
+    });
+
+    const nextOrder = nextColumns.map((column) => String(column.key || column.accessor));
+
+    if (JSON.stringify(nextOrder) === JSON.stringify(this.state.columnOrder)) {
+      return false;
+    }
+
+    this.state.columns = nextColumns;
+    this.state.columnOrder = nextOrder;
+    return true;
+  }
+
+  moveColumn(columnKey, beforeColumnKey) {
+    const order = [...this.state.columnOrder];
+    const fromIndex = order.indexOf(String(columnKey));
+    const toIndex = order.indexOf(String(beforeColumnKey));
+
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+      return false;
+    }
+
+    const [moved] = order.splice(fromIndex, 1);
+    order.splice(toIndex, 0, moved);
+    return this.setColumnOrder(order);
   }
 
   setColumnVisibility(columnKey, isVisible) {
@@ -303,6 +390,8 @@ export class TableState {
       pageSize: this.state.pageSize,
       filters: { ...this.state.filters },
       columnVisibility: { ...this.state.columnVisibility },
+      columnWidths: { ...this.state.columnWidths },
+      columnOrder: [...this.state.columnOrder],
     };
   }
 
@@ -348,6 +437,16 @@ export class TableState {
 
     if (snapshot.columnVisibility && typeof snapshot.columnVisibility === "object") {
       changed = this.setColumnVisibilityMap(snapshot.columnVisibility) || changed;
+    }
+
+    if (snapshot.columnWidths && typeof snapshot.columnWidths === "object") {
+      Object.entries(snapshot.columnWidths).forEach(([key, width]) => {
+        changed = this.setColumnWidth(key, width) || changed;
+      });
+    }
+
+    if (Array.isArray(snapshot.columnOrder)) {
+      changed = this.setColumnOrder(snapshot.columnOrder) || changed;
     }
 
     return changed;
