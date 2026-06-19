@@ -31,6 +31,7 @@ export class TableState {
       nextCursor: null,
       prevCursor: null,
       cursorHistory: { 1: null },
+      aggregates: {},
       loading: false,
       error: null,
       expandedRowIds: new Set(),
@@ -458,6 +459,10 @@ export class TableState {
       Number(payload?.totalItems ?? payload?.total) || this.state.rawData.length;
     this.state.nextCursor = payload?.nextCursor ?? null;
     this.state.prevCursor = payload?.prevCursor ?? null;
+    this.state.aggregates =
+      payload?.aggregates && typeof payload.aggregates === "object"
+        ? payload.aggregates
+        : {};
     this.state.error = null;
     this.state.expandedRowIds.clear();
   }

@@ -29,6 +29,9 @@ export class MetaRenderer {
     }
 
     elements.tbody.innerHTML = rowsHtml;
+    if (elements.tfoot) {
+      elements.tfoot.innerHTML = "";
+    }
     elements.meta.textContent = options.language.loading;
     if (elements.pagination) {
       elements.pagination.innerHTML = "";
@@ -47,6 +50,9 @@ export class MetaRenderer {
         </td>
       </tr>
     `;
+    if (elements.tfoot) {
+      elements.tfoot.innerHTML = "";
+    }
     elements.meta.textContent = options.language.error;
     if (elements.pagination) {
       elements.pagination.innerHTML = "";

@@ -923,6 +923,10 @@ export class DogTable {
     this.tableRenderer.renderBody(displayRows);
   }
 
+  renderFooter(processed) {
+    this.tableRenderer.renderFooter(processed);
+  }
+
   renderMeta(processed) {
     this.metaRenderer.renderMeta(processed);
   }
@@ -1179,6 +1183,7 @@ export class DogTable {
 
     this.saveState();
     this.renderBody(processed.displayRows);
+    this.renderFooter(processed);
     this.renderMeta(processed);
     this.renderPagination(processed);
     this.rememberQueryPagination({

@@ -48,6 +48,7 @@ export class TableRenderer {
           <table class="${tableClass}">
             <thead class="${theme.get("thead")}"></thead>
             <tbody class="${theme.get("tbody")}"></tbody>
+            <tfoot class="dt-tfoot"></tfoot>
           </table>
         </div>
         <div
@@ -68,6 +69,7 @@ export class TableRenderer {
     );
     this.table.elements.thead = container.querySelector("thead");
     this.table.elements.tbody = container.querySelector("tbody");
+    this.table.elements.tfoot = container.querySelector("tfoot");
     this.table.elements.pagination = container.querySelector(
       "[aria-label='Pagination controls']"
     );
@@ -420,7 +422,8 @@ export class TableRenderer {
     const groupCell = document.createElement("td");
     groupCell.className = theme.get("groupCell");
     groupCell.colSpan = this.table.getVisibleColumnCount();
-    groupCell.textContent = item.label;
+    const summary = this.table.dataEngine.formatAggregateSummary(item.aggregates);
+    groupCell.textContent = summary ? `${item.label} - ${summary}` : item.label;
 
     groupRow.appendChild(groupCell);
     return groupRow;
@@ -433,8 +436,50 @@ export class TableRenderer {
     if (groupCell) {
       groupCell.className = theme.get("groupCell");
       groupCell.colSpan = this.table.getVisibleColumnCount();
-      groupCell.textContent = item.label;
+      const summary = this.table.dataEngine.formatAggregateSummary(item.aggregates);
+      groupCell.textContent = summary ? `${item.label} - ${summary}` : item.label;
     }
+  }
+
+  renderFooter(processed) {
+    const { elements, theme, options } = this.table;
+
+    if (!elements.tfoot) {
+      return;
+    }
+
+    const aggregateConfig = options.footerAggregates;
+    const aggregates = processed?.aggregates || {};
+
+    if (!aggregateConfig || Object.keys(aggregateConfig).length === 0) {
+      elements.tfoot.innerHTML = "";
+      return;
+    }
+
+    const leadingCells = [];
+
+    if (options.selectable) {
+      leadingCells.push(`<td class="${theme.get("bodyCell")}"></td>`);
+    }
+
+    if (this.table.hasRowDetail()) {
+      leadingCells.push(`<td class="${theme.get("bodyCell")}"></td>`);
+    }
+
+    const cells = this.table.getVisibleColumns()
+      .map((column) => {
+        const key = column.accessor || column.key;
+        const value = aggregates[key];
+
+        return `
+          <td class="${theme.get("bodyCell")} dt-aggregate-cell">
+            ${value == null ? "" : escapeHtml(value)}
+          </td>
+        `;
+      })
+      .join("");
+
+    elements.tfoot.innerHTML = `<tr>${leadingCells.join("")}${cells}</tr>`;
   }
 
   _createDetailRow(row, rowId, theme) {

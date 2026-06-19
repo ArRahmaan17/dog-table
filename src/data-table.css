@@ -139,6 +139,12 @@ thead .dt-sticky-column {
   text-transform: uppercase;
 }
 
+.dt-aggregate-cell {
+  background: #f8fbfd;
+  color: #243b53;
+  font-weight: 700;
+}
+
 .dt-group-row {
   content-visibility: auto;
   contain-intrinsic-size: auto 40px;

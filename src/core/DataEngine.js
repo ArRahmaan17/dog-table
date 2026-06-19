@@ -80,6 +80,55 @@ export class DataEngine {
     );
   }
 
+  getAggregateValue(rows, field, operation) {
+    const values = rows
+      .map((row) => row?.[field])
+      .filter((value) => value != null && value !== "");
+
+    if (operation === "count") {
+      return values.length;
+    }
+
+    const numbers = values
+      .map((value) => Number(value))
+      .filter((value) => Number.isFinite(value));
+
+    if (numbers.length === 0) {
+      return 0;
+    }
+
+    if (operation === "avg") {
+      return numbers.reduce((total, value) => total + value, 0) / numbers.length;
+    }
+
+    if (operation === "min") {
+      return Math.min(...numbers);
+    }
+
+    if (operation === "max") {
+      return Math.max(...numbers);
+    }
+
+    return numbers.reduce((total, value) => total + value, 0);
+  }
+
+  computeAggregates(rows, config) {
+    if (!config || typeof config !== "object") {
+      return {};
+    }
+
+    return Object.entries(config).reduce((result, [field, operation]) => {
+      result[field] = this.getAggregateValue(rows, field, operation);
+      return result;
+    }, {});
+  }
+
+  formatAggregateSummary(aggregates = {}) {
+    return Object.entries(aggregates)
+      .map(([field, value]) => `${field}: ${value}`)
+      .join(" · ");
+  }
+
   ensureWorker() {
     if (this.worker) {
       return this.worker;
@@ -384,6 +433,10 @@ export class DataEngine {
           groupValue: group.value,
           label: this.table.getGroupLabel(group.value, group.rows),
           count: group.rows.length,
+          aggregates: this.computeAggregates(
+            group.rows,
+            this.table.options.groupAggregates
+          ),
         });
 
         group.rows.forEach((row) => {
@@ -433,6 +486,9 @@ export class DataEngine {
       rows,
       filteredRows,
       displayRows: this.buildDisplayRows(rows),
+      aggregates: this.isRemote()
+        ? state.aggregates || {}
+        : this.computeAggregates(filteredRows, this.table.options.footerAggregates),
       totalItems,
       totalPages,
       currentPage,
