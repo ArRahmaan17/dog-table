@@ -568,6 +568,7 @@ const safe = escapeHtml("<script>alert('xss')</script>");
 
 - Demo gallery: [index.html](./index.html)
 - Hosted demos: https://arrahmaan17.github.io/dog-table/
+- Query cache guide: [demo/query-cache.html](./demo/query-cache.html)
 - Example files: [`demo/`](./demo/basic.html)
 
 ## Documentation

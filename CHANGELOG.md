@@ -15,6 +15,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Lookup Cache:** Column lookup dan row-id lookup sekarang memakai `Map` internal untuk menghindari repeated linear scans pada sort, visibility toggle, dan inline editing.
 
 ### Docs
+* **Query Cache Guide:** Memindahkan query cache guide ke folder `demo/` dan memperbarui tautan gallery/docs agar memakai path baru.
 * **Remote Demo:** Menambahkan contoh `fetchDebounce` dan catatan deduplication pada demo remote.
 * **Pagination Guard Demo:** Menambahkan local display-row cache check untuk memastikan perubahan halaman tetap menampilkan slice yang benar.
 * **Grouping Demo:** Menambahkan catatan keyed rendering untuk group/detail rows.
