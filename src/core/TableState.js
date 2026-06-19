@@ -18,6 +18,7 @@ export class TableState {
       columnVisibility: {},
       selectedRows: new Set(),
       searchQuery: "",
+      filters: {},
       sortKey: initialSort ? initialSort.key : null,
       sortDirection:
         initialSort && initialSort.direction === "desc" ? "desc" : "asc",
@@ -145,6 +146,29 @@ export class TableState {
     return true;
   }
 
+  setFilters(filters = {}) {
+    const nextFilters = Object.entries(filters || {}).reduce((result, [key, value]) => {
+      if (value == null || String(value) === "") {
+        return result;
+      }
+
+      result[key] = value;
+      return result;
+    }, {});
+
+    if (JSON.stringify(this.state.filters) === JSON.stringify(nextFilters)) {
+      return false;
+    }
+
+    this.state.filters = nextFilters;
+    this.state.currentPage = 1;
+    return true;
+  }
+
+  clearFilters() {
+    return this.setFilters({});
+  }
+
   setSort(sortKey, direction = "asc") {
     const nextDirection = direction === "desc" ? "desc" : "asc";
 
@@ -260,6 +284,7 @@ export class TableState {
       sortDirection: this.state.sortDirection,
       currentPage: this.state.currentPage,
       pageSize: this.state.pageSize,
+      filters: { ...this.state.filters },
       columnVisibility: { ...this.state.columnVisibility },
     };
   }
@@ -294,6 +319,10 @@ export class TableState {
       this.state.pageSize = nextPageSize;
     }
 
+    if (snapshot.filters && typeof snapshot.filters === "object") {
+      changed = this.setFilters(snapshot.filters) || changed;
+    }
+
     if (snapshot.currentPage !== undefined) {
       const nextPage = this.clampPage(snapshot.currentPage);
       changed = changed || this.state.currentPage !== nextPage;
@@ -324,6 +353,7 @@ export class TableState {
 
   reset() {
     this.state.searchQuery = "";
+    this.state.filters = {};
     this.state.sortKey = null;
     this.state.sortDirection = "asc";
     this.state.currentPage = 1;

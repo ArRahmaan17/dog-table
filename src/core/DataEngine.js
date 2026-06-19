@@ -6,6 +6,7 @@ export class DataEngine {
       filtered: null,
       sorted: null,
       searchQuery: null,
+      filters: null,
       sortKey: null,
       sortDirection: null,
     };
@@ -24,6 +25,7 @@ export class DataEngine {
     this.cache.filtered = null;
     this.cache.sorted = null;
     this.cache.searchQuery = null;
+    this.cache.filters = null;
     this.cache.sortKey = null;
     this.cache.sortDirection = null;
     this._displayRowsCache = null;
@@ -56,6 +58,10 @@ export class DataEngine {
       typeof Worker === "undefined" ||
       typeof this.table.options.groupBy === "function"
     ) {
+      return false;
+    }
+
+    if (state.filters && Object.keys(state.filters).length > 0) {
       return false;
     }
 
@@ -174,11 +180,13 @@ export class DataEngine {
   }
 
   filterRows(state) {
-    const { rawData, columns, searchQuery } = state;
+    const { rawData, columns, searchQuery, filters } = state;
+    const filterKey = JSON.stringify(filters || {});
 
     if (
       this.cache.rawData === rawData &&
       this.cache.searchQuery === searchQuery &&
+      this.cache.filters === filterKey &&
       this.cache.filtered
     ) {
       return this.cache.filtered;
@@ -209,8 +217,44 @@ export class DataEngine {
       );
     }
 
+    if (!this.isRemote() && filters && Object.keys(filters).length > 0) {
+      filtered = filtered.filter((row) =>
+        Object.entries(filters).every(([field, query]) => {
+          const column =
+            columns.find(
+              (item) => item.key === field || item.accessor === field
+            ) || { key: field };
+          const key = column.accessor || column.key || field;
+          const value = row[key];
+
+          if (typeof column.filterValue === "function") {
+            return column.filterValue({
+              value,
+              row,
+              field,
+              query,
+              filters,
+            });
+          }
+
+          if (value == null) {
+            return false;
+          }
+
+          if (column.filterType === "select" || column.filterType === "date") {
+            return String(value) === String(query);
+          }
+
+          return String(value)
+            .toLowerCase()
+            .includes(String(query).toLowerCase());
+        })
+      );
+    }
+
     this.cache.rawData = rawData;
     this.cache.searchQuery = searchQuery;
+    this.cache.filters = filterKey;
     this.cache.filtered = filtered;
     this.cache.sorted = null;
 

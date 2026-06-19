@@ -45,6 +45,26 @@ export class DataFetcher {
       params.delete(queryKeys.search);
     }
 
+    const filters = state.filters || {};
+    const filterParams =
+      typeof this.config.filterParams === "function"
+        ? this.config.filterParams(filters, state)
+        : filters;
+
+    if (filterParams instanceof URLSearchParams) {
+      filterParams.forEach((value, key) => {
+        params.set(key, value);
+      });
+    } else if (filterParams && typeof filterParams === "object") {
+      Object.entries(filterParams).forEach(([key, value]) => {
+        if (value == null || String(value) === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+    }
+
     if (typeof this.config.buildQuery === "function") {
       const nextParams = this.config.buildQuery(params, state);
       if (nextParams instanceof URLSearchParams) {

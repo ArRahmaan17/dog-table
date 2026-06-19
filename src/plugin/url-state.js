@@ -33,9 +33,16 @@ export class UrlStatePlugin {
 
     const params = new URLSearchParams(window.location.search);
     const visibility = {};
+    const filters = {};
 
     params.getAll("hidden").forEach((key) => {
       visibility[key] = false;
+    });
+
+    params.forEach((value, key) => {
+      if (key.startsWith("filter.")) {
+        filters[key.slice(7)] = value;
+      }
     });
 
     const snapshot = {
@@ -43,6 +50,7 @@ export class UrlStatePlugin {
       currentPage: params.get("page") || undefined,
       pageSize: params.get("pageSize") || undefined,
       ...readSort(params.get("sort")),
+      filters: Object.keys(filters).length > 0 ? filters : undefined,
       columnVisibility:
         Object.keys(visibility).length > 0 ? visibility : undefined,
     };
@@ -75,9 +83,19 @@ export class UrlStatePlugin {
     }
 
     url.searchParams.delete("hidden");
+    [...url.searchParams.keys()]
+      .filter((key) => key.startsWith("filter."))
+      .forEach((key) => url.searchParams.delete(key));
+
     Object.entries(state.columnVisibility || {}).forEach(([key, isVisible]) => {
       if (!isVisible) {
         url.searchParams.append("hidden", key);
+      }
+    });
+
+    Object.entries(state.filters || {}).forEach(([key, value]) => {
+      if (value != null && String(value) !== "") {
+        url.searchParams.set(`filter.${key}`, value);
       }
     });
 

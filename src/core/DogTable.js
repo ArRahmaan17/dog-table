@@ -62,6 +62,7 @@ export class DogTable {
       },
       initialSort: null,
       searchDebounce: 250,
+      filterDebounce: 250,
       fetchDebounce: 0,
       theme: "default",
       classNames: {},
@@ -75,6 +76,7 @@ export class DogTable {
       persistenceKey: null,
       urlState: false,
       selectable: false,
+      filterRow: false,
       paginationGuard: false,
       virtualScroll: false,
       dataWorker: false,
@@ -507,6 +509,36 @@ export class DogTable {
 
   clearSearch() {
     this.setSearch("");
+  }
+
+  setFilters(filters = {}) {
+    if (this.isRemote()) {
+      this.rememberQueryPagination();
+    }
+
+    if (!this.tableState.setFilters(filters)) {
+      return;
+    }
+
+    this.restoreQueryPagination();
+    this.saveState();
+    this.dataEngine.reset();
+    this.update();
+  }
+
+  setFilter(field, value) {
+    this.setFilters({
+      ...this.state.filters,
+      [field]: value,
+    });
+  }
+
+  clearFilters() {
+    if (this.tableState.clearFilters()) {
+      this.saveState();
+      this.dataEngine.reset();
+      this.update();
+    }
   }
 
   openCreateModal() {

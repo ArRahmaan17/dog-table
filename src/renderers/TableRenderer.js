@@ -74,7 +74,8 @@ export class TableRenderer {
   renderHeader(rows = []) {
     const { options, state, theme, elements } = this.table;
     const isAllSelected = options.selectable && this.table.isAllSelected(rows);
-    const headers = this.table.getVisibleColumns()
+    const visibleColumns = this.table.getVisibleColumns();
+    const headers = visibleColumns
       .map((column) => {
         const isSorted = state.sortKey === column.key;
         const direction = isSorted ? state.sortDirection : "none";
@@ -82,6 +83,10 @@ export class TableRenderer {
         const label = escapeHtml(column.label ?? column.key);
         const indicator =
           direction === "asc" ? " ▲" : direction === "desc" ? " ▼" : "";
+
+        const filter = options.filterRow
+          ? this.renderFilterControl(column)
+          : "";
 
         return `
           <th
@@ -99,6 +104,7 @@ export class TableRenderer {
               .join(" ")}"
           >
             <span>${label}${indicator}</span>
+            ${filter}
           </th>
         `;
       })
@@ -128,6 +134,64 @@ export class TableRenderer {
         bulk.indeterminate = isSome && !isAll;
       }
     }
+  }
+
+  renderFilterControl(column) {
+    const key = column.accessor || column.key;
+
+    if (!key || column.filterable === false) {
+      return "";
+    }
+
+    const value = this.table.state.filters?.[key] ?? "";
+    const label = column.label || key;
+    const filterType = column.filterType || "text";
+
+    if (filterType === "select") {
+      const options = (column.filterOptions || column.options || [])
+        .map((option) => {
+          const optionValue =
+            option && typeof option === "object" ? option.value : option;
+          const optionLabel =
+            option && typeof option === "object"
+              ? option.label ?? optionValue
+              : option;
+
+          return `
+            <option
+              value="${escapeHtml(optionValue ?? "")}"
+              ${String(value) === String(optionValue ?? "") ? "selected" : ""}
+            >
+              ${escapeHtml(optionLabel ?? "")}
+            </option>
+          `;
+        })
+        .join("");
+
+      return `
+        <select
+          class="dt-filter-control"
+          data-filter-field="${escapeHtml(key)}"
+          aria-label="Filter ${escapeHtml(label)}"
+        >
+          <option value=""></option>
+          ${options}
+        </select>
+      `;
+    }
+
+    const type = filterType === "date" ? "date" : "text";
+
+    return `
+      <input
+        class="dt-filter-control"
+        type="${type}"
+        value="${escapeHtml(value)}"
+        data-filter-field="${escapeHtml(key)}"
+        placeholder="${escapeHtml(column.filterPlaceholder || "")}"
+        aria-label="Filter ${escapeHtml(label)}"
+      />
+    `;
   }
 
   renderDetailContent(row, rowId) {

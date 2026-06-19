@@ -5,6 +5,7 @@ export class EventBinder {
     this.table = table;
     this.boundHandlers = {};
     this.debouncedSearch = null;
+    this.debouncedFilter = null;
   }
 
   bind() {
@@ -13,6 +14,10 @@ export class EventBinder {
     const { elements, state, container } = this.table;
 
     this.boundHandlers.onHeadClick = (event) => {
+      if (event.target.closest("[data-filter-field]")) {
+        return;
+      }
+
       const header = event.target.closest("th[data-column]");
 
       if (!header || header.dataset.sortable === "false" || state.loading) {
@@ -23,6 +28,10 @@ export class EventBinder {
     };
 
     this.boundHandlers.onHeadKeydown = (event) => {
+      if (event.target.closest("[data-filter-field]")) {
+        return;
+      }
+
       const header = event.target.closest("th[data-column]");
 
       if (
@@ -136,6 +145,37 @@ export class EventBinder {
     elements.thead.addEventListener("click", this.boundHandlers.onHeadClick);
     elements.thead.addEventListener("keydown", this.boundHandlers.onHeadKeydown);
     elements.thead.addEventListener("change", this.boundHandlers.onBulkCheck);
+
+    if (this.table.options.filterRow) {
+      const handleFilter = (input) => {
+        this.table.setFilter(input.dataset.filterField, input.value);
+      };
+
+      this.debouncedFilter =
+        this.table.options.filterDebounce > 0
+          ? debounce(handleFilter, this.table.options.filterDebounce)
+          : handleFilter;
+
+      this.boundHandlers.onFilterInput = (event) => {
+        const input = event.target.closest("input[data-filter-field]");
+
+        if (input) {
+          this.debouncedFilter(input);
+        }
+      };
+
+      this.boundHandlers.onFilterChange = (event) => {
+        const input = event.target.closest("select[data-filter-field], input[type='date'][data-filter-field]");
+
+        if (input) {
+          handleFilter(input);
+        }
+      };
+
+      elements.thead.addEventListener("input", this.boundHandlers.onFilterInput);
+      elements.thead.addEventListener("change", this.boundHandlers.onFilterChange);
+    }
+
     elements.tbody.addEventListener("change", this.boundHandlers.onRowCheck);
     elements.tbody.addEventListener("click", this.boundHandlers.onBodyClick);
     elements.pagination.addEventListener(
@@ -205,6 +245,14 @@ export class EventBinder {
       );
     }
 
+    if (elements.thead && this.boundHandlers.onFilterInput) {
+      elements.thead.removeEventListener("input", this.boundHandlers.onFilterInput);
+    }
+
+    if (elements.thead && this.boundHandlers.onFilterChange) {
+      elements.thead.removeEventListener("change", this.boundHandlers.onFilterChange);
+    }
+
     if (container && this.boundHandlers.onLiveToggle) {
       container.removeEventListener("click", this.boundHandlers.onLiveToggle);
     }
@@ -225,6 +273,11 @@ export class EventBinder {
       this.debouncedSearch.cancel();
     }
 
+    if (this.debouncedFilter && typeof this.debouncedFilter.cancel === "function") {
+      this.debouncedFilter.cancel();
+    }
+
     this.debouncedSearch = null;
+    this.debouncedFilter = null;
   }
 }

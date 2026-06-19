@@ -77,6 +77,20 @@
   user-select: none;
 }
 
+.dt-filter-control {
+  display: block;
+  width: 100%;
+  min-width: 120px;
+  margin-top: 8px;
+  border: 1px solid #bcccdc;
+  border-radius: 8px;
+  padding: 7px 8px;
+  background: #ffffff;
+  color: #1f2933;
+  font: inherit;
+  font-size: 0.82rem;
+}
+
 .dt-table tbody tr:hover {
   background: rgba(45, 125, 154, 0.06);
 }
