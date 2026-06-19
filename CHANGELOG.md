@@ -12,6 +12,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Opt-in Virtual Scrolling:** Menambahkan opsi `virtualScroll` untuk mendelegasikan body rendering ke viewport renderer pada tabel lokal besar.
 * **Opt-in Data Worker:** Menambahkan opsi `dataWorker` untuk filtering/sorting lokal dataset besar yang eligible di Web Worker, dengan hasil berupa row indexes agar referensi row utama tetap stabil.
 * **Lazy Column Paint Hints:** Menambahkan opsi `lazyColumns` untuk memberi browser-native lazy painting hints pada header/body cells di tabel lebar.
+* **Lookup Cache:** Column lookup dan row-id lookup sekarang memakai `Map` internal untuk menghindari repeated linear scans pada sort, visibility toggle, dan inline editing.
 
 ### Docs
 * **Remote Demo:** Menambahkan contoh `fetchDebounce` dan catatan deduplication pada demo remote.
@@ -19,7 +20,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Grouping Demo:** Menambahkan catatan keyed rendering untuk group/detail rows.
 * **Basic Demo:** Menambahkan snippet untuk `virtualScroll`, `dataWorker`, dan `lazyColumns` pada tabel lokal tanpa pagination.
 * **Wiki:** Menambahkan dokumentasi display-row cache, request-key deduplication, rAF render batching, `fetchDebounce`, `virtualScroll`, `dataWorker`, dan `lazyColumns`.
-* **Execution Tracker:** Menandai Phase 1 quick wins, Phase 2 renderer optimizations, dan Phase 3 major refactors sebagai selesai.
+* **Execution Tracker:** Menandai semua fase performance plan sebagai selesai.
 
 ## [1.5.1] — 2026-05-20
 ### Added

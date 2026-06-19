@@ -84,13 +84,13 @@ export class EventBinder {
 
       const rowId = td.closest("tr")?.dataset.rowId;
       const field = td.dataset.field;
-      const column = state.columns.find((item) => (item.accessor || item.key) === field);
+      const column = this.table.getColumnByField(field);
 
       if (!column?.editable || !rowId) {
         return;
       }
 
-      const row = state.rawData.find((item) => this.table.getRowId(item) === rowId);
+      const row = this.table.getRowById(rowId);
       this.table.editor.startEditing(td, rowId, field, row ? row[field] : "", row);
     };
 

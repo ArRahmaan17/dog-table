@@ -106,6 +106,9 @@ export class DogTable {
     this.fetcher = this.remoteAdapter.fetcher;
     this.rowIds = new WeakMap();
     this.rowIdCounter = 0;
+    this.rowLookup = new Map();
+    this.rowLookupDataRef = null;
+    this.columnLookup = new Map();
     this.highlightTimeoutId = null;
     this.syncStatusTimeoutId = null;
     this.toastTimeoutId = null;
@@ -127,6 +130,7 @@ export class DogTable {
     this.virtualScroller = new VirtualScroller(this);
     this.eventBinder = new EventBinder(this);
     this.boundHandlers = this.eventBinder.boundHandlers;
+    this.rebuildColumnLookup();
     this.plugins = new PluginManager(this);
     this.plugins.initialize();
     this.tableState.normalizeConstraints();
@@ -242,6 +246,51 @@ export class DogTable {
     this.tableState.normalizeConstraints();
   }
 
+  rebuildColumnLookup() {
+    this.columnLookup.clear();
+
+    this.state.columns.forEach((column) => {
+      if (column.key != null) {
+        this.columnLookup.set(String(column.key), column);
+      }
+
+      if (column.accessor != null) {
+        this.columnLookup.set(String(column.accessor), column);
+      }
+    });
+  }
+
+  getColumn(columnKey) {
+    return this.columnLookup.get(String(columnKey));
+  }
+
+  getColumnByField(field) {
+    return this.getColumn(field);
+  }
+
+  resetRowLookup() {
+    this.rowLookup.clear();
+    this.rowLookupDataRef = null;
+  }
+
+  rebuildRowLookup() {
+    this.rowLookup.clear();
+
+    this.state.rawData.forEach((row) => {
+      this.rowLookup.set(this.getRowId(row), row);
+    });
+
+    this.rowLookupDataRef = this.state.rawData;
+  }
+
+  getRowById(rowId) {
+    if (this.rowLookupDataRef !== this.state.rawData) {
+      this.rebuildRowLookup();
+    }
+
+    return this.rowLookup.get(String(rowId)) || null;
+  }
+
   rememberQueryPagination(overrides = {}) {
     if (!this.isRemote() || !this.isPaginationEnabled()) {
       return;
@@ -348,7 +397,7 @@ export class DogTable {
   }
 
   toggleSort(columnKey) {
-    const column = this.state.columns.find((item) => item.key === columnKey);
+    const column = this.getColumn(columnKey);
 
     if (!column || column.sortable === false) {
       return;
@@ -365,7 +414,7 @@ export class DogTable {
       return;
     }
 
-    const column = this.state.columns.find((item) => item.key === sortKey);
+    const column = this.getColumn(sortKey);
 
     if (!column || column.sortable === false) {
       return;
@@ -468,12 +517,14 @@ export class DogTable {
 
   setData(data) {
     this.tableState.setData(data);
+    this.resetRowLookup();
     this.dataEngine.reset();
     this.update();
   }
 
   setColumns(columns) {
     this.tableState.setColumns(columns);
+    this.rebuildColumnLookup();
     this.dataEngine.reset();
     this.update();
   }
@@ -602,7 +653,7 @@ export class DogTable {
   }
 
   toggleColumnVisibility(columnKey, isVisible) {
-    const column = this.state.columns.find((item) => item.key === columnKey);
+    const column = this.getColumn(columnKey);
 
     if (column) {
       column.visible = isVisible;
@@ -742,6 +793,7 @@ export class DogTable {
       }
 
       this.tableState.setRemoteData(payload);
+      this.resetRowLookup();
       this.dataEngine.reset();
 
       const totalPages = this.isPaginationEnabled()
