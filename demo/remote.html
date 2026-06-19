@@ -199,7 +199,10 @@
       <p>This demo uses a live employees endpoint and maps the API response into Dog Table.</p>
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
-        <p>Remote mode only needs the core import plus a <code>remote</code> config that maps your API response.</p>
+        <p>
+          Remote mode only needs the core import plus a <code>remote</code> config that maps your API response.
+          Optional fetch debouncing and request-key deduplication keep rapid state changes from over-fetching.
+        </p>
         <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
 
 &lt;script type="module"&gt;
@@ -207,6 +210,7 @@
 
   const table = new DogTable("#app", {
     pageSize: 6,
+    fetchDebounce: 100,
     remote: {
       url: "https://api.rahmaanms.my.id/api/employees",
       mapResponse(payload, state) {
@@ -260,6 +264,7 @@
 
       const table = new DogTable("#app", {
         pageSize: 6,
+        fetchDebounce: 100,
         loadingText: "Fetching employees from open API...",
         searchPlaceholder: "Search employee, email, role, department...",
         remote: {

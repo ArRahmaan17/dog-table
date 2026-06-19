@@ -10,8 +10,10 @@ export class DataEngine {
       sortDirection: null,
     };
     this._displayRowsCache = null;
-    this._displayRowsRawDataRef = null;
+    this._displayRowsRows = null;
     this._displayRowsGroupBy = null;
+    this._displayRowsGroupLabel = null;
+    this._displayRowsUngroupedLabel = null;
   }
 
   reset() {
@@ -22,7 +24,10 @@ export class DataEngine {
     this.cache.sortKey = null;
     this.cache.sortDirection = null;
     this._displayRowsCache = null;
-    this._displayRowsRawDataRef = null;
+    this._displayRowsRows = null;
+    this._displayRowsGroupBy = null;
+    this._displayRowsGroupLabel = null;
+    this._displayRowsUngroupedLabel = null;
   }
 
   isRemote() {
@@ -133,15 +138,33 @@ export class DataEngine {
     return sorted;
   }
 
-  buildDisplayRows(rows) {
-    const rawDataRef = this.cache.rawData;
-    const groupBy = this.table.options.groupBy;
-
+  hasDisplayRowsCache(rows, groupBy, groupLabel, ungroupedLabel) {
     if (
-      this._displayRowsCache &&
-      this._displayRowsRawDataRef === rawDataRef &&
-      this._displayRowsGroupBy === groupBy
+      !this._displayRowsCache ||
+      !this._displayRowsRows ||
+      this._displayRowsGroupBy !== groupBy ||
+      this._displayRowsGroupLabel !== groupLabel ||
+      this._displayRowsUngroupedLabel !== ungroupedLabel ||
+      this._displayRowsRows.length !== rows.length
     ) {
+      return false;
+    }
+
+    for (let i = 0; i < rows.length; i += 1) {
+      if (this._displayRowsRows[i] !== rows[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  buildDisplayRows(rows) {
+    const groupBy = this.table.options.groupBy;
+    const groupLabel = this.table.options.groupLabel;
+    const ungroupedLabel = this.table.options.language.ungrouped;
+
+    if (this.hasDisplayRowsCache(rows, groupBy, groupLabel, ungroupedLabel)) {
       return this._displayRowsCache;
     }
 
@@ -192,8 +215,10 @@ export class DataEngine {
     }
 
     this._displayRowsCache = result;
-    this._displayRowsRawDataRef = rawDataRef;
+    this._displayRowsRows = rows.slice();
     this._displayRowsGroupBy = groupBy;
+    this._displayRowsGroupLabel = groupLabel;
+    this._displayRowsUngroupedLabel = ungroupedLabel;
 
     return result;
   }

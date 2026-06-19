@@ -265,6 +265,20 @@
       <div class="log" id="log">Table initializing...</div>
       <div id="app"></div>
 
+      <section class="card" aria-labelledby="cache-title">
+        <h2 id="cache-title">Display row cache check</h2>
+        <p>
+          This local table keeps display-row memoization enabled while page changes still render the correct row slice.
+        </p>
+        <div class="toolbar">
+          <button type="button" id="local-page-1">Local page 1</button>
+          <button type="button" id="local-page-2">Local page 2</button>
+          <button type="button" id="local-page-3">Local page 3</button>
+        </div>
+        <div class="log" id="local-cache-log">Local table initializing...</div>
+        <div id="local-app"></div>
+      </section>
+
       <nav class="prev-next" aria-label="Demo navigation">
         <a class="pn-link pn-prev" href="./live-sync.html"><span class="pn-dir">← Previous</span><span class="pn-name">Live Sync</span></a>
         <span class="pn-link pn-disabled"></span>
@@ -278,6 +292,13 @@
       const guardToggle = document.getElementById("guard-toggle");
       const API_URL = "https://api.rahmaanms.my.id/api/employees";
       let table = null;
+      let localTable = null;
+
+      const localRows = Array.from({ length: 12 }, (_, index) => ({
+        id: index + 1,
+        name: `Cache row ${index + 1}`,
+        status: index % 2 === 0 ? "Ready" : "Queued",
+      }));
 
       function buildTable() {
         if (table) {
@@ -320,6 +341,31 @@
         table.init();
       }
 
+      function buildLocalCacheTable() {
+        const localLog = document.getElementById("local-cache-log");
+
+        localTable = new DogTable("#local-app", {
+          data: localRows,
+          pageSize: 4,
+          columns: [
+            { key: "id", label: "ID" },
+            { key: "name", label: "Name" },
+            { key: "status", label: "Status" },
+          ],
+          hooks: {
+            onUpdate(processed) {
+              const ids = processed.rows.map((row) => row.id).join(", ");
+              localLog.textContent = [
+                `page=${processed.currentPage ?? 1}/${processed.totalPages ?? 1}`,
+                `rows=${ids}`,
+              ].join(" | ");
+            },
+          },
+        });
+
+        localTable.init();
+      }
+
       guardToggle.addEventListener("change", buildTable);
       document.getElementById("set-page-10").addEventListener("click", () => table.setPage(10));
       document
@@ -331,8 +377,12 @@
       document
         .getElementById("set-size-50")
         .addEventListener("click", () => table.setPageSize(50));
+      document.getElementById("local-page-1").addEventListener("click", () => localTable.setPage(1));
+      document.getElementById("local-page-2").addEventListener("click", () => localTable.setPage(2));
+      document.getElementById("local-page-3").addEventListener("click", () => localTable.setPage(3));
 
       buildTable();
+      buildLocalCacheTable();
     </script>
   </body>
 </html>

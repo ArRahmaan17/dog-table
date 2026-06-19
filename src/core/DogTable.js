@@ -107,6 +107,14 @@ export class DogTable {
     this.toastTimeoutId = null;
     this._pendingUpdate = false;
     this._fetchPromise = null;
+    this._fetchRequestKey = null;
+    this._fetchSequence = 0;
+    this._activeFetchSequence = 0;
+    this._updatePromise = null;
+    this._queuedSkipFetch = true;
+    this._debouncedFetchPromise = null;
+    this._resolveDebouncedFetch = null;
+    this._rejectDebouncedFetch = null;
     this.tableRenderer = new TableRenderer(this);
     this.paginationRenderer = new PaginationRenderer(this);
     this.metaRenderer = new MetaRenderer(this);
@@ -120,7 +128,14 @@ export class DogTable {
 
     if (this.options.fetchDebounce > 0) {
       this._debouncedFetch = debounce(() => {
-        this._executeFetch();
+        const resolve = this._resolveDebouncedFetch;
+        const reject = this._rejectDebouncedFetch;
+
+        this._debouncedFetchPromise = null;
+        this._resolveDebouncedFetch = null;
+        this._rejectDebouncedFetch = null;
+
+        this._executeFetch().then(resolve, reject);
       }, this.options.fetchDebounce);
     }
   }
@@ -200,7 +215,7 @@ export class DogTable {
   }
 
   rememberQueryPagination(overrides = {}) {
-    if (!this.isRemote()) {
+    if (!this.isRemote() || !this.isPaginationEnabled()) {
       return;
     }
 
@@ -227,7 +242,7 @@ export class DogTable {
   }
 
   restoreQueryPagination() {
-    if (!this.isRemote()) {
+    if (!this.isRemote() || !this.isPaginationEnabled()) {
       return false;
     }
 
@@ -638,22 +653,34 @@ export class DogTable {
       return;
     }
 
-    if (this._fetchPromise) {
+    const requestKey = this.remoteAdapter.getRequestKey(this.state, {
+      includePagination: this.isPaginationEnabled(),
+    });
+
+    if (this._fetchPromise && this._fetchRequestKey === requestKey) {
       return this._fetchPromise;
     }
 
-    this._fetchPromise = this._doFetch().finally(() => {
-      this._fetchPromise = null;
+    const fetchSequence = this._fetchSequence + 1;
+    this._fetchSequence = fetchSequence;
+    this._activeFetchSequence = fetchSequence;
+    this._fetchRequestKey = requestKey;
+
+    const fetchPromise = this._doFetch(fetchSequence).finally(() => {
+      if (this._fetchPromise === fetchPromise) {
+        this._fetchPromise = null;
+        this._fetchRequestKey = null;
+      }
     });
 
-    return this._fetchPromise;
+    this._fetchPromise = fetchPromise;
+
+    return fetchPromise;
   }
 
-  async _doFetch() {
-    console.log("[_doFetch] START - setting loading=true");
+  async _doFetch(fetchSequence = this._activeFetchSequence) {
     this.setLoading(true);
     this.tableState.setError(null);
-    console.log("[_doFetch] renderLoading() called, state.loading =", this.state.loading);
     this.renderLoading();
 
     if (typeof this.options.hooks.onFetchStart === "function") {
@@ -665,7 +692,9 @@ export class DogTable {
         includePagination: this.isPaginationEnabled(),
       });
 
-      console.log("[_doFetch] FETCH SUCCESS - payload rows:", payload?.rows?.length, "totalItems:", payload?.totalItems);
+      if (fetchSequence !== this._activeFetchSequence) {
+        return;
+      }
 
       this.tableState.setRemoteData(payload);
       this.dataEngine.reset();
@@ -673,14 +702,11 @@ export class DogTable {
       const totalPages = this.isPaginationEnabled()
         ? Math.max(1, Math.ceil(this.state.totalItems / this.state.pageSize))
         : 1;
-      console.log("[_doFetch] totalPages:", totalPages, "currentPage:", this.state.currentPage);
       if (this.state.currentPage > totalPages && totalPages > 0) {
-        console.log("[_doFetch] currentPage > totalPages, recursive _doFetch()");
         this.tableState.syncCurrentPage(totalPages);
-        return this._doFetch();
+        return this._doFetch(fetchSequence);
       }
 
-      console.log("[_doFetch] calling live.handleFetchSuccess()");
       this.live.handleFetchSuccess(payload);
 
       if (typeof this.options.hooks.onFetchSuccess === "function") {
@@ -693,10 +719,7 @@ export class DogTable {
     } catch (error) {
       this.dataEngine.reset();
 
-      console.log("[_doFetch] CATCH - error:", error.name, error.message);
-
-      if (error.name === "AbortError") {
-        console.log("[_doFetch] AbortError - returning early");
+      if (error.name === "AbortError" || fetchSequence !== this._activeFetchSequence) {
         return;
       }
 
@@ -707,8 +730,9 @@ export class DogTable {
         this.options.hooks.onFetchError(error);
       }
     } finally {
-      console.log("[_doFetch] FINALLY - setting loading=false");
-      this.setLoading(false);
+      if (fetchSequence === this._activeFetchSequence) {
+        this.setLoading(false);
+      }
     }
   }
 
@@ -718,17 +742,46 @@ export class DogTable {
     }
 
     if (this._debouncedFetch) {
+      if (!this._debouncedFetchPromise) {
+        this._debouncedFetchPromise = new Promise((resolve, reject) => {
+          this._resolveDebouncedFetch = resolve;
+          this._rejectDebouncedFetch = reject;
+        });
+      }
+
       this._debouncedFetch();
-    } else {
-      return this._executeFetch();
+      return this._debouncedFetchPromise;
     }
+
+    return this._executeFetch();
   }
 
   fetchNow() {
+    const resolve = this._resolveDebouncedFetch;
+    const reject = this._rejectDebouncedFetch;
+
     if (this._debouncedFetch) {
       this._debouncedFetch.cancel();
     }
-    return this._executeFetch();
+
+    this._debouncedFetchPromise = null;
+    this._resolveDebouncedFetch = null;
+    this._rejectDebouncedFetch = null;
+
+    return this._executeFetch().then(
+      (result) => {
+        if (resolve) {
+          resolve(result);
+        }
+        return result;
+      },
+      (error) => {
+        if (reject) {
+          reject(error);
+        }
+        throw error;
+      }
+    );
   }
 
   emitHooks(processed) {
@@ -794,116 +847,79 @@ export class DogTable {
   }
 
   async update({ skipFetch = false } = {}) {
-    console.log("[update] called - skipFetch:", skipFetch, "_pendingUpdate:", this._pendingUpdate, "isRemote:", this.isRemote());
-    if (this._pendingUpdate) {
-      console.log("[update] waiting for pendingUpdate to clear");
-      return new Promise((resolve) => {
-        const check = () => {
-          if (!this._pendingUpdate) {
+    this._queuedSkipFetch = this._updatePromise
+      ? this._queuedSkipFetch && skipFetch
+      : skipFetch;
+
+    if (!this._updatePromise) {
+      this._pendingUpdate = true;
+
+      this._updatePromise = new Promise((resolve) => {
+        requestAnimationFrame(async () => {
+          const queuedSkipFetch = this._queuedSkipFetch;
+
+          this._queuedSkipFetch = true;
+
+          try {
+            await this._runUpdate({ skipFetch: queuedSkipFetch });
+          } finally {
+            this._pendingUpdate = false;
+            this._updatePromise = null;
             resolve();
-          } else {
-            requestAnimationFrame(check);
           }
-        };
-        requestAnimationFrame(check);
+        });
       });
     }
 
-    this._pendingUpdate = true;
-
-    return new Promise((resolve) => {
-      requestAnimationFrame(async () => {
-        console.log("[update] requestAnimationFrame fired - starting work");
-        if (this.isRemote() && !skipFetch) {
-          console.log("[update] calling fetchData()");
-          await this.fetchData();
-        }
-
-        const processed = this.getProcessedData();
-        console.log("[update] processed data - rows:", processed.rows?.length, "loading:", this.state.loading, "error:", this.state.error);
-
-        this.renderHeader(processed.rows);
-
-        if (this.state.error) {
-          console.log("[update] rendering error state");
-          this.renderError();
-          this._pendingUpdate = false;
-          resolve();
-          return;
-        }
-
-        if (this.state.loading) {
-          console.log("[update] STUCK ON LOADING - state.loading is true, rendering skeleton");
-          this.renderLoading();
-          this._pendingUpdate = false;
-          resolve();
-          return;
-        }
-
-        console.log("[update] rendering success - displayRows:", processed.displayRows?.length);
-        this.saveState();
-        this.renderBody(processed.displayRows);
-        this.renderMeta(processed);
-        this.renderPagination(processed);
-        this.rememberQueryPagination({
-          totalItems: processed.totalItems,
-          totalPages: processed.totalPages,
-        });
-        this.renderToast();
-        this.create.updateUI();
-        this.live.updateUI();
-        this.emitHooks(processed);
-        this._pendingUpdate = false;
-        console.log("[update] COMPLETE - resolved");
-        resolve();
-      });
-    });
+    return this._updatePromise;
   }
 
-  updateSync({ skipFetch = false } = {}) {
-    if (this._pendingUpdate) {
+  async _runUpdate({ skipFetch = false } = {}) {
+    if (this.isRemote() && !skipFetch) {
+      await this.fetchData();
+    }
+
+    const processed = this.getProcessedData();
+
+    this.renderHeader(processed.rows);
+
+    if (this.state.error) {
+      this.renderError();
       return;
     }
 
+    if (this.state.loading) {
+      this.renderLoading();
+      return;
+    }
+
+    this.saveState();
+    this.renderBody(processed.displayRows);
+    this.renderMeta(processed);
+    this.renderPagination(processed);
+    this.rememberQueryPagination({
+      totalItems: processed.totalItems,
+      totalPages: processed.totalPages,
+    });
+    this.renderToast();
+    this.create.updateUI();
+    this.live.updateUI();
+    this.emitHooks(processed);
+  }
+
+  updateSync({ skipFetch = false } = {}) {
+    if (this._updatePromise) {
+      return this._updatePromise;
+    }
+
     this._pendingUpdate = true;
 
-    const runUpdate = async () => {
-      if (this.isRemote() && !skipFetch) {
-        await this.fetchData();
-      }
-
-      const processed = this.getProcessedData();
-
-      this.renderHeader(processed.rows);
-
-      if (this.state.error) {
-        this.renderError();
-        this._pendingUpdate = false;
-        return;
-      }
-
-      if (this.state.loading) {
-        this.renderLoading();
-        this._pendingUpdate = false;
-        return;
-      }
-
-      this.saveState();
-      this.renderBody(processed.displayRows);
-      this.renderMeta(processed);
-      this.renderPagination(processed);
-      this.rememberQueryPagination({
-        totalItems: processed.totalItems,
-        totalPages: processed.totalPages,
-      });
-      this.renderToast();
-      this.create.updateUI();
-      this.live.updateUI();
-      this.emitHooks(processed);
+    this._updatePromise = this._runUpdate({ skipFetch }).finally(() => {
       this._pendingUpdate = false;
-    };
+      this._updatePromise = null;
+    });
 
-    runUpdate();
+    return this._updatePromise;
   }
 
   destroy() {

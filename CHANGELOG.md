@@ -2,6 +2,19 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
+## [Unreleased]
+### Changed
+* **Display Row Memoization:** Cache `buildDisplayRows()` sekarang mengikuti urutan row yang sedang dirender plus konfigurasi grouping, sehingga pagination lokal tidak memakai wrapper baris dari halaman sebelumnya.
+* **Request-Key Deduplication:** Remote fetch identik yang masih in-flight sekarang berbagi promise berdasarkan request URL, sementara request berbeda tetap bisa menggantikan pekerjaan lama melalui abort path.
+* **Render Queue:** `update()` sekarang memakai satu promise render terjadwal per frame. Panggilan berulang tidak lagi polling frame-to-frame, dan `updateSync()` berbagi promise update aktif untuk menjaga koordinasi state.
+* **Debounced Fetch Awaiting:** Saat `fetchDebounce` aktif, `update()` menunggu fetch yang sudah didebounce sebelum memproses data agar render tidak memakai payload lama.
+
+### Docs
+* **Remote Demo:** Menambahkan contoh `fetchDebounce` dan catatan deduplication pada demo remote.
+* **Pagination Guard Demo:** Menambahkan local display-row cache check untuk memastikan perubahan halaman tetap menampilkan slice yang benar.
+* **Wiki:** Menambahkan dokumentasi display-row cache, request-key deduplication, rAF render batching, dan opsi `fetchDebounce`.
+* **Execution Tracker:** Menandai Phase 1 quick wins sebagai selesai.
+
 ## [1.5.1] — 2026-05-20
 ### Added
 * **Request Debouncing:** Menambahkan opsi `fetchDebounce` untuk menunda request remote secara konfigurabel, mencegah spam fetch saat perubahan state cepat (pagination, search, sort). Default `0` (disabled) untuk backward compatibility.
