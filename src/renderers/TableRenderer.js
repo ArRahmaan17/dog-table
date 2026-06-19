@@ -74,8 +74,7 @@ export class TableRenderer {
   renderHeader(rows = []) {
     const { options, state, theme, elements } = this.table;
     const isAllSelected = options.selectable && this.table.isAllSelected(rows);
-    const headers = state.columns
-      .filter((column) => column.visible !== false)
+    const headers = this.table.getVisibleColumns()
       .map((column) => {
         const isSorted = state.sortKey === column.key;
         const direction = isSorted ? state.sortDirection : "none";
@@ -391,11 +390,7 @@ export class TableRenderer {
       tr.appendChild(selectionCell);
     }
 
-    state.columns.forEach((column) => {
-      if (column.visible === false) {
-        return;
-      }
-
+    this.table.getVisibleColumns().forEach((column) => {
       const td = document.createElement("td");
       td.className = [
         theme.get("bodyCell"),
@@ -472,11 +467,7 @@ export class TableRenderer {
       }
     }
 
-    state.columns.forEach((column) => {
-      if (column.visible === false) {
-        return;
-      }
-
+    this.table.getVisibleColumns().forEach((column) => {
       const td = cells[cellIndex++];
       if (!td) return;
 

@@ -1,11 +1,21 @@
 const DEFAULT_PAGE_SIZE = 5;
 
+function normalizeColumns(columns) {
+  return Array.isArray(columns)
+    ? columns.map((column) => ({
+        ...column,
+        visible: column.hidden === true ? false : column.visible,
+      }))
+    : [];
+}
+
 export class TableState {
   constructor(options, initialSort) {
     this.options = options;
     this.state = {
       rawData: Array.isArray(options.data) ? [...options.data] : [],
-      columns: Array.isArray(options.columns) ? [...options.columns] : [],
+      columns: normalizeColumns(options.columns),
+      columnVisibility: {},
       selectedRows: new Set(),
       searchQuery: "",
       sortKey: initialSort ? initialSort.key : null,
@@ -20,7 +30,10 @@ export class TableState {
       syncStatus: null,
       highlightedRowId: null,
       toast: null,
+      views: {},
     };
+
+    this.syncColumnVisibility();
   }
 
   toPositiveInteger(value, fallback = 1) {
@@ -86,6 +99,19 @@ export class TableState {
   normalizeConstraints() {
     this.state.pageSize = this.clampPageSize(this.state.pageSize);
     this.state.currentPage = this.clampPage(this.state.currentPage);
+    this.syncColumnVisibility();
+  }
+
+  syncColumnVisibility() {
+    this.state.columnVisibility = this.state.columns.reduce((visibility, column) => {
+      const key = column.key || column.accessor;
+
+      if (key != null) {
+        visibility[String(key)] = column.visible !== false;
+      }
+
+      return visibility;
+    }, {});
   }
 
   setPage(pageNumber) {
@@ -180,8 +206,105 @@ export class TableState {
   }
 
   setColumns(columns) {
-    this.state.columns = Array.isArray(columns) ? [...columns] : [];
+    this.state.columns = normalizeColumns(columns);
+    this.syncColumnVisibility();
     this.state.currentPage = 1;
+  }
+
+  setColumnVisibility(columnKey, isVisible) {
+    const key = String(columnKey);
+    const column = this.state.columns.find(
+      (item) => String(item.key || item.accessor) === key
+    );
+
+    if (!column) {
+      return false;
+    }
+
+    const nextVisible = Boolean(isVisible);
+
+    if (column.visible !== false === nextVisible) {
+      return false;
+    }
+
+    column.visible = nextVisible;
+    this.syncColumnVisibility();
+    return true;
+  }
+
+  setColumnVisibilityMap(visibility = {}) {
+    let changed = false;
+
+    this.state.columns.forEach((column) => {
+      const key = column.key || column.accessor;
+
+      if (key == null || visibility[key] === undefined) {
+        return;
+      }
+
+      const nextVisible = Boolean(visibility[key]);
+      if ((column.visible !== false) !== nextVisible) {
+        column.visible = nextVisible;
+        changed = true;
+      }
+    });
+
+    this.syncColumnVisibility();
+    return changed;
+  }
+
+  createSnapshot() {
+    return {
+      searchQuery: this.state.searchQuery,
+      sortKey: this.state.sortKey,
+      sortDirection: this.state.sortDirection,
+      currentPage: this.state.currentPage,
+      pageSize: this.state.pageSize,
+      columnVisibility: { ...this.state.columnVisibility },
+    };
+  }
+
+  restoreSnapshot(snapshot = {}) {
+    if (!snapshot || typeof snapshot !== "object") {
+      return false;
+    }
+
+    let changed = false;
+
+    if (snapshot.searchQuery !== undefined) {
+      const nextSearch = String(snapshot.searchQuery || "").trim().toLowerCase();
+      changed = changed || this.state.searchQuery !== nextSearch;
+      this.state.searchQuery = nextSearch;
+    }
+
+    if (snapshot.sortKey !== undefined) {
+      changed = changed || this.state.sortKey !== snapshot.sortKey;
+      this.state.sortKey = snapshot.sortKey || null;
+    }
+
+    if (snapshot.sortDirection !== undefined) {
+      const nextDirection = snapshot.sortDirection === "desc" ? "desc" : "asc";
+      changed = changed || this.state.sortDirection !== nextDirection;
+      this.state.sortDirection = nextDirection;
+    }
+
+    if (snapshot.pageSize !== undefined) {
+      const nextPageSize = this.clampPageSize(snapshot.pageSize);
+      changed = changed || this.state.pageSize !== nextPageSize;
+      this.state.pageSize = nextPageSize;
+    }
+
+    if (snapshot.currentPage !== undefined) {
+      const nextPage = this.clampPage(snapshot.currentPage);
+      changed = changed || this.state.currentPage !== nextPage;
+      this.state.currentPage = nextPage;
+    }
+
+    if (snapshot.columnVisibility && typeof snapshot.columnVisibility === "object") {
+      changed = this.setColumnVisibilityMap(snapshot.columnVisibility) || changed;
+    }
+
+    return changed;
   }
 
   setRemoteData(payload) {

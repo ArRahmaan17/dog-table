@@ -73,6 +73,7 @@ export class DogTable {
       create: null,
       persistence: null,
       persistenceKey: null,
+      urlState: false,
       selectable: false,
       paginationGuard: false,
       virtualScroll: false,
@@ -185,10 +186,14 @@ export class DogTable {
 
   getVisibleColumnCount() {
     return (
-      this.state.columns.filter((column) => column.visible !== false).length +
+      this.getVisibleColumns().length +
       (this.hasRowDetail() ? 1 : 0) +
       (this.options.selectable ? 1 : 0)
     );
+  }
+
+  getVisibleColumns() {
+    return this.state.columns.filter((column) => column.visible !== false);
   }
 
   loadState() {
@@ -198,6 +203,7 @@ export class DogTable {
 
   saveState() {
     this.persistence.save();
+    this.urlState.scheduleSave();
   }
 
   toPositiveInteger(value, fallback = 1) {
@@ -654,11 +660,44 @@ export class DogTable {
 
   toggleColumnVisibility(columnKey, isVisible) {
     const column = this.getColumn(columnKey);
+    const nextVisible =
+      typeof isVisible === "boolean" ? isVisible : !(column?.visible !== false);
 
-    if (column) {
-      column.visible = isVisible;
+    if (this.tableState.setColumnVisibility(columnKey, nextVisible)) {
+      this.saveState();
       this.update({ skipFetch: true });
     }
+  }
+
+  showColumn(columnKey) {
+    this.toggleColumnVisibility(columnKey, true);
+  }
+
+  hideColumn(columnKey) {
+    this.toggleColumnVisibility(columnKey, false);
+  }
+
+  toggleColumn(columnKey) {
+    this.toggleColumnVisibility(columnKey);
+  }
+
+  saveView(name) {
+    return this.persistence.saveView(name);
+  }
+
+  loadView(name) {
+    if (this.persistence.loadView(name)) {
+      this.restoreQueryPagination();
+      this.saveState();
+      this.update();
+      return true;
+    }
+
+    return false;
+  }
+
+  deleteView(name) {
+    return this.persistence.deleteView(name);
   }
 
   exportCSV(filename) {
