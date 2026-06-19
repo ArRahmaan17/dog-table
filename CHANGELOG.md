@@ -3,7 +3,18 @@
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
 ## [Unreleased]
+### Added
+* **Column Visibility API:** Menambahkan dukungan `hidden: true`, `showColumn()`, `hideColumn()`, `toggleColumn()`, dan state `columnVisibility` yang ikut tersimpan.
+* **Saved Views:** Menambahkan `saveView()`, `loadView()`, dan `deleteView()` berbasis persistence storage dengan fallback in-memory.
+* **URL State Sync:** Menambahkan opsi `urlState: true` untuk sinkronisasi search, page, pageSize, sort, hidden columns, dan filters ke query string.
+* **Structured Filters & Filter Row:** Menambahkan `setFilters()`, `setFilter()`, `clearFilters()`, `filterRow`, `filterType`, dan `filterOptions` untuk filter field-specific lokal maupun remote.
+* **Remote-Friendly APIs:** Menambahkan cursor pagination remote, `addRow()`, `updateRow()`, `removeRow()`, dan `optimisticUpdates` untuk create/edit remote.
+* **Column Layout Controls:** Menambahkan `stickyHeader`, `stickyColumns`, `resizableColumns`, dan `columnReorder` dengan state widths/order yang bisa dipersist.
+* **Aggregates:** Menambahkan `footerAggregates` dan `groupAggregates` dengan helper `sum`, `avg`, `min`, `max`, dan `count`.
+* **Event & Plugin APIs:** Menambahkan `table.on()`, `table.off()`, standard events, `DogTable.use()`, dan `plugins: []`.
+
 ### Changed
+* **Demo Migration:** Folder `demo/` dihapus dan diganti dengan aplikasi dokumentasi `docs/` berbasis Svelte + Tailwind.
 * **Display Row Memoization:** Cache `buildDisplayRows()` sekarang mengikuti urutan row yang sedang dirender plus konfigurasi grouping, sehingga pagination lokal tidak memakai wrapper baris dari halaman sebelumnya.
 * **Request-Key Deduplication:** Remote fetch identik yang masih in-flight sekarang berbagi promise berdasarkan request URL, sementara request berbeda tetap bisa menggantikan pekerjaan lama melalui abort path.
 * **Render Queue:** `update()` sekarang memakai satu promise render terjadwal per frame. Panggilan berulang tidak lagi polling frame-to-frame, dan `updateSync()` berbagi promise update aktif untuk menjaga koordinasi state.
@@ -15,11 +26,10 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Lookup Cache:** Column lookup dan row-id lookup sekarang memakai `Map` internal untuk menghindari repeated linear scans pada sort, visibility toggle, dan inline editing.
 
 ### Docs
-* **Query Cache Guide:** Memindahkan query cache guide ke folder `demo/` dan memperbarui tautan gallery/docs agar memakai path baru.
-* **Remote Demo:** Menambahkan contoh `fetchDebounce` dan catatan deduplication pada demo remote.
-* **Pagination Guard Demo:** Menambahkan local display-row cache check untuk memastikan perubahan halaman tetap menampilkan slice yang benar.
-* **Grouping Demo:** Menambahkan catatan keyed rendering untuk group/detail rows.
-* **Basic Demo:** Menambahkan snippet untuk `virtualScroll`, `dataWorker`, dan `lazyColumns` pada tabel lokal tanpa pagination.
+* **README:** Ditulis ulang sebagai front page yang merangkum API dari source code terbaru.
+* **Svelte Docs App:** Menambahkan `docs/` dengan contoh interaktif dan referensi opsi/metode/event dari implementasi saat ini.
+* **Wiki:** Diperbarui untuk mencakup visibility, views, URL state, filters, cursor pagination, mutations, layout controls, aggregates, events, dan plugins.
+* **Performance Examples:** Contoh query cache, fetch debounce, pagination guard, grouping, virtual scroll, data worker, dan lazy columns sekarang menjadi materi pada aplikasi docs baru.
 * **Wiki:** Menambahkan dokumentasi display-row cache, request-key deduplication, rAF render batching, `fetchDebounce`, `virtualScroll`, `dataWorker`, dan `lazyColumns`.
 * **Execution Tracker:** Menandai semua fase performance plan sebagai selesai.
 
