@@ -198,6 +198,10 @@ export class DataEngine {
             rows,
             filteredRows,
             displayRows: this.buildDisplayRows(rows),
+            aggregates: this.computeAggregates(
+              filteredRows,
+              this.table.options.footerAggregates
+            ),
             totalItems: result.totalItems,
             totalPages: result.totalPages,
             currentPage: result.currentPage,
