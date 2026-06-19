@@ -215,7 +215,11 @@
       <p>This example groups dogs by adoption region and expands details lazily only when a row is opened.</p>
       <section class="setup-card" aria-labelledby="library-setup-title">
         <h2 id="library-setup-title">Library setup</h2>
-        <p>Grouping and expandable rows are configured with <code>groupBy</code> and a <code>rowDetail.render()</code> callback.</p>
+        <p>
+          Grouping and expandable rows are configured with <code>groupBy</code> and a
+          <code>rowDetail.render()</code> callback. Group and detail rows are keyed internally,
+          so unchanged row order can update in place.
+        </p>
         <pre class="setup-snippet"><code>const table = new DogTable("#app", {
   groupBy: "department",
   remote: {

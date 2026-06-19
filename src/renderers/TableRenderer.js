@@ -4,11 +4,12 @@ export class TableRenderer {
   constructor(table) {
     this.table = table;
     this._rowNodes = new Map();
+    this._rowOrder = [];
   }
 
   clearRowCache() {
-    console.log("[TableRenderer.clearRowCache] purging", this._rowNodes.size, "cached nodes");
     this._rowNodes.clear();
+    this._rowOrder = [];
   }
 
   renderStructure() {
@@ -141,11 +142,10 @@ export class TableRenderer {
 
   renderBody(displayRows) {
     const { elements, state, theme, options, formatter } = this.table;
-    const detachedCount = [...this._rowNodes.values()].filter(n => !n.parentNode).length;
-    console.log("[TableRenderer.renderBody] displayRows:", displayRows?.length, "_rowNodes:", this._rowNodes.size, "detached:", detachedCount);
 
     if (displayRows.length === 0) {
       this._rowNodes.clear();
+      this._rowOrder = [];
       elements.tbody.innerHTML = `
         <tr>
           <td colspan="${this.table.getVisibleColumnCount()}" class="${theme.get(
@@ -163,51 +163,71 @@ export class TableRenderer {
     }
 
     const newRowIds = new Set();
-    const fragment = document.createDocumentFragment();
+    const nextOrder = [];
     let needsFullRebuild = false;
 
     displayRows.forEach((item, index) => {
       if (item.type === "group") {
-        const groupKey = `group-${item.groupValue}-${index}`;
+        const groupKey = this._getGroupKey(item, index);
         newRowIds.add(groupKey);
+        nextOrder.push(groupKey);
 
-        if (!this._rowNodes.has(groupKey)) {
+        const groupRow = this._rowNodes.get(groupKey);
+        if (!groupRow || !groupRow.parentNode) {
           needsFullRebuild = true;
           return;
         }
+
+        this._updateGroupRow(groupRow, item, theme);
         return;
       }
 
       const { row, rowId } = item;
       newRowIds.add(rowId);
+      nextOrder.push(rowId);
 
       let tr = this._rowNodes.get(rowId);
 
       if (!tr || !tr.parentNode) {
-        console.log("[TableRenderer.renderBody] row", rowId, "cache", !tr ? "MISS" : "DETACHED");
         needsFullRebuild = true;
         return;
       }
 
       this._updateRowContent(tr, item, state, theme, options, formatter);
+
+      if (this.table.hasRowDetail() && state.expandedRowIds.has(rowId)) {
+        const detailKey = this._getDetailKey(rowId);
+        const detailRow = this._rowNodes.get(detailKey);
+
+        newRowIds.add(detailKey);
+        nextOrder.push(detailKey);
+
+        if (!detailRow || !detailRow.parentNode) {
+          needsFullRebuild = true;
+          return;
+        }
+
+        this._updateDetailRow(detailRow, row, rowId, theme);
+      }
     });
 
+    if (!needsFullRebuild && !this._hasSameRowOrder(nextOrder)) {
+      needsFullRebuild = true;
+    }
+
     if (needsFullRebuild || this._rowNodes.size === 0) {
-      this._rowNodes.clear();
+      const nextRowNodes = new Map();
+      const fragment = document.createDocumentFragment();
+
       elements.tbody.innerHTML = "";
 
-      displayRows.forEach((item) => {
+      displayRows.forEach((item, index) => {
         if (item.type === "group") {
-          const groupRow = document.createElement("tr");
-          groupRow.className = theme.get("groupRow");
+          const groupKey = this._getGroupKey(item, index);
+          const groupRow = this._createGroupRow(item, theme);
 
-          const groupCell = document.createElement("td");
-          groupCell.className = theme.get("groupCell");
-          groupCell.colSpan = this.table.getVisibleColumnCount();
-          groupCell.textContent = item.label;
-
-          groupRow.appendChild(groupCell);
-          elements.tbody.appendChild(groupRow);
+          fragment.appendChild(groupRow);
+          nextRowNodes.set(groupKey, groupRow);
           return;
         }
 
@@ -222,30 +242,20 @@ export class TableRenderer {
 
         this._buildRowContent(tr, item, state, theme, options, formatter);
 
-        elements.tbody.appendChild(tr);
-        this._rowNodes.set(rowId, tr);
+        fragment.appendChild(tr);
+        nextRowNodes.set(rowId, tr);
 
         if (this.table.hasRowDetail() && state.expandedRowIds.has(rowId)) {
-          const detailRow = document.createElement("tr");
-          detailRow.className = theme.get("detailRow");
+          const detailKey = this._getDetailKey(rowId);
+          const detailRow = this._createDetailRow(row, rowId, theme);
 
-          const detailCell = document.createElement("td");
-          detailCell.className = theme.get("detailCell");
-          detailCell.colSpan = this.table.getVisibleColumnCount();
-          detailCell.id = `dt-detail-${rowId}`;
-
-          const detailContent = this.renderDetailContent(row, rowId);
-
-          if (detailContent instanceof Node) {
-            detailCell.appendChild(detailContent);
-          } else if (detailContent != null) {
-            detailCell.textContent = String(detailContent);
-          }
-
-          detailRow.appendChild(detailCell);
-          elements.tbody.appendChild(detailRow);
+          fragment.appendChild(detailRow);
+          nextRowNodes.set(detailKey, detailRow);
         }
       });
+
+      elements.tbody.appendChild(fragment);
+      this._rowNodes = nextRowNodes;
     }
 
     const removedKeys = [...this._rowNodes.keys()].filter(
@@ -258,6 +268,84 @@ export class TableRenderer {
       }
       this._rowNodes.delete(key);
     });
+
+    this._rowOrder = nextOrder;
+  }
+
+  _getGroupKey(item, index) {
+    return `group-${item.groupValue}-${index}`;
+  }
+
+  _getDetailKey(rowId) {
+    return `detail-${rowId}`;
+  }
+
+  _hasSameRowOrder(nextOrder) {
+    return (
+      this._rowOrder.length === nextOrder.length &&
+      this._rowOrder.every((key, index) => key === nextOrder[index])
+    );
+  }
+
+  _createGroupRow(item, theme) {
+    const groupRow = document.createElement("tr");
+    groupRow.className = theme.get("groupRow");
+
+    const groupCell = document.createElement("td");
+    groupCell.className = theme.get("groupCell");
+    groupCell.colSpan = this.table.getVisibleColumnCount();
+    groupCell.textContent = item.label;
+
+    groupRow.appendChild(groupCell);
+    return groupRow;
+  }
+
+  _updateGroupRow(groupRow, item, theme) {
+    groupRow.className = theme.get("groupRow");
+
+    const groupCell = groupRow.firstElementChild;
+    if (groupCell) {
+      groupCell.className = theme.get("groupCell");
+      groupCell.colSpan = this.table.getVisibleColumnCount();
+      groupCell.textContent = item.label;
+    }
+  }
+
+  _createDetailRow(row, rowId, theme) {
+    const detailRow = document.createElement("tr");
+    detailRow.className = theme.get("detailRow");
+
+    const detailCell = document.createElement("td");
+    detailCell.className = theme.get("detailCell");
+    detailCell.colSpan = this.table.getVisibleColumnCount();
+    detailCell.id = `dt-detail-${rowId}`;
+
+    detailRow.appendChild(detailCell);
+    this._updateDetailRow(detailRow, row, rowId, theme);
+
+    return detailRow;
+  }
+
+  _updateDetailRow(detailRow, row, rowId, theme) {
+    detailRow.className = theme.get("detailRow");
+
+    const detailCell = detailRow.firstElementChild;
+    if (!detailCell) {
+      return;
+    }
+
+    detailCell.className = theme.get("detailCell");
+    detailCell.colSpan = this.table.getVisibleColumnCount();
+    detailCell.id = `dt-detail-${rowId}`;
+    detailCell.innerHTML = "";
+
+    const detailContent = this.renderDetailContent(row, rowId);
+
+    if (detailContent instanceof Node) {
+      detailCell.appendChild(detailContent);
+    } else if (detailContent != null) {
+      detailCell.textContent = String(detailContent);
+    }
   }
 
   _buildRowContent(tr, item, state, theme, options, formatter) {

@@ -8,12 +8,14 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Request-Key Deduplication:** Remote fetch identik yang masih in-flight sekarang berbagi promise berdasarkan request URL, sementara request berbeda tetap bisa menggantikan pekerjaan lama melalui abort path.
 * **Render Queue:** `update()` sekarang memakai satu promise render terjadwal per frame. Panggilan berulang tidak lagi polling frame-to-frame, dan `updateSync()` berbagi promise update aktif untuk menjaga koordinasi state.
 * **Debounced Fetch Awaiting:** Saat `fetchDebounce` aktif, `update()` menunggu fetch yang sudah didebounce sebelum memproses data agar render tidak memakai payload lama.
+* **Keyed Body Rendering:** Group rows, data rows, dan detail rows sekarang dilacak dengan key internal. Urutan baris yang tidak berubah di-update in place, sedangkan perubahan urutan atau expansion state rebuild melalui `DocumentFragment`.
 
 ### Docs
 * **Remote Demo:** Menambahkan contoh `fetchDebounce` dan catatan deduplication pada demo remote.
 * **Pagination Guard Demo:** Menambahkan local display-row cache check untuk memastikan perubahan halaman tetap menampilkan slice yang benar.
+* **Grouping Demo:** Menambahkan catatan keyed rendering untuk group/detail rows.
 * **Wiki:** Menambahkan dokumentasi display-row cache, request-key deduplication, rAF render batching, dan opsi `fetchDebounce`.
-* **Execution Tracker:** Menandai Phase 1 quick wins sebagai selesai.
+* **Execution Tracker:** Menandai Phase 1 quick wins dan Phase 2 renderer optimizations sebagai selesai.
 
 ## [1.5.1] — 2026-05-20
 ### Added
