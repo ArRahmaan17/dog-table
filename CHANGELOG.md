@@ -2,7 +2,39 @@
 
 Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
-## [1.5.1-beta] — 2026-05-19
+## [Unreleased]
+### Added
+* **Column Visibility API:** Menambahkan dukungan `hidden: true`, `showColumn()`, `hideColumn()`, `toggleColumn()`, dan state `columnVisibility` yang ikut tersimpan.
+* **Saved Views:** Menambahkan `saveView()`, `loadView()`, dan `deleteView()` berbasis persistence storage dengan fallback in-memory.
+* **URL State Sync:** Menambahkan opsi `urlState: true` untuk sinkronisasi search, page, pageSize, sort, hidden columns, dan filters ke query string.
+* **Structured Filters & Filter Row:** Menambahkan `setFilters()`, `setFilter()`, `clearFilters()`, `filterRow`, `filterType`, dan `filterOptions` untuk filter field-specific lokal maupun remote.
+* **Remote-Friendly APIs:** Menambahkan cursor pagination remote, `addRow()`, `updateRow()`, `removeRow()`, dan `optimisticUpdates` untuk create/edit remote.
+* **Column Layout Controls:** Menambahkan `stickyHeader`, `stickyColumns`, `resizableColumns`, dan `columnReorder` dengan state widths/order yang bisa dipersist.
+* **Light/Dark Themes:** Menambahkan preset `light` dan `dark`, auto-detection dari `localStorage` / `sessionStorage`, serta override eksplisit lewat `theme: "dark"` saat inisialisasi.
+* **Aggregates:** Menambahkan `footerAggregates` dan `groupAggregates` dengan helper `sum`, `avg`, `min`, `max`, dan `count`.
+* **Event & Plugin APIs:** Menambahkan `table.on()`, `table.off()`, standard events, `DogTable.use()`, dan `plugins: []`.
+
+### Changed
+* **Docs Runtime:** Dokumentasi utama kembali memakai halaman HTML statis tanpa runtime Svelte.
+* **Display Row Memoization:** Cache `buildDisplayRows()` sekarang mengikuti urutan row yang sedang dirender plus konfigurasi grouping, sehingga pagination lokal tidak memakai wrapper baris dari halaman sebelumnya.
+* **Request-Key Deduplication:** Remote fetch identik yang masih in-flight sekarang berbagi promise berdasarkan request URL, sementara request berbeda tetap bisa menggantikan pekerjaan lama melalui abort path.
+* **Render Queue:** `update()` sekarang memakai satu promise render terjadwal per frame. Panggilan berulang tidak lagi polling frame-to-frame, dan `updateSync()` berbagi promise update aktif untuk menjaga koordinasi state.
+* **Debounced Fetch Awaiting:** Saat `fetchDebounce` aktif, `update()` menunggu fetch yang sudah didebounce sebelum memproses data agar render tidak memakai payload lama.
+* **Keyed Body Rendering:** Group rows, data rows, dan detail rows sekarang dilacak dengan key internal. Urutan baris yang tidak berubah di-update in place, sedangkan perubahan urutan atau expansion state rebuild melalui `DocumentFragment`.
+* **Opt-in Virtual Scrolling:** Menambahkan opsi `virtualScroll` untuk mendelegasikan body rendering ke viewport renderer pada tabel lokal besar.
+* **Opt-in Data Worker:** Menambahkan opsi `dataWorker` untuk filtering/sorting lokal dataset besar yang eligible di Web Worker, dengan hasil berupa row indexes agar referensi row utama tetap stabil.
+* **Lazy Column Paint Hints:** Menambahkan opsi `lazyColumns` untuk memberi browser-native lazy painting hints pada header/body cells di tabel lebar.
+* **Lookup Cache:** Column lookup dan row-id lookup sekarang memakai `Map` internal untuk menghindari repeated linear scans pada sort, visibility toggle, dan inline editing.
+
+### Docs
+* **README:** Ditulis ulang sebagai front page yang merangkum API dari source code terbaru.
+* **Static Docs:** `docs.html` kembali menjadi dokumentasi utama, `docs-v1.html` tetap menjadi dokumentasi legacy, dan `docs/` diarahkan ke docs statis.
+* **Wiki:** Diperbarui untuk mencakup visibility, views, URL state, filters, cursor pagination, mutations, layout controls, aggregates, events, dan plugins.
+* **Performance Examples:** Contoh query cache, fetch debounce, pagination guard, grouping, virtual scroll, data worker, dan lazy columns sekarang menjadi materi pada docs statis.
+* **Wiki:** Menambahkan dokumentasi display-row cache, request-key deduplication, rAF render batching, `fetchDebounce`, `virtualScroll`, `dataWorker`, dan `lazyColumns`.
+* **Execution Tracker:** Menandai semua fase performance plan sebagai selesai.
+
+## [1.5.1] — 2026-05-20
 ### Added
 * **Request Debouncing:** Menambahkan opsi `fetchDebounce` untuk menunda request remote secara konfigurabel, mencegah spam fetch saat perubahan state cepat (pagination, search, sort). Default `0` (disabled) untuk backward compatibility.
 * **Request Deduplication:** In-flight fetch request sekarang di-deduplicate. Panggilan `update()` bersamaan akan berbagi promise yang sama, bukan membuat banyak request yang kemudian di-abort.
@@ -10,6 +42,7 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **New Public Methods:**
   * `table.fetchNow()` - Bypass debounce dan langsung eksekusi fetch
   * `table.updateSync()` - Update tanpa rAF batching untuk kasus yang butuh render langsung
+* **Fetch Timeout:** Menambahkan opsi `fetchTimeout` pada remote config dengan default 15 detik. Request yang melebihi batas akan di-abort otomatis.
 
 ### Changed
 * **Memoized Display Rows:** `buildDisplayRows()` sekarang di-cache berdasarkan `rawData` reference dan `groupBy` config. Tidak rebuild wrapper rows jika data tidak berubah.
@@ -22,6 +55,8 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Hook Payload Standardization:** `onUpdate` hook sekarang menerima `processed` object langsung (bukan `{ state, columns }`), dengan defensive guards untuk semua properti.
 
 ### Fixed
+* **Live Sync Loading Stuck:** Memperbaiki bug kritis di mana auto-refresh (`autoRefresh`) akan stuck pada skeleton loading saat payload response identik dengan sebelumnya. Penyebabnya: `renderLoading()` menghancurkan DOM rows tapi `_rowNodes` cache masih memegang referensi ke node yang sudah detached. Fix: cache dibersihkan sebelum `tbody.innerHTML` overwrite, dan `renderBody()` sekarang memeriksa `parentNode` pada cached nodes.
+* **Live Polling Overlap:** Menambahkan guard `state.loading` pada `LivePlugin.scheduleNext()` untuk mencegah polling baru saat fetch masih berjalan.
 * **Hook Payload Safety:** Menambahkan defensive guards di `emitHooks()` dan `getProcessedData()` untuk mencegah `TypeError` saat `processed` undefined atau null.
 * **MetaRenderer Safety:** Menambahkan fallback untuk `options.language.showing`, `noResults`, `emptyState` di `renderMeta()`.
 * **PaginationRenderer Safety:** Menambahkan nullish coalescing untuk `currentPage`, `totalPages`, dan safe fallbacks untuk `language.page`, `previous`, `next`.

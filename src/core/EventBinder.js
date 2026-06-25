@@ -5,6 +5,7 @@ export class EventBinder {
     this.table = table;
     this.boundHandlers = {};
     this.debouncedSearch = null;
+    this.debouncedFilter = null;
   }
 
   bind() {
@@ -13,6 +14,13 @@ export class EventBinder {
     const { elements, state, container } = this.table;
 
     this.boundHandlers.onHeadClick = (event) => {
+      if (
+        event.target.closest("[data-filter-field]") ||
+        event.target.closest("[data-resize-handle]")
+      ) {
+        return;
+      }
+
       const header = event.target.closest("th[data-column]");
 
       if (!header || header.dataset.sortable === "false" || state.loading) {
@@ -23,6 +31,13 @@ export class EventBinder {
     };
 
     this.boundHandlers.onHeadKeydown = (event) => {
+      if (
+        event.target.closest("[data-filter-field]") ||
+        event.target.closest("[data-resize-handle]")
+      ) {
+        return;
+      }
+
       const header = event.target.closest("th[data-column]");
 
       if (
@@ -84,13 +99,13 @@ export class EventBinder {
 
       const rowId = td.closest("tr")?.dataset.rowId;
       const field = td.dataset.field;
-      const column = state.columns.find((item) => (item.accessor || item.key) === field);
+      const column = this.table.getColumnByField(field);
 
       if (!column?.editable || !rowId) {
         return;
       }
 
-      const row = state.rawData.find((item) => this.table.getRowId(item) === rowId);
+      const row = this.table.getRowById(rowId);
       this.table.editor.startEditing(td, rowId, field, row ? row[field] : "", row);
     };
 
@@ -136,6 +151,120 @@ export class EventBinder {
     elements.thead.addEventListener("click", this.boundHandlers.onHeadClick);
     elements.thead.addEventListener("keydown", this.boundHandlers.onHeadKeydown);
     elements.thead.addEventListener("change", this.boundHandlers.onBulkCheck);
+
+    if (this.table.options.resizableColumns) {
+      this.boundHandlers.onColumnResizeStart = (event) => {
+        const handle = event.target.closest("[data-resize-handle]");
+        const header = handle?.closest("th[data-column]");
+
+        if (!handle || !header) {
+          return;
+        }
+
+        event.preventDefault();
+        const startX = event.clientX;
+        const startWidth = header.offsetWidth;
+        const columnKey = header.dataset.column;
+        let frame = null;
+
+        this.boundHandlers.onColumnResizeMove = (moveEvent) => {
+          const width = Math.max(40, startWidth + moveEvent.clientX - startX);
+
+          if (frame) {
+            cancelAnimationFrame(frame);
+          }
+
+          frame = requestAnimationFrame(() => {
+            header.style.width = `${width}px`;
+            header.style.minWidth = `${width}px`;
+          });
+        };
+
+        this.boundHandlers.onColumnResizeEnd = (upEvent) => {
+          const width = Math.max(40, startWidth + upEvent.clientX - startX);
+
+          document.removeEventListener("mousemove", this.boundHandlers.onColumnResizeMove);
+          document.removeEventListener("mouseup", this.boundHandlers.onColumnResizeEnd);
+          this.table.setColumnWidth(columnKey, width);
+        };
+
+        document.addEventListener("mousemove", this.boundHandlers.onColumnResizeMove);
+        document.addEventListener("mouseup", this.boundHandlers.onColumnResizeEnd);
+      };
+
+      elements.thead.addEventListener(
+        "mousedown",
+        this.boundHandlers.onColumnResizeStart
+      );
+    }
+
+    if (this.table.options.columnReorder) {
+      this.boundHandlers.onColumnDragStart = (event) => {
+        const header = event.target.closest("th[data-column]");
+
+        if (!header || event.target.closest("[data-filter-field], [data-resize-handle]")) {
+          event.preventDefault();
+          return;
+        }
+
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", header.dataset.column);
+      };
+
+      this.boundHandlers.onColumnDragOver = (event) => {
+        if (event.target.closest("th[data-column]")) {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+        }
+      };
+
+      this.boundHandlers.onColumnDrop = (event) => {
+        const header = event.target.closest("th[data-column]");
+        const source = event.dataTransfer.getData("text/plain");
+
+        if (!header || !source) {
+          return;
+        }
+
+        event.preventDefault();
+        this.table.moveColumn(source, header.dataset.column);
+      };
+
+      elements.thead.addEventListener("dragstart", this.boundHandlers.onColumnDragStart);
+      elements.thead.addEventListener("dragover", this.boundHandlers.onColumnDragOver);
+      elements.thead.addEventListener("drop", this.boundHandlers.onColumnDrop);
+    }
+
+    if (this.table.options.filterRow) {
+      const handleFilter = (input) => {
+        this.table.setFilter(input.dataset.filterField, input.value);
+      };
+
+      this.debouncedFilter =
+        this.table.options.filterDebounce > 0
+          ? debounce(handleFilter, this.table.options.filterDebounce)
+          : handleFilter;
+
+      this.boundHandlers.onFilterInput = (event) => {
+        const input = event.target.closest("input[data-filter-field]");
+
+        if (input) {
+          this.debouncedFilter(input);
+        }
+      };
+
+      this.boundHandlers.onFilterChange = (event) => {
+        const input = event.target.closest("select[data-filter-field], input[type='date'][data-filter-field]");
+
+        if (input) {
+          handleFilter(input);
+        }
+      };
+
+      elements.thead.addEventListener("input", this.boundHandlers.onFilterInput);
+      elements.thead.addEventListener("change", this.boundHandlers.onFilterChange);
+    }
+
     elements.tbody.addEventListener("change", this.boundHandlers.onRowCheck);
     elements.tbody.addEventListener("click", this.boundHandlers.onBodyClick);
     elements.pagination.addEventListener(
@@ -205,6 +334,41 @@ export class EventBinder {
       );
     }
 
+    if (elements.thead && this.boundHandlers.onFilterInput) {
+      elements.thead.removeEventListener("input", this.boundHandlers.onFilterInput);
+    }
+
+    if (elements.thead && this.boundHandlers.onFilterChange) {
+      elements.thead.removeEventListener("change", this.boundHandlers.onFilterChange);
+    }
+
+    if (elements.thead && this.boundHandlers.onColumnResizeStart) {
+      elements.thead.removeEventListener(
+        "mousedown",
+        this.boundHandlers.onColumnResizeStart
+      );
+    }
+
+    if (this.boundHandlers.onColumnResizeMove) {
+      document.removeEventListener("mousemove", this.boundHandlers.onColumnResizeMove);
+    }
+
+    if (this.boundHandlers.onColumnResizeEnd) {
+      document.removeEventListener("mouseup", this.boundHandlers.onColumnResizeEnd);
+    }
+
+    if (elements.thead && this.boundHandlers.onColumnDragStart) {
+      elements.thead.removeEventListener("dragstart", this.boundHandlers.onColumnDragStart);
+    }
+
+    if (elements.thead && this.boundHandlers.onColumnDragOver) {
+      elements.thead.removeEventListener("dragover", this.boundHandlers.onColumnDragOver);
+    }
+
+    if (elements.thead && this.boundHandlers.onColumnDrop) {
+      elements.thead.removeEventListener("drop", this.boundHandlers.onColumnDrop);
+    }
+
     if (container && this.boundHandlers.onLiveToggle) {
       container.removeEventListener("click", this.boundHandlers.onLiveToggle);
     }
@@ -225,6 +389,11 @@ export class EventBinder {
       this.debouncedSearch.cancel();
     }
 
+    if (this.debouncedFilter && typeof this.debouncedFilter.cancel === "function") {
+      this.debouncedFilter.cancel();
+    }
+
     this.debouncedSearch = null;
+    this.debouncedFilter = null;
   }
 }

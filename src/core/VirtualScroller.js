@@ -9,19 +9,23 @@ export class VirtualScroller {
     this.totalRows = 0;
     this.startIndex = 0;
     this.endIndex = 0;
+    this.displayRows = [];
+    this.maxHeight = 600;
     this._boundScroll = this._onScroll.bind(this);
     this._boundResize = this._onResize.bind(this);
   }
 
-  enable({ rowHeight = 48, bufferSize = 5 } = {}) {
+  enable({ rowHeight = 48, bufferSize = 5, maxHeight = 600 } = {}) {
     this.enabled = true;
     this.rowHeight = rowHeight;
     this.bufferSize = bufferSize;
+    this.maxHeight = maxHeight;
 
     const wrap = this.table.elements.tableWrap;
     if (wrap) {
       wrap.style.overflowY = "auto";
-      wrap.style.maxHeight = "600px";
+      wrap.style.maxHeight =
+        typeof maxHeight === "number" ? `${maxHeight}px` : String(maxHeight);
       wrap.addEventListener("scroll", this._boundScroll);
     }
 
@@ -31,6 +35,10 @@ export class VirtualScroller {
 
   disable() {
     this.enabled = false;
+    this.displayRows = [];
+    this.totalRows = 0;
+    this.startIndex = 0;
+    this.endIndex = 0;
 
     const wrap = this.table.elements.tableWrap;
     if (wrap) {
@@ -49,7 +57,9 @@ export class VirtualScroller {
   _measureViewport() {
     const wrap = this.table.elements.tableWrap;
     if (wrap) {
-      this.viewportHeight = wrap.clientHeight;
+      this.viewportHeight =
+        wrap.clientHeight ||
+        (typeof this.maxHeight === "number" ? this.maxHeight : this.rowHeight);
     }
   }
 
@@ -69,6 +79,10 @@ export class VirtualScroller {
   }
 
   _calculateVisibleRange() {
+    if (!this.enabled) {
+      return;
+    }
+
     const visibleCount = Math.ceil(this.viewportHeight / this.rowHeight);
     const start = Math.max(0, Math.floor(this.scrollTop / this.rowHeight) - this.bufferSize);
     const end = Math.min(this.totalRows, start + visibleCount + this.bufferSize * 2);
@@ -96,9 +110,12 @@ export class VirtualScroller {
 
   _renderVisibleRows() {
     const { elements, state, theme, options, formatter } = this.table;
-    const displayRows = this.table.getProcessedData().displayRows;
+    const displayRows = this.displayRows;
 
-    if (!displayRows || displayRows.length === 0) return;
+    if (!displayRows || displayRows.length === 0) {
+      elements.tbody.innerHTML = "";
+      return;
+    }
 
     this.totalRows = displayRows.length;
 
@@ -117,15 +134,7 @@ export class VirtualScroller {
 
     visibleRows.forEach((item) => {
       if (item.type === "group") {
-        const groupRow = document.createElement("tr");
-        groupRow.className = theme.get("groupRow");
-
-        const groupCell = document.createElement("td");
-        groupCell.className = theme.get("groupCell");
-        groupCell.colSpan = this.table.getVisibleColumnCount();
-        groupCell.textContent = item.label;
-
-        groupRow.appendChild(groupCell);
+        const groupRow = this.table.tableRenderer._createGroupRow(item, theme);
         elements.tbody.appendChild(groupRow);
         return;
       }
@@ -141,91 +150,26 @@ export class VirtualScroller {
       }
 
       if (this.table.hasRowDetail()) {
-        const detailToggleCell = document.createElement("td");
-        detailToggleCell.className = theme.get("detailToggleCell");
-
-        const detailButton = document.createElement("button");
-        detailButton.type = "button";
-        detailButton.className = theme.get("detailToggle");
-        detailButton.dataset.detailToggle = rowId;
-        detailButton.setAttribute(
-          "aria-expanded",
-          state.expandedRowIds.has(rowId) ? "true" : "false"
-        );
-        detailButton.setAttribute("aria-controls", `dt-detail-${rowId}`);
-        detailButton.textContent = this.table.getRowDetailLabel(
-          row,
-          state.expandedRowIds.has(rowId)
-        );
-
-        detailToggleCell.appendChild(detailButton);
-        tr.appendChild(detailToggleCell);
+        tr.dataset.rowId = rowId;
       }
 
-      if (options.selectable) {
-        const selectionCell = document.createElement("td");
-        selectionCell.className = theme.get("bodyCell");
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.dataset.rowCheckbox = rowId;
-        checkbox.checked = state.selectedRows.has(rowId);
-        checkbox.setAttribute("aria-label", `Select row ${rowId}`);
-
-        selectionCell.appendChild(checkbox);
-        tr.appendChild(selectionCell);
-      }
-
-      state.columns.forEach((column) => {
-        if (column.visible === false) {
-          return;
-        }
-
-        const td = document.createElement("td");
-        td.className = theme.get("bodyCell");
-        const key = column.accessor || column.key;
-        td.dataset.field = key;
-
-        if (column.editable) {
-          td.classList.add("dt-editable");
-        }
-
-        const value = row[key];
-        const formatted = formatter.format(value, column, row);
-        const hasCustomRenderer = typeof column.render === "function";
-        const rendered = hasCustomRenderer ? column.render(formatted, row) : formatted;
-
-        if (rendered instanceof Node) {
-          td.appendChild(rendered);
-        } else if (hasCustomRenderer && typeof rendered === "string") {
-          td.innerHTML = rendered;
-        } else if (rendered != null) {
-          td.textContent = String(rendered);
-        }
-
-        tr.appendChild(td);
-      });
+      this.table.tableRenderer._buildRowContent(
+        tr,
+        item,
+        state,
+        theme,
+        options,
+        formatter
+      );
 
       elements.tbody.appendChild(tr);
 
       if (this.table.hasRowDetail() && state.expandedRowIds.has(rowId)) {
-        const detailRow = document.createElement("tr");
-        detailRow.className = theme.get("detailRow");
-
-        const detailCell = document.createElement("td");
-        detailCell.className = theme.get("detailCell");
-        detailCell.colSpan = this.table.getVisibleColumnCount();
-        detailCell.id = `dt-detail-${rowId}`;
-
-        const detailContent = this.table.tableRenderer.renderDetailContent(row, rowId);
-
-        if (detailContent instanceof Node) {
-          detailCell.appendChild(detailContent);
-        } else if (detailContent != null) {
-          detailCell.textContent = String(detailContent);
-        }
-
-        detailRow.appendChild(detailCell);
+        const detailRow = this.table.tableRenderer._createDetailRow(
+          row,
+          rowId,
+          theme
+        );
         elements.tbody.appendChild(detailRow);
       }
     });
@@ -243,6 +187,29 @@ export class VirtualScroller {
 
   setTotalRows(count) {
     this.totalRows = count;
+    this._updateSpacer();
+  }
+
+  render(displayRows = []) {
+    if (!this.enabled) {
+      return;
+    }
+
+    this.displayRows = displayRows;
+    this.totalRows = displayRows.length;
+    this._measureViewport();
+    this.startIndex = Math.max(
+      0,
+      Math.floor(this.scrollTop / this.rowHeight) - this.bufferSize
+    );
+    this.endIndex = Math.min(
+      this.totalRows,
+      this.startIndex +
+        Math.ceil(this.viewportHeight / this.rowHeight) +
+        this.bufferSize * 2
+    );
+
+    this._renderVisibleRows();
     this._updateSpacer();
   }
 }

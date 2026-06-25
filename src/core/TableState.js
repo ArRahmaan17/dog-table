@@ -1,26 +1,48 @@
 const DEFAULT_PAGE_SIZE = 5;
 
+function normalizeColumns(columns) {
+  return Array.isArray(columns)
+    ? columns.map((column) => ({
+        ...column,
+        visible: column.hidden === true ? false : column.visible,
+      }))
+    : [];
+}
+
 export class TableState {
   constructor(options, initialSort) {
     this.options = options;
     this.state = {
       rawData: Array.isArray(options.data) ? [...options.data] : [],
-      columns: Array.isArray(options.columns) ? [...options.columns] : [],
+      columns: normalizeColumns(options.columns),
+      columnVisibility: {},
+      columnWidths: {},
+      columnOrder: [],
       selectedRows: new Set(),
       searchQuery: "",
+      filters: {},
       sortKey: initialSort ? initialSort.key : null,
       sortDirection:
         initialSort && initialSort.direction === "desc" ? "desc" : "asc",
       currentPage: 1,
       pageSize: this.clampPageSize(options.pageSize),
       totalItems: Array.isArray(options.data) ? options.data.length : 0,
+      cursor: null,
+      nextCursor: null,
+      prevCursor: null,
+      cursorHistory: { 1: null },
+      aggregates: {},
       loading: false,
       error: null,
       expandedRowIds: new Set(),
       syncStatus: null,
       highlightedRowId: null,
       toast: null,
+      views: {},
     };
+
+    this.syncColumnVisibility();
+    this.syncColumnOrder();
   }
 
   toPositiveInteger(value, fallback = 1) {
@@ -86,6 +108,27 @@ export class TableState {
   normalizeConstraints() {
     this.state.pageSize = this.clampPageSize(this.state.pageSize);
     this.state.currentPage = this.clampPage(this.state.currentPage);
+    this.syncColumnVisibility();
+    this.syncColumnOrder();
+  }
+
+  syncColumnOrder() {
+    this.state.columnOrder = this.state.columns
+      .map((column) => column.key || column.accessor)
+      .filter((key) => key != null)
+      .map(String);
+  }
+
+  syncColumnVisibility() {
+    this.state.columnVisibility = this.state.columns.reduce((visibility, column) => {
+      const key = column.key || column.accessor;
+
+      if (key != null) {
+        visibility[String(key)] = column.visible !== false;
+      }
+
+      return visibility;
+    }, {});
   }
 
   setPage(pageNumber) {
@@ -95,6 +138,19 @@ export class TableState {
     }
 
     this.state.currentPage = nextPage;
+    return true;
+  }
+
+  setCursorPage(pageNumber, cursor) {
+    const nextPage = this.clampPage(pageNumber);
+
+    if (this.state.currentPage === nextPage && this.state.cursor === cursor) {
+      return false;
+    }
+
+    this.state.currentPage = nextPage;
+    this.state.cursor = cursor ?? null;
+    this.state.cursorHistory[nextPage] = cursor ?? null;
     return true;
   }
 
@@ -117,6 +173,29 @@ export class TableState {
     this.state.searchQuery = trimmed;
     this.state.currentPage = 1;
     return true;
+  }
+
+  setFilters(filters = {}) {
+    const nextFilters = Object.entries(filters || {}).reduce((result, [key, value]) => {
+      if (value == null || String(value) === "") {
+        return result;
+      }
+
+      result[key] = value;
+      return result;
+    }, {});
+
+    if (JSON.stringify(this.state.filters) === JSON.stringify(nextFilters)) {
+      return false;
+    }
+
+    this.state.filters = nextFilters;
+    this.state.currentPage = 1;
+    return true;
+  }
+
+  clearFilters() {
+    return this.setFilters({});
   }
 
   setSort(sortKey, direction = "asc") {
@@ -180,13 +259,210 @@ export class TableState {
   }
 
   setColumns(columns) {
-    this.state.columns = Array.isArray(columns) ? [...columns] : [];
+    this.state.columns = normalizeColumns(columns);
+    this.syncColumnVisibility();
+    this.syncColumnOrder();
     this.state.currentPage = 1;
+  }
+
+  setColumnWidth(columnKey, width) {
+    const key = String(columnKey);
+    const nextWidth = Math.max(40, Math.floor(Number(width) || 0));
+
+    if (!this.state.columns.some((column) => String(column.key || column.accessor) === key)) {
+      return false;
+    }
+
+    if (this.state.columnWidths[key] === nextWidth) {
+      return false;
+    }
+
+    this.state.columnWidths = {
+      ...this.state.columnWidths,
+      [key]: nextWidth,
+    };
+    return true;
+  }
+
+  setColumnOrder(order) {
+    if (!Array.isArray(order)) {
+      return false;
+    }
+
+    const known = new Map(
+      this.state.columns.map((column) => [
+        String(column.key || column.accessor),
+        column,
+      ])
+    );
+    const nextColumns = [];
+    const used = new Set();
+
+    order.forEach((key) => {
+      const id = String(key);
+      const column = known.get(id);
+
+      if (column && !used.has(id)) {
+        nextColumns.push(column);
+        used.add(id);
+      }
+    });
+
+    this.state.columns.forEach((column) => {
+      const id = String(column.key || column.accessor);
+      if (!used.has(id)) {
+        nextColumns.push(column);
+      }
+    });
+
+    const nextOrder = nextColumns.map((column) => String(column.key || column.accessor));
+
+    if (JSON.stringify(nextOrder) === JSON.stringify(this.state.columnOrder)) {
+      return false;
+    }
+
+    this.state.columns = nextColumns;
+    this.state.columnOrder = nextOrder;
+    return true;
+  }
+
+  moveColumn(columnKey, beforeColumnKey) {
+    const order = [...this.state.columnOrder];
+    const fromIndex = order.indexOf(String(columnKey));
+    const toIndex = order.indexOf(String(beforeColumnKey));
+
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+      return false;
+    }
+
+    const [moved] = order.splice(fromIndex, 1);
+    order.splice(toIndex, 0, moved);
+    return this.setColumnOrder(order);
+  }
+
+  setColumnVisibility(columnKey, isVisible) {
+    const key = String(columnKey);
+    const column = this.state.columns.find(
+      (item) => String(item.key || item.accessor) === key
+    );
+
+    if (!column) {
+      return false;
+    }
+
+    const nextVisible = Boolean(isVisible);
+
+    if (column.visible !== false === nextVisible) {
+      return false;
+    }
+
+    column.visible = nextVisible;
+    this.syncColumnVisibility();
+    return true;
+  }
+
+  setColumnVisibilityMap(visibility = {}) {
+    let changed = false;
+
+    this.state.columns.forEach((column) => {
+      const key = column.key || column.accessor;
+
+      if (key == null || visibility[key] === undefined) {
+        return;
+      }
+
+      const nextVisible = Boolean(visibility[key]);
+      if ((column.visible !== false) !== nextVisible) {
+        column.visible = nextVisible;
+        changed = true;
+      }
+    });
+
+    this.syncColumnVisibility();
+    return changed;
+  }
+
+  createSnapshot() {
+    return {
+      searchQuery: this.state.searchQuery,
+      sortKey: this.state.sortKey,
+      sortDirection: this.state.sortDirection,
+      currentPage: this.state.currentPage,
+      pageSize: this.state.pageSize,
+      filters: { ...this.state.filters },
+      columnVisibility: { ...this.state.columnVisibility },
+      columnWidths: { ...this.state.columnWidths },
+      columnOrder: [...this.state.columnOrder],
+    };
+  }
+
+  restoreSnapshot(snapshot = {}) {
+    if (!snapshot || typeof snapshot !== "object") {
+      return false;
+    }
+
+    let changed = false;
+
+    if (snapshot.searchQuery !== undefined) {
+      const nextSearch = String(snapshot.searchQuery || "").trim().toLowerCase();
+      changed = changed || this.state.searchQuery !== nextSearch;
+      this.state.searchQuery = nextSearch;
+    }
+
+    if (snapshot.sortKey !== undefined) {
+      changed = changed || this.state.sortKey !== snapshot.sortKey;
+      this.state.sortKey = snapshot.sortKey || null;
+    }
+
+    if (snapshot.sortDirection !== undefined) {
+      const nextDirection = snapshot.sortDirection === "desc" ? "desc" : "asc";
+      changed = changed || this.state.sortDirection !== nextDirection;
+      this.state.sortDirection = nextDirection;
+    }
+
+    if (snapshot.pageSize !== undefined) {
+      const nextPageSize = this.clampPageSize(snapshot.pageSize);
+      changed = changed || this.state.pageSize !== nextPageSize;
+      this.state.pageSize = nextPageSize;
+    }
+
+    if (snapshot.filters && typeof snapshot.filters === "object") {
+      changed = this.setFilters(snapshot.filters) || changed;
+    }
+
+    if (snapshot.currentPage !== undefined) {
+      const nextPage = this.clampPage(snapshot.currentPage);
+      changed = changed || this.state.currentPage !== nextPage;
+      this.state.currentPage = nextPage;
+    }
+
+    if (snapshot.columnVisibility && typeof snapshot.columnVisibility === "object") {
+      changed = this.setColumnVisibilityMap(snapshot.columnVisibility) || changed;
+    }
+
+    if (snapshot.columnWidths && typeof snapshot.columnWidths === "object") {
+      Object.entries(snapshot.columnWidths).forEach(([key, width]) => {
+        changed = this.setColumnWidth(key, width) || changed;
+      });
+    }
+
+    if (Array.isArray(snapshot.columnOrder)) {
+      changed = this.setColumnOrder(snapshot.columnOrder) || changed;
+    }
+
+    return changed;
   }
 
   setRemoteData(payload) {
     this.state.rawData = Array.isArray(payload?.rows) ? payload.rows : [];
-    this.state.totalItems = Number(payload?.totalItems) || 0;
+    this.state.totalItems =
+      Number(payload?.totalItems ?? payload?.total) || this.state.rawData.length;
+    this.state.nextCursor = payload?.nextCursor ?? null;
+    this.state.prevCursor = payload?.prevCursor ?? null;
+    this.state.aggregates =
+      payload?.aggregates && typeof payload.aggregates === "object"
+        ? payload.aggregates
+        : {};
     this.state.error = null;
     this.state.expandedRowIds.clear();
   }
@@ -201,6 +477,7 @@ export class TableState {
 
   reset() {
     this.state.searchQuery = "";
+    this.state.filters = {};
     this.state.sortKey = null;
     this.state.sortDirection = "asc";
     this.state.currentPage = 1;

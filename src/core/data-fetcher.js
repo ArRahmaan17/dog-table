@@ -23,7 +23,17 @@ export class DataFetcher {
       ...(this.config.queryParams || {}),
     };
 
-    if (includePagination) {
+    if (includePagination && this.config.pagination === "cursor") {
+      params.delete(queryKeys.page);
+      params.set(queryKeys.pageSize, state.pageSize);
+
+      const cursorKey = this.config.cursorParam || "cursor";
+      if (state.cursor) {
+        params.set(cursorKey, state.cursor);
+      } else {
+        params.delete(cursorKey);
+      }
+    } else if (includePagination) {
       params.set(queryKeys.page, state.currentPage);
       params.set(queryKeys.pageSize, state.pageSize);
     } else {
@@ -43,6 +53,26 @@ export class DataFetcher {
       params.set(queryKeys.search, state.searchQuery);
     } else {
       params.delete(queryKeys.search);
+    }
+
+    const filters = state.filters || {};
+    const filterParams =
+      typeof this.config.filterParams === "function"
+        ? this.config.filterParams(filters, state)
+        : filters;
+
+    if (filterParams instanceof URLSearchParams) {
+      filterParams.forEach((value, key) => {
+        params.set(key, value);
+      });
+    } else if (filterParams && typeof filterParams === "object") {
+      Object.entries(filterParams).forEach(([key, value]) => {
+        if (value == null || String(value) === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
     }
 
     if (typeof this.config.buildQuery === "function") {

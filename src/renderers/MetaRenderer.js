@@ -7,6 +7,9 @@ export class MetaRenderer {
 
   renderLoading() {
     const { elements, theme, options, state } = this.table;
+    if (this.table.tableRenderer) {
+      this.table.tableRenderer.clearRowCache();
+    }
     const rowsCount = state.pageSize;
     const colsCount = this.table.getVisibleColumnCount();
     let rowsHtml = "";
@@ -26,6 +29,9 @@ export class MetaRenderer {
     }
 
     elements.tbody.innerHTML = rowsHtml;
+    if (elements.tfoot) {
+      elements.tfoot.innerHTML = "";
+    }
     elements.meta.textContent = options.language.loading;
     if (elements.pagination) {
       elements.pagination.innerHTML = "";
@@ -44,6 +50,9 @@ export class MetaRenderer {
         </td>
       </tr>
     `;
+    if (elements.tfoot) {
+      elements.tfoot.innerHTML = "";
+    }
     elements.meta.textContent = options.language.error;
     if (elements.pagination) {
       elements.pagination.innerHTML = "";

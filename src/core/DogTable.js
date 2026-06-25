@@ -1,7 +1,8 @@
-import { ThemeManager } from "./theme-manager.js";
+import { ThemeManager, resolveStoredTheme } from "./theme-manager.js";
 import { TableState } from "./TableState.js";
 import { DataEngine } from "./DataEngine.js";
 import { EventBinder } from "./EventBinder.js";
+import { VirtualScroller } from "./VirtualScroller.js";
 import { RemoteAdapter } from "../data/RemoteAdapter.js";
 import { TableRenderer } from "../renderers/TableRenderer.js";
 import { PaginationRenderer } from "../renderers/PaginationRenderer.js";
@@ -10,8 +11,21 @@ import { PluginManager } from "../plugin/PluginManager.js";
 import { debounce } from "../utils/index.js";
 
 const DEFAULT_PAGE_SIZE = 5;
+const globalPlugins = [];
 
 export class DogTable {
+  static use(plugin) {
+    if (plugin && !globalPlugins.includes(plugin)) {
+      globalPlugins.push(plugin);
+    }
+
+    return this;
+  }
+
+  static getGlobalPlugins() {
+    return [...globalPlugins];
+  }
+
   constructor(container, options = {}) {
     this.container =
       typeof container === "string"
@@ -21,6 +35,14 @@ export class DogTable {
     if (!this.container) {
       throw new Error("DogTable container was not found.");
     }
+
+    const hasExplicitTheme = Object.prototype.hasOwnProperty.call(
+      options,
+      "theme"
+    );
+    const initialTheme = hasExplicitTheme
+      ? options.theme
+      : resolveStoredTheme() || "default";
 
     this.options = {
       data: [],
@@ -61,10 +83,12 @@ export class DogTable {
       },
       initialSort: null,
       searchDebounce: 250,
+      filterDebounce: 250,
       fetchDebounce: 0,
-      theme: "default",
+      theme: initialTheme,
       classNames: {},
       remote: null,
+      optimisticUpdates: false,
       groupBy: null,
       groupLabel: null,
       rowKey: null,
@@ -72,8 +96,18 @@ export class DogTable {
       create: null,
       persistence: null,
       persistenceKey: null,
+      urlState: false,
       selectable: false,
+      filterRow: false,
+      stickyHeader: false,
+      stickyColumns: [],
+      resizableColumns: false,
+      columnReorder: false,
       paginationGuard: false,
+      virtualScroll: false,
+      dataWorker: false,
+      lazyColumns: false,
+      plugins: [],
       hooks: {},
       ...options,
     };
@@ -102,25 +136,46 @@ export class DogTable {
     this.fetcher = this.remoteAdapter.fetcher;
     this.rowIds = new WeakMap();
     this.rowIdCounter = 0;
+    this.rowLookup = new Map();
+    this.rowLookupDataRef = null;
+    this.columnLookup = new Map();
     this.highlightTimeoutId = null;
     this.syncStatusTimeoutId = null;
     this.toastTimeoutId = null;
+    this.eventHandlers = new Map();
     this._pendingUpdate = false;
     this._fetchPromise = null;
+    this._fetchRequestKey = null;
+    this._fetchSequence = 0;
+    this._activeFetchSequence = 0;
+    this._updatePromise = null;
+    this._queuedSkipFetch = true;
+    this._debouncedFetchPromise = null;
+    this._resolveDebouncedFetch = null;
+    this._rejectDebouncedFetch = null;
     this.tableRenderer = new TableRenderer(this);
     this.paginationRenderer = new PaginationRenderer(this);
     this.metaRenderer = new MetaRenderer(this);
     this.dataEngine = new DataEngine(this);
     this._pipelineCache = this.dataEngine.cache;
+    this.virtualScroller = new VirtualScroller(this);
     this.eventBinder = new EventBinder(this);
     this.boundHandlers = this.eventBinder.boundHandlers;
+    this.rebuildColumnLookup();
     this.plugins = new PluginManager(this);
     this.plugins.initialize();
     this.tableState.normalizeConstraints();
 
     if (this.options.fetchDebounce > 0) {
       this._debouncedFetch = debounce(() => {
-        this._executeFetch();
+        const resolve = this._resolveDebouncedFetch;
+        const reject = this._rejectDebouncedFetch;
+
+        this._debouncedFetchPromise = null;
+        this._resolveDebouncedFetch = null;
+        this._rejectDebouncedFetch = null;
+
+        this._executeFetch().then(resolve, reject);
       }, this.options.fetchDebounce);
     }
   }
@@ -128,6 +183,7 @@ export class DogTable {
   init() {
     this.renderStructure();
     this.bindEvents();
+    this.setupVirtualScroll();
     this.plugins.initRuntime();
     this.update();
 
@@ -136,6 +192,49 @@ export class DogTable {
     }
 
     return this;
+  }
+
+  on(eventName, handler) {
+    if (!eventName || typeof handler !== "function") {
+      return () => {};
+    }
+
+    const key = String(eventName);
+    const handlers = this.eventHandlers.get(key) || new Set();
+    handlers.add(handler);
+    this.eventHandlers.set(key, handlers);
+
+    return () => this.off(key, handler);
+  }
+
+  off(eventName, handler) {
+    const handlers = this.eventHandlers.get(String(eventName));
+
+    if (!handlers) {
+      return;
+    }
+
+    handlers.delete(handler);
+
+    if (handlers.size === 0) {
+      this.eventHandlers.delete(String(eventName));
+    }
+  }
+
+  emit(eventName, payload) {
+    const handlers = this.eventHandlers.get(String(eventName));
+
+    if (!handlers) {
+      return;
+    }
+
+    handlers.forEach((handler) => {
+      try {
+        handler(payload, this);
+      } catch (error) {
+        console.warn(`DogTable event handler failed for ${eventName}`, error);
+      }
+    });
   }
 
   renderStructure() {
@@ -151,6 +250,10 @@ export class DogTable {
     return this.remoteAdapter.isEnabled();
   }
 
+  isCursorPagination() {
+    return this.options.remote?.pagination === "cursor";
+  }
+
   hasRowDetail() {
     return (
       this.options.rowDetail &&
@@ -160,10 +263,14 @@ export class DogTable {
 
   getVisibleColumnCount() {
     return (
-      this.state.columns.filter((column) => column.visible !== false).length +
+      this.getVisibleColumns().length +
       (this.hasRowDetail() ? 1 : 0) +
       (this.options.selectable ? 1 : 0)
     );
+  }
+
+  getVisibleColumns() {
+    return this.state.columns.filter((column) => column.visible !== false);
   }
 
   loadState() {
@@ -173,6 +280,7 @@ export class DogTable {
 
   saveState() {
     this.persistence.save();
+    this.urlState.scheduleSave();
   }
 
   toPositiveInteger(value, fallback = 1) {
@@ -195,12 +303,79 @@ export class DogTable {
     return this.options.pagination !== false;
   }
 
+  getVirtualScrollConfig() {
+    if (!this.options.virtualScroll) {
+      return null;
+    }
+
+    return this.options.virtualScroll === true
+      ? {}
+      : typeof this.options.virtualScroll === "object"
+        ? this.options.virtualScroll
+        : null;
+  }
+
+  setupVirtualScroll() {
+    const config = this.getVirtualScrollConfig();
+
+    this.virtualScroller.disable();
+
+    if (config) {
+      this.virtualScroller.enable(config);
+    }
+  }
+
   normalizeStateConstraints() {
     this.tableState.normalizeConstraints();
   }
 
+  rebuildColumnLookup() {
+    this.columnLookup.clear();
+
+    this.state.columns.forEach((column) => {
+      if (column.key != null) {
+        this.columnLookup.set(String(column.key), column);
+      }
+
+      if (column.accessor != null) {
+        this.columnLookup.set(String(column.accessor), column);
+      }
+    });
+  }
+
+  getColumn(columnKey) {
+    return this.columnLookup.get(String(columnKey));
+  }
+
+  getColumnByField(field) {
+    return this.getColumn(field);
+  }
+
+  resetRowLookup() {
+    this.rowLookup.clear();
+    this.rowLookupDataRef = null;
+  }
+
+  rebuildRowLookup() {
+    this.rowLookup.clear();
+
+    this.state.rawData.forEach((row) => {
+      this.rowLookup.set(this.getRowId(row), row);
+    });
+
+    this.rowLookupDataRef = this.state.rawData;
+  }
+
+  getRowById(rowId) {
+    if (this.rowLookupDataRef !== this.state.rawData) {
+      this.rebuildRowLookup();
+    }
+
+    return this.rowLookup.get(String(rowId)) || null;
+  }
+
   rememberQueryPagination(overrides = {}) {
-    if (!this.isRemote()) {
+    if (!this.isRemote() || !this.isPaginationEnabled()) {
       return;
     }
 
@@ -227,7 +402,7 @@ export class DogTable {
   }
 
   restoreQueryPagination() {
-    if (!this.isRemote()) {
+    if (!this.isRemote() || !this.isPaginationEnabled()) {
       return false;
     }
 
@@ -305,7 +480,7 @@ export class DogTable {
   }
 
   toggleSort(columnKey) {
-    const column = this.state.columns.find((item) => item.key === columnKey);
+    const column = this.getColumn(columnKey);
 
     if (!column || column.sortable === false) {
       return;
@@ -322,7 +497,7 @@ export class DogTable {
       return;
     }
 
-    const column = this.state.columns.find((item) => item.key === sortKey);
+    const column = this.getColumn(sortKey);
 
     if (!column || column.sortable === false) {
       return;
@@ -381,6 +556,30 @@ export class DogTable {
   }
 
   setPage(pageNumber) {
+    if (this.isCursorPagination()) {
+      const nextPage = this.clampPage(pageNumber);
+      let cursor = this.state.cursorHistory[nextPage];
+
+      if (nextPage > this.state.currentPage) {
+        cursor = this.state.nextCursor;
+      } else if (nextPage < this.state.currentPage) {
+        cursor = this.state.cursorHistory[nextPage] ?? this.state.prevCursor;
+      }
+
+      if (nextPage !== 1 && !cursor) {
+        return;
+      }
+
+      this.state.cursorHistory[this.state.currentPage] = this.state.cursor;
+
+      if (this.tableState.setCursorPage(nextPage, cursor)) {
+        this.saveState();
+        this.update();
+      }
+
+      return;
+    }
+
     if (this.tableState.setPage(pageNumber)) {
       this.rememberQueryPagination();
       this.saveState();
@@ -411,6 +610,36 @@ export class DogTable {
     this.setSearch("");
   }
 
+  setFilters(filters = {}) {
+    if (this.isRemote()) {
+      this.rememberQueryPagination();
+    }
+
+    if (!this.tableState.setFilters(filters)) {
+      return;
+    }
+
+    this.restoreQueryPagination();
+    this.saveState();
+    this.dataEngine.reset();
+    this.update();
+  }
+
+  setFilter(field, value) {
+    this.setFilters({
+      ...this.state.filters,
+      [field]: value,
+    });
+  }
+
+  clearFilters() {
+    if (this.tableState.clearFilters()) {
+      this.saveState();
+      this.dataEngine.reset();
+      this.update();
+    }
+  }
+
   openCreateModal() {
     this.create.open();
   }
@@ -425,23 +654,117 @@ export class DogTable {
 
   setData(data) {
     this.tableState.setData(data);
+    this.resetRowLookup();
     this.dataEngine.reset();
     this.update();
+  }
+
+  addRow(row, { position = "start", skipRender = false } = {}) {
+    if (!row || typeof row !== "object") {
+      return null;
+    }
+
+    if (position === "end") {
+      this.state.rawData.push(row);
+    } else {
+      this.state.rawData.unshift(row);
+    }
+
+    this.state.totalItems += 1;
+    this.state.error = null;
+    this.resetRowLookup();
+    this.dataEngine.reset();
+
+    if (!skipRender) {
+      this.update({ skipFetch: true });
+    }
+
+    this.emit("row:add", { row });
+
+    return row;
+  }
+
+  updateRow(rowId, patch, { skipRender = false } = {}) {
+    const row = this.getRowById(rowId);
+
+    if (!row || !patch || typeof patch !== "object") {
+      return null;
+    }
+
+    Object.assign(row, patch);
+    this.dataEngine.reset();
+
+    if (!skipRender) {
+      this.update({ skipFetch: true });
+    }
+
+    this.emit("row:update", { rowId: String(rowId), patch, row });
+
+    return row;
+  }
+
+  removeRow(rowId, { skipRender = false } = {}) {
+    const id = String(rowId);
+    const index = this.state.rawData.findIndex(
+      (row) => this.getRowId(row) === id
+    );
+
+    if (index < 0) {
+      return null;
+    }
+
+    const [removed] = this.state.rawData.splice(index, 1);
+    this.state.selectedRows.delete(id);
+    this.state.expandedRowIds.delete(id);
+    this.state.totalItems = Math.max(0, this.state.totalItems - 1);
+    this.resetRowLookup();
+    this.dataEngine.reset();
+
+    if (!skipRender) {
+      this.update({ skipFetch: true });
+    }
+
+    this.emit("row:remove", { rowId: id, row: removed });
+
+    return removed;
   }
 
   setColumns(columns) {
     this.tableState.setColumns(columns);
+    this.rebuildColumnLookup();
     this.dataEngine.reset();
     this.update();
   }
 
+  setColumnWidth(columnKey, width) {
+    if (this.tableState.setColumnWidth(columnKey, width)) {
+      this.saveState();
+      this.update({ skipFetch: true });
+    }
+  }
+
+  moveColumn(columnKey, beforeColumnKey) {
+    if (!this.options.columnReorder) {
+      return;
+    }
+
+    if (this.tableState.moveColumn(columnKey, beforeColumnKey)) {
+      this.rebuildColumnLookup();
+      this.saveState();
+      this.update({ skipFetch: true });
+    }
+  }
+
   setTheme(theme, classNames = {}) {
+    this.options.theme = theme;
+    this.options.classNames = classNames;
     this.theme = new ThemeManager(theme, classNames);
     this.tableRenderer = new TableRenderer(this);
     this.paginationRenderer = new PaginationRenderer(this);
     this.metaRenderer = new MetaRenderer(this);
     this.renderStructure();
     this.bindEvents();
+    this.setupVirtualScroll();
     this.update({ skipFetch: true });
   }
 
@@ -452,6 +775,7 @@ export class DogTable {
     };
     this.renderStructure();
     this.bindEvents();
+    this.setupVirtualScroll();
     this.update({ skipFetch: true });
   }
 
@@ -557,12 +881,45 @@ export class DogTable {
   }
 
   toggleColumnVisibility(columnKey, isVisible) {
-    const column = this.state.columns.find((item) => item.key === columnKey);
+    const column = this.getColumn(columnKey);
+    const nextVisible =
+      typeof isVisible === "boolean" ? isVisible : !(column?.visible !== false);
 
-    if (column) {
-      column.visible = isVisible;
+    if (this.tableState.setColumnVisibility(columnKey, nextVisible)) {
+      this.saveState();
       this.update({ skipFetch: true });
     }
+  }
+
+  showColumn(columnKey) {
+    this.toggleColumnVisibility(columnKey, true);
+  }
+
+  hideColumn(columnKey) {
+    this.toggleColumnVisibility(columnKey, false);
+  }
+
+  toggleColumn(columnKey) {
+    this.toggleColumnVisibility(columnKey);
+  }
+
+  saveView(name) {
+    return this.persistence.saveView(name);
+  }
+
+  loadView(name) {
+    if (this.persistence.loadView(name)) {
+      this.restoreQueryPagination();
+      this.saveState();
+      this.update();
+      return true;
+    }
+
+    return false;
+  }
+
+  deleteView(name) {
+    return this.persistence.deleteView(name);
   }
 
   exportCSV(filename) {
@@ -580,6 +937,16 @@ export class DogTable {
   getProcessedData() {
     const processed = this.dataEngine.process(this.state);
 
+    return this.normalizeProcessedData(processed);
+  }
+
+  async getProcessedDataAsync() {
+    const processed = await this.dataEngine.processAsync(this.state);
+
+    return this.normalizeProcessedData(processed);
+  }
+
+  normalizeProcessedData(processed) {
     if (!processed || typeof processed !== "object") {
       return {
         rows: [],
@@ -622,7 +989,16 @@ export class DogTable {
   }
 
   renderBody(displayRows) {
+    if (this.virtualScroller.enabled && displayRows.length > 0) {
+      this.virtualScroller.render(displayRows);
+      return;
+    }
+
     this.tableRenderer.renderBody(displayRows);
+  }
+
+  renderFooter(processed) {
+    this.tableRenderer.renderFooter(processed);
   }
 
   renderMeta(processed) {
@@ -638,18 +1014,32 @@ export class DogTable {
       return;
     }
 
-    if (this._fetchPromise) {
+    const requestKey = this.remoteAdapter.getRequestKey(this.state, {
+      includePagination: this.isPaginationEnabled(),
+    });
+
+    if (this._fetchPromise && this._fetchRequestKey === requestKey) {
       return this._fetchPromise;
     }
 
-    this._fetchPromise = this._doFetch().finally(() => {
-      this._fetchPromise = null;
+    const fetchSequence = this._fetchSequence + 1;
+    this._fetchSequence = fetchSequence;
+    this._activeFetchSequence = fetchSequence;
+    this._fetchRequestKey = requestKey;
+
+    const fetchPromise = this._doFetch(fetchSequence).finally(() => {
+      if (this._fetchPromise === fetchPromise) {
+        this._fetchPromise = null;
+        this._fetchRequestKey = null;
+      }
     });
 
-    return this._fetchPromise;
+    this._fetchPromise = fetchPromise;
+
+    return fetchPromise;
   }
 
-  async _doFetch() {
+  async _doFetch(fetchSequence = this._activeFetchSequence) {
     this.setLoading(true);
     this.tableState.setError(null);
     this.renderLoading();
@@ -657,13 +1047,19 @@ export class DogTable {
     if (typeof this.options.hooks.onFetchStart === "function") {
       this.options.hooks.onFetchStart(this.getState());
     }
+    this.emit("fetch:start", this.getState());
 
     try {
       const payload = await this.remoteAdapter.fetch(this.state, {
         includePagination: this.isPaginationEnabled(),
       });
 
+      if (fetchSequence !== this._activeFetchSequence) {
+        return;
+      }
+
       this.tableState.setRemoteData(payload);
+      this.resetRowLookup();
       this.dataEngine.reset();
 
       const totalPages = this.isPaginationEnabled()
@@ -671,7 +1067,7 @@ export class DogTable {
         : 1;
       if (this.state.currentPage > totalPages && totalPages > 0) {
         this.tableState.syncCurrentPage(totalPages);
-        return this._doFetch();
+        return this._doFetch(fetchSequence);
       }
 
       this.live.handleFetchSuccess(payload);
@@ -679,6 +1075,7 @@ export class DogTable {
       if (typeof this.options.hooks.onFetchSuccess === "function") {
         this.options.hooks.onFetchSuccess(payload);
       }
+      this.emit("fetch:success", payload);
 
       if (typeof this.options.hooks.onDataUpdated === "function") {
         this.options.hooks.onDataUpdated(this.state.rawData);
@@ -686,7 +1083,7 @@ export class DogTable {
     } catch (error) {
       this.dataEngine.reset();
 
-      if (error.name === "AbortError") {
+      if (error.name === "AbortError" || fetchSequence !== this._activeFetchSequence) {
         return;
       }
 
@@ -696,8 +1093,11 @@ export class DogTable {
       if (typeof this.options.hooks.onFetchError === "function") {
         this.options.hooks.onFetchError(error);
       }
+      this.emit("fetch:error", error);
     } finally {
-      this.setLoading(false);
+      if (fetchSequence === this._activeFetchSequence) {
+        this.setLoading(false);
+      }
     }
   }
 
@@ -707,17 +1107,46 @@ export class DogTable {
     }
 
     if (this._debouncedFetch) {
+      if (!this._debouncedFetchPromise) {
+        this._debouncedFetchPromise = new Promise((resolve, reject) => {
+          this._resolveDebouncedFetch = resolve;
+          this._rejectDebouncedFetch = reject;
+        });
+      }
+
       this._debouncedFetch();
-    } else {
-      return this._executeFetch();
+      return this._debouncedFetchPromise;
     }
+
+    return this._executeFetch();
   }
 
   fetchNow() {
+    const resolve = this._resolveDebouncedFetch;
+    const reject = this._rejectDebouncedFetch;
+
     if (this._debouncedFetch) {
       this._debouncedFetch.cancel();
     }
-    return this._executeFetch();
+
+    this._debouncedFetchPromise = null;
+    this._resolveDebouncedFetch = null;
+    this._rejectDebouncedFetch = null;
+
+    return this._executeFetch().then(
+      (result) => {
+        if (resolve) {
+          resolve(result);
+        }
+        return result;
+      },
+      (error) => {
+        if (reject) {
+          reject(error);
+        }
+        throw error;
+      }
+    );
   }
 
   emitHooks(processed) {
@@ -783,112 +1212,91 @@ export class DogTable {
   }
 
   async update({ skipFetch = false } = {}) {
-    if (this._pendingUpdate) {
-      return new Promise((resolve) => {
-        const check = () => {
-          if (!this._pendingUpdate) {
+    this._queuedSkipFetch = this._updatePromise
+      ? this._queuedSkipFetch && skipFetch
+      : skipFetch;
+
+    if (!this._updatePromise) {
+      this._pendingUpdate = true;
+
+      this._updatePromise = new Promise((resolve) => {
+        requestAnimationFrame(async () => {
+          const queuedSkipFetch = this._queuedSkipFetch;
+
+          this._queuedSkipFetch = true;
+
+          try {
+            await this._runUpdate({ skipFetch: queuedSkipFetch });
+          } finally {
+            this._pendingUpdate = false;
+            this._updatePromise = null;
             resolve();
-          } else {
-            requestAnimationFrame(check);
           }
-        };
-        requestAnimationFrame(check);
+        });
       });
     }
 
-    this._pendingUpdate = true;
+    return this._updatePromise;
+  }
 
-    return new Promise((resolve) => {
-      requestAnimationFrame(async () => {
-        if (this.isRemote() && !skipFetch) {
-          await this.fetchData();
-        }
+  async _runUpdate({ skipFetch = false } = {}) {
+    if (this.isRemote() && !skipFetch) {
+      await this.fetchData();
+    }
 
-        const processed = this.getProcessedData();
+    const processed = await this.getProcessedDataAsync();
 
-        this.renderHeader(processed.rows);
+    this.renderHeader(processed.rows);
 
-        if (this.state.error) {
-          this.renderError();
-          this._pendingUpdate = false;
-          resolve();
-          return;
-        }
+    if (this.state.error) {
+      this.renderError();
+      return;
+    }
 
-        if (this.state.loading) {
-          this.renderLoading();
-          this._pendingUpdate = false;
-          resolve();
-          return;
-        }
+    if (this.state.loading) {
+      this.renderLoading();
+      return;
+    }
 
-        this.saveState();
-        this.renderBody(processed.displayRows);
-        this.renderMeta(processed);
-        this.renderPagination(processed);
-        this.rememberQueryPagination({
-          totalItems: processed.totalItems,
-          totalPages: processed.totalPages,
-        });
-        this.renderToast();
-        this.create.updateUI();
-        this.live.updateUI();
-        this.emitHooks(processed);
-        this._pendingUpdate = false;
-        resolve();
-      });
+    this.saveState();
+    this.renderBody(processed.displayRows);
+    this.renderFooter(processed);
+    this.renderMeta(processed);
+    this.renderPagination(processed);
+    this.rememberQueryPagination({
+      totalItems: processed.totalItems,
+      totalPages: processed.totalPages,
+    });
+    this.renderToast();
+    this.create.updateUI();
+    this.live.updateUI();
+    this.emitHooks(processed);
+    this.emit("state:change", {
+      state: this.getState(),
+      processed,
     });
   }
 
   updateSync({ skipFetch = false } = {}) {
-    if (this._pendingUpdate) {
-      return;
+    if (this._updatePromise) {
+      return this._updatePromise;
     }
 
     this._pendingUpdate = true;
 
-    const runUpdate = async () => {
-      if (this.isRemote() && !skipFetch) {
-        await this.fetchData();
-      }
-
-      const processed = this.getProcessedData();
-
-      this.renderHeader(processed.rows);
-
-      if (this.state.error) {
-        this.renderError();
-        this._pendingUpdate = false;
-        return;
-      }
-
-      if (this.state.loading) {
-        this.renderLoading();
-        this._pendingUpdate = false;
-        return;
-      }
-
-      this.saveState();
-      this.renderBody(processed.displayRows);
-      this.renderMeta(processed);
-      this.renderPagination(processed);
-      this.rememberQueryPagination({
-        totalItems: processed.totalItems,
-        totalPages: processed.totalPages,
-      });
-      this.renderToast();
-      this.create.updateUI();
-      this.live.updateUI();
-      this.emitHooks(processed);
+    this._updatePromise = this._runUpdate({ skipFetch }).finally(() => {
       this._pendingUpdate = false;
-    };
+      this._updatePromise = null;
+    });
 
-    runUpdate();
+    return this._updatePromise;
   }
 
   destroy() {
     this.eventBinder.unbind();
     this.remoteAdapter.abort();
+    this.virtualScroller.destroy();
+    this.dataEngine.destroy();
     this.plugins.destroy();
 
     if (this.highlightTimeoutId) {
@@ -906,6 +1314,7 @@ export class DogTable {
     this.container.innerHTML = "";
     this.elements = {};
     this.boundHandlers = {};
+    this.eventHandlers.clear();
 
     if (typeof this.options.hooks.onDestroy === "function") {
       this.options.hooks.onDestroy();

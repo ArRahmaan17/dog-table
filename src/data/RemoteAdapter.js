@@ -21,6 +21,7 @@ export class RemoteAdapter {
     this.dataCache = new Map();
     this.requestCache = new Map();
     this.queryCache = new Map();
+    this.pendingRequests = new Map();
   }
 
   isEnabled() {
@@ -106,11 +107,32 @@ export class RemoteAdapter {
       return null;
     }
 
-    const payload = await this.fetcher.fetch(state, { includePagination });
-    return this.rememberResult(state, payload, { includePagination });
+    const requestKey = this.getRequestKey(state, { includePagination });
+
+    if (this.pendingRequests.has(requestKey)) {
+      return this.pendingRequests.get(requestKey);
+    }
+
+    const requestState = { ...state };
+    const requestPromise = this.fetcher
+      .fetch(requestState, { includePagination })
+      .then((payload) =>
+        this.rememberResult(requestState, payload, { includePagination })
+      )
+      .finally(() => {
+        if (this.pendingRequests.get(requestKey) === requestPromise) {
+          this.pendingRequests.delete(requestKey);
+        }
+      });
+
+    this.pendingRequests.set(requestKey, requestPromise);
+
+    return requestPromise;
   }
 
   abort() {
+    this.pendingRequests.clear();
+
     if (this.fetcher) {
       this.fetcher.abort();
     }

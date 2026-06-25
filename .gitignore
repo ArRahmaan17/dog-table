@@ -2,3 +2,6 @@
 PLAN*
 dist
 wiki
+node_modules
+docs/dist
+lock.*

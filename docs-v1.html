@@ -590,7 +590,7 @@ table.init();</code></pre>
               <tr><td><code>searchDebounce</code></td><td><code>number</code></td><td><code>250</code></td><td>Debounce delay for the search input.</td></tr>
               <tr><td><code>language</code></td><td><code>object</code></td><td>built-in labels</td><td>Overrides visible UI copy such as search, paging, empty, and loading text.</td></tr>
               <tr><td><code>initialSort</code></td><td><code>{ key, direction } | null</code></td><td><code>null</code></td><td>Initial sort state.</td></tr>
-              <tr><td><code>theme</code></td><td><code>string | object</code></td><td><code>"default"</code></td><td>Preset name or custom theme map.</td></tr>
+              <tr><td><code>theme</code></td><td><code>string | object</code></td><td><code>"default"</code></td><td>Preset name or custom theme map. Built-ins include <code>light</code>, <code>dark</code>, <code>default</code>, <code>bootstrap</code>, and <code>tailwind</code>. If omitted, Dog Table checks <code>localStorage</code> and then <code>sessionStorage</code> for <code>dog-table-theme</code>, <code>dogTableTheme</code>, or <code>theme</code>.</td></tr>
               <tr><td><code>classNames</code></td><td><code>object</code></td><td><code>{}</code></td><td>Additional class name overrides merged with the active theme.</td></tr>
               <tr><td><code>remote</code></td><td><code>object | null</code></td><td><code>null</code></td><td>Enables server-driven data loading through <code>fetch()</code>.</td></tr>
               <tr><td><code>groupBy</code></td><td><code>string | function | null</code></td><td><code>null</code></td><td>Groups rows before rendering.</td></tr>
@@ -653,7 +653,7 @@ table.init();</code></pre>
               <tr><td><code>clearSort()</code></td><td>Removes active sorting.</td></tr>
               <tr><td><code>setData(data)</code></td><td>Replaces local row data and clears error/detail state.</td></tr>
               <tr><td><code>setColumns(columns)</code></td><td>Replaces the current columns and rerenders.</td></tr>
-              <tr><td><code>setTheme(theme, classNames)</code></td><td>Swaps theme mapping and rebuilds the DOM shell.</td></tr>
+              <tr><td><code>setTheme(theme, classNames)</code></td><td>Swaps theme mapping and rebuilds the DOM shell, for example <code>setTheme("dark")</code>.</td></tr>
               <tr><td><code>setLanguage(language)</code></td><td>Merges language overrides and rebuilds visible UI text.</td></tr>
               <tr><td><code>toggleRowDetail(rowId)</code></td><td>Expands or collapses a detail row.</td></tr>
               <tr><td><code>expandRowDetail(rowId)</code> / <code>collapseRowDetail(rowId)</code></td><td>Explicit detail row control.</td></tr>

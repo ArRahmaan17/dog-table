@@ -32,7 +32,18 @@ const baseTheme = {
 };
 
 const presets = {
-  default: baseTheme,
+  default: {
+    ...baseTheme,
+    shell: "dt-shell dt-theme-light",
+  },
+  light: {
+    ...baseTheme,
+    shell: "dt-shell dt-theme-light",
+  },
+  dark: {
+    ...baseTheme,
+    shell: "dt-shell dt-theme-dark",
+  },
   bootstrap: {
     ...baseTheme,
     shell: "dt-shell card shadow-sm",
@@ -82,6 +93,8 @@ const presets = {
   },
 };
 
+const storageThemeKeys = ["dog-table-theme", "dogTableTheme", "theme"];
+
 function appendClassNames(...sources) {
   const tokens = [];
   const seen = new Set();
@@ -110,7 +123,8 @@ function prependClassNames(base, override) {
 
 function resolveTheme(theme) {
   if (typeof theme === "string") {
-    return presets[theme] || presets.default;
+    const normalizedTheme = normalizeThemeName(theme);
+    return presets[normalizedTheme] || presets.default;
   }
 
   if (!theme || typeof theme !== "object") {
@@ -121,6 +135,53 @@ function resolveTheme(theme) {
     ...baseTheme,
     ...theme,
   };
+}
+
+function normalizeThemeName(theme) {
+  if (typeof theme !== "string") {
+    return "";
+  }
+
+  return theme.trim().replace(/^["']|["']$/g, "").toLowerCase();
+}
+
+function readThemeFromStorage(storage) {
+  if (!storage) {
+    return null;
+  }
+
+  try {
+    for (const key of storageThemeKeys) {
+      const value = normalizeThemeName(storage.getItem(key));
+
+      if (value === "light" || value === "dark") {
+        return value;
+      }
+    }
+  } catch (_error) {
+    return null;
+  }
+
+  return null;
+}
+
+function getStorage(storageName) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    return window[storageName] || null;
+  } catch (_error) {
+    return null;
+  }
+}
+
+function resolveStoredTheme() {
+  return (
+    readThemeFromStorage(getStorage("localStorage")) ||
+    readThemeFromStorage(getStorage("sessionStorage"))
+  );
 }
 
 function mergeTheme(theme, overrides = {}) {
@@ -170,4 +231,4 @@ export class ThemeManager {
   }
 }
 
-export { presets as themePresets };
+export { presets as themePresets, resolveStoredTheme };

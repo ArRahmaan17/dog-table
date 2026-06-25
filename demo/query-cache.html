@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Query Cache Demo</title>
+    <meta
+      name="description"
+      content="Dog Table demo for remote query caching, request deduplication, fetch debounce, and per-query pagination memory."
+    />
+    <link
+      rel="canonical"
+      href="https://arrahmaan17.github.io/dog-table/demo/query-cache.html"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dog Table - Query Cache Demo" />
+    <meta
+      property="og:description"
+      content="Remote query caching, request deduplication, fetch debounce, and per-query pagination memory in Dog Table."
+    />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/demo/query-cache.html"
+    />
+    <meta
+      property="og:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <meta property="og:image:alt" content="Dog Table open graph preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dog Table - Query Cache Demo" />
+    <meta
+      name="twitter:description"
+      content="Remote query caching, request deduplication, fetch debounce, and per-query pagination memory in Dog Table."
+    />
+    <meta
+      name="twitter:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: linear-gradient(180deg, #eef2ff, #f8fafc);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #4338ca;
+        font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.5;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        color: #312e81;
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: #4338ca;
+      }
+
+      .panel {
+        margin: 0 0 18px;
+        padding: 18px 20px;
+        border: 1px solid rgba(67, 56, 202, 0.14);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 10px 24px rgba(49, 46, 129, 0.07);
+      }
+
+      .panel h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #312e81;
+      }
+
+      .panel p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #1e1b4b;
+        color: #e0e7ff;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin: 0 0 14px;
+      }
+
+      .toolbar button {
+        border: 1px solid rgba(67, 56, 202, 0.24);
+        border-radius: 10px;
+        background: #ffffff;
+        color: #312e81;
+        padding: 8px 12px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .toolbar button:hover {
+        background: #eef2ff;
+      }
+
+      .stats {
+        display: grid;
+        gap: 12px;
+        margin: 0 0 18px;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+
+      .stat {
+        padding: 14px 16px;
+        border: 1px solid rgba(67, 56, 202, 0.14);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .stat span {
+        display: block;
+        color: #6366f1;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 4px;
+        color: #1e1b4b;
+        font-size: 1.35rem;
+      }
+
+      .log {
+        min-height: 110px;
+        margin: 0;
+        padding: 14px 16px;
+        overflow: auto;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #312e81;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 160px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        color: inherit;
+        text-decoration: none;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        margin-left: auto;
+        text-align: right;
+      }
+
+      .pn-dir {
+        color: #0284c7;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .pn-name {
+        color: #10263f;
+        font-size: 1.02rem;
+        font-weight: 700;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          margin-left: 0;
+          text-align: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Query Cache</span>
+      </nav>
+
+      <h1>Remote Query Cache</h1>
+      <p>
+        This demo uses a local mock remote endpoint so you can see request dedupe,
+        fetch debounce, and per-query pagination memory without an internet
+        connection.
+      </p>
+
+      <section class="panel" aria-labelledby="setup-title">
+        <h2 id="setup-title">Library setup</h2>
+        <p>
+          The query key excludes page and page size. Search, sort, and filters
+          create separate query contexts, and Dog Table remembers pagination for
+          each context.
+        </p>
+        <pre class="snippet"><code>const table = new DogTable("#app", {
+  pageSize: 4,
+  fetchDebounce: 350,
+  paginationGuard: { maxPage: 4, maxPageSize: 8 },
+  remote: {
+    url: "/api/query-cache-dogs",
+    mapResponse(payload) {
+      return {
+        rows: payload.items,
+        totalItems: payload.total,
+      };
+    },
+  },
+  columns,
+});</code></pre>
+      </section>
+
+      <section class="panel" aria-labelledby="controls-title">
+        <h2 id="controls-title">Try it</h2>
+        <div class="toolbar">
+          <button type="button" data-action="burst">Burst update()</button>
+          <button type="button" data-action="search-active">Search active</button>
+          <button type="button" data-action="search-review">Search review</button>
+          <button type="button" data-action="clear">Clear search</button>
+          <button type="button" data-action="page-3">Page 3</button>
+        </div>
+        <p>
+          Use the table search box too. After moving pages inside one search,
+          switch away and back to see that query's pagination restored.
+        </p>
+      </section>
+
+      <section class="stats" aria-label="Request stats">
+        <div class="stat-grid">
+          <div class="stat">
+            <span>Network requests</span>
+            <strong id="request-count">0</strong>
+          </div>
+          <div class="stat">
+            <span>Pending dedupe hits</span>
+            <strong id="dedupe-count">0</strong>
+          </div>
+          <div class="stat">
+            <span>Last query key</span>
+            <strong id="query-key">-</strong>
+          </div>
+        </div>
+        <pre class="log" id="log">Waiting for first request...</pre>
+      </section>
+
+      <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link pn-prev" href="./basic.html">
+          <span class="pn-dir">← Previous</span>
+          <span class="pn-name">Basic</span>
+        </a>
+        <a class="pn-link pn-next" href="./custom-cells.html">
+          <span class="pn-dir">Next →</span>
+          <span class="pn-name">Custom Cells</span>
+        </a>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+
+      const names = [
+        ["Mochi", "Akita", "active", "Jakarta"],
+        ["Pepper", "Border Collie", "review", "Bandung"],
+        ["Nori", "Shiba Inu", "active", "Surabaya"],
+        ["Luna", "Golden Retriever", "paused", "Medan"],
+        ["Kopi", "Corgi", "active", "Yogyakarta"],
+        ["Bean", "Poodle", "review", "Semarang"],
+        ["Milo", "Beagle", "active", "Bogor"],
+        ["Sora", "Samoyed", "paused", "Denpasar"],
+        ["Taro", "Husky", "review", "Malang"],
+        ["Boba", "Dachshund", "active", "Solo"],
+        ["Yuki", "Spitz", "active", "Makassar"],
+        ["Kiko", "Terrier", "review", "Palembang"],
+        ["Chai", "Pomeranian", "paused", "Batam"],
+        ["Piko", "Maltese", "active", "Cirebon"],
+        ["Bento", "Bulldog", "review", "Depok"],
+        ["Suki", "Whippet", "active", "Tangerang"],
+      ];
+      const rows = names.map(([name, breed, status, city], index) => ({
+        id: index + 1,
+        name,
+        breed,
+        status,
+        city,
+        score: 72 + ((index * 7) % 26),
+      }));
+      const log = document.getElementById("log");
+      const requestCountEl = document.getElementById("request-count");
+      const dedupeCountEl = document.getElementById("dedupe-count");
+      const queryKeyEl = document.getElementById("query-key");
+      const originalFetch = window.fetch.bind(window);
+      const pending = new Map();
+      let requestCount = 0;
+      let dedupeCount = 0;
+
+      function addLog(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        log.textContent = `[${timestamp}] ${message}\n${log.textContent}`.trim();
+      }
+
+      function updateStats(url, deduped = false) {
+        requestCountEl.textContent = String(requestCount);
+        dedupeCountEl.textContent = String(dedupeCount);
+        queryKeyEl.textContent = url
+          ? url.searchParams.toString().replace(/page=\d+&?|pageSize=\d+&?/g, "").replace(/&$/, "") || "base"
+          : "-";
+
+        if (deduped) {
+          addLog(`deduped pending request: ${url.search || "(base query)"}`);
+        }
+      }
+
+      function compareValues(left, right) {
+        if (typeof left === "number" && typeof right === "number") {
+          return left - right;
+        }
+
+        return String(left ?? "").localeCompare(String(right ?? ""), undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      }
+
+      function buildPayload(url) {
+        const page = Number(url.searchParams.get("page") || 1);
+        const pageSize = Number(url.searchParams.get("pageSize") || 4);
+        const search = String(url.searchParams.get("search") || "").toLowerCase();
+        const sort = url.searchParams.get("sort");
+        const order = url.searchParams.get("order") || "asc";
+        let result = rows.filter((row) =>
+          `${row.name} ${row.breed} ${row.status} ${row.city}`
+            .toLowerCase()
+            .includes(search)
+        );
+
+        if (sort) {
+          result = [...result].sort((left, right) => {
+            const comparison = compareValues(left[sort], right[sort]);
+            return order === "desc" ? -comparison : comparison;
+          });
+        }
+
+        const start = (page - 1) * pageSize;
+        return {
+          items: result.slice(start, start + pageSize),
+          total: result.length,
+          page,
+          pageSize,
+        };
+      }
+
+      window.fetch = async (input, init) => {
+        const url = new URL(input instanceof Request ? input.url : input, window.location.href);
+
+        if (!url.pathname.endsWith("/api/query-cache-dogs")) {
+          return originalFetch(input, init);
+        }
+
+        const requestKey = url.toString();
+
+        if (pending.has(requestKey)) {
+          dedupeCount += 1;
+          updateStats(url, true);
+          return pending.get(requestKey).then((response) => response.clone());
+        }
+
+        requestCount += 1;
+        updateStats(url);
+        addLog(`request ${requestCount}: ${url.search || "(base query)"}`);
+
+        const promise = new Promise((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            resolve(
+              new Response(JSON.stringify(buildPayload(url)), {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+              })
+            );
+          }, 450);
+
+          init?.signal?.addEventListener("abort", () => {
+            clearTimeout(timeout);
+            reject(new DOMException("Request aborted", "AbortError"));
+          }, { once: true });
+        }).finally(() => {
+          pending.delete(requestKey);
+        });
+
+        pending.set(requestKey, promise);
+        return promise.then((response) => response.clone());
+      };
+
+      const table = new DogTable("#app", {
+        pageSize: 4,
+        fetchDebounce: 350,
+        paginationGuard: { maxPage: 4, maxPageSize: 8 },
+        remote: {
+          url: "/api/query-cache-dogs",
+          mapResponse(payload) {
+            return {
+              rows: payload.items,
+              totalItems: payload.total,
+            };
+          },
+        },
+        columns: [
+          { key: "id", label: "ID", sortable: true },
+          { key: "name", label: "Name", sortable: true },
+          { key: "breed", label: "Breed" },
+          { key: "status", label: "Status", sortable: true },
+          { key: "city", label: "City" },
+          { key: "score", label: "Score", sortable: true },
+        ],
+        hooks: {
+          onFetchStart(state) {
+            addLog(
+              `fetch start | page=${state.currentPage} | search="${state.searchQuery || "-"}" | sort=${state.sortKey || "-"}`
+            );
+          },
+          onFetchSuccess(payload) {
+            addLog(
+              `fetch success | rows=${payload.rows.length} | total=${payload.totalItems} | query=${payload.queryKey}`
+            );
+          },
+          onFetchError(error) {
+            addLog(`fetch error | ${error.name}: ${error.message}`);
+          },
+        },
+      }).init();
+
+      document.querySelector(".toolbar").addEventListener("click", (event) => {
+        const action = event.target?.dataset?.action;
+
+        if (!action) {
+          return;
+        }
+
+        if (action === "burst") {
+          table.update();
+          table.update();
+          table.update();
+          addLog("called table.update() three times with the same request key");
+        }
+
+        if (action === "search-active") {
+          table.setSearch("active");
+        }
+
+        if (action === "search-review") {
+          table.setSearch("review");
+        }
+
+        if (action === "clear") {
+          table.clearSearch();
+        }
+
+        if (action === "page-3") {
+          table.setPage(3);
+        }
+      });
+    </script>
+  </body>
+</html>

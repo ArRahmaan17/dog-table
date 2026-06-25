@@ -641,7 +641,7 @@
                 >API methods</a
               >
               <a class="button button-secondary" href="#hooks">Hooks</a>
-              <a class="button button-secondary" href="./query-cache.html"
+              <a class="button button-secondary" href="./demo/query-cache.html"
                 >Query cache guide</a
               >
             </div>
@@ -660,7 +660,7 @@
               <a href="#api-methods">API methods</a>
               <a href="#hooks">Hooks</a>
               <a href="#plugins">Plugins and modules</a>
-              <a href="./query-cache.html">Query cache guide</a>
+              <a href="./demo/query-cache.html">Query cache guide</a>
               <a href="#demos">Demo map</a>
             </div>
           </aside>
@@ -1064,7 +1064,7 @@ table.live.toggle();</code></pre>
   ],
   initialSort: { key: "score", direction: "desc" },
   searchDebounce: 300,
-  theme: "default",
+  theme: "dark",
   paginationGuard: { maxPage: 50, minPageSize: 5, maxPageSize: 100 },
   hooks: {
     onInit: (state) => console.log("Initialized", state),
@@ -1094,6 +1094,7 @@ table.clearSort();
 table.reset();
 table.setData(newData);
 table.setColumns(newColumns);
+table.setTheme("light");
 table.setTheme("bootstrap");
 table.destroy();</code></pre>
               </div>
@@ -1379,7 +1380,16 @@ allRowsTable.init();</code></pre>
                   <td><code>theme</code></td>
                   <td><code>string | object</code></td>
                   <td><code>"default"</code></td>
-                  <td>Preset name or custom theme map.</td>
+                  <td>
+                    Preset name or custom theme map. Built-ins include
+                    <code>light</code>, <code>dark</code>,
+                    <code>default</code>, <code>bootstrap</code>, and
+                    <code>tailwind</code>. If omitted, Dog Table checks
+                    <code>localStorage</code> and then
+                    <code>sessionStorage</code> for
+                    <code>dog-table-theme</code>, <code>dogTableTheme</code>,
+                    or <code>theme</code>.
+                  </td>
                 </tr>
                 <tr>
                   <td><code>classNames</code></td>
@@ -1641,7 +1651,10 @@ allRowsTable.init();</code></pre>
                 </tr>
                 <tr>
                   <td><code>setTheme(theme, classNames)</code></td>
-                  <td>Swaps theme mapping and rebuilds the DOM shell.</td>
+                  <td>
+                    Swaps theme mapping and rebuilds the DOM shell, for
+                    example <code>setTheme("dark")</code>.
+                  </td>
                 </tr>
                 <tr>
                   <td><code>setLanguage(language)</code></td>
@@ -1887,7 +1900,7 @@ allRowsTable.init();</code></pre>
             </p>
             <p class="footer-note">
               For the remote caching model, see
-              <a href="./query-cache.html"><code>query-cache.html</code></a
+              <a href="./demo/query-cache.html"><code>demo/query-cache.html</code></a
               >.
             </p>
           </section>
@@ -2046,7 +2059,7 @@ allRowsTable.init();</code></pre>
               <a href="#api-methods">API Reference</a>
               <a href="#hooks">Hooks</a>
               <a href="#plugins">Plugins</a>
-              <a href="./query-cache.html">Query Cache Guide</a>
+              <a href="./demo/query-cache.html">Query Cache Guide</a>
             </div>
           </div>
 
