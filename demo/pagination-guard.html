@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Pagination Guard Demo</title>
+    <meta
+      name="description"
+      content="Dog Table demo for optional pagination guardrails: max page and page-size limits."
+    />
+    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/pagination-guard.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dog Table - Pagination Guard Demo" />
+    <meta
+      property="og:description"
+      content="Dog Table demo for optional pagination guardrails: max page and page-size limits."
+    />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/demo/pagination-guard.html"
+    />
+    <meta
+      property="og:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <meta property="og:image:alt" content="Dog Table open graph preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dog Table - Pagination Guard Demo" />
+    <meta
+      name="twitter:description"
+      content="Dog Table demo for optional pagination guardrails: max page and page-size limits."
+    />
+    <meta
+      name="twitter:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: linear-gradient(180deg, #f0fdf4, #f8fafc);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 1060px;
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #166534;
+        font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.5;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        color: #14532d;
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: #166534;
+      }
+
+      .card {
+        margin: 0 0 18px;
+        padding: 18px 20px;
+        border: 1px solid rgba(22, 101, 52, 0.14);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 10px 24px rgba(20, 83, 45, 0.07);
+      }
+
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #14532d;
+      }
+
+      .card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #052e16;
+        color: #dcfce7;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin: 0 0 14px;
+      }
+
+      .toolbar button {
+        border: 1px solid rgba(21, 128, 61, 0.22);
+        border-radius: 10px;
+        background: #ffffff;
+        color: #14532d;
+        padding: 8px 12px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .toolbar button:hover {
+        background: #f0fdf4;
+      }
+
+      .toolbar label {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        color: #14532d;
+        font-weight: 600;
+      }
+
+      .log {
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.88);
+        color: #14532d;
+        font-size: 0.92rem;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+
+      .pn-disabled {
+        visibility: hidden;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Pagination Guard</span>
+      </nav>
+
+      <h1>Optional Pagination Guardrails</h1>
+      <p>
+        Toggle guardrails on/off. This demo uses custom bounds:
+        page is capped at 3 and page size is clamped to 5-50.
+      </p>
+
+      <section class="card" aria-labelledby="setup-title">
+        <h2 id="setup-title">Library setup</h2>
+        <p>
+          Set <code>paginationGuard</code> to <code>true</code> for defaults
+          or pass custom bounds. This page uses local data so the clamp behavior
+          is deterministic.
+        </p>
+        <pre class="snippet"><code>const table = new DogTable("#app", {
+  pageSize: 10,
+  paginationGuard: {
+    maxPage: 3,
+    minPageSize: 5,
+    maxPageSize: 50,
+  },
+  data,
+  columns: [
+    { key: "id", label: "ID" },
+    { key: "name", label: "Name" },
+  ],
+});</code></pre>
+      </section>
+
+      <div class="toolbar">
+        <label>
+          <input type="checkbox" id="guard-toggle" checked />
+          Enable <code>paginationGuard</code> (page 1-3, size 5-50)
+        </label>
+        <button type="button" id="set-page-10">setPage(10)</button>
+        <button type="button" id="set-size-negative">setPageSize(-8)</button>
+        <button type="button" id="set-size-3">setPageSize(3)</button>
+        <button type="button" id="set-size-150">setPageSize(150)</button>
+        <button type="button" id="set-size-50">setPageSize(50)</button>
+      </div>
+
+      <div class="log" id="log">Table initializing...</div>
+      <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link pn-prev" href="./live-sync.html"><span class="pn-dir">← Previous</span><span class="pn-name">Live Sync</span></a>
+        <span class="pn-link pn-disabled"></span>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+
+      const log = document.getElementById("log");
+      const guardToggle = document.getElementById("guard-toggle");
+      const departments = ["Operations", "Support", "Finance", "Product"];
+      const roles = ["Coordinator", "Analyst", "Lead", "Specialist"];
+      const data = Array.from({ length: 72 }, (_, index) => ({
+        id: index + 1,
+        name: `Employee ${String(index + 1).padStart(2, "0")}`,
+        role: roles[index % roles.length],
+        department: departments[index % departments.length],
+      }));
+      let table = null;
+
+      function buildTable() {
+        if (table) {
+          table.destroy();
+        }
+
+        table = new DogTable("#app", {
+          pageSize: 10,
+          paginationGuard: guardToggle.checked
+            ? { maxPage: 3, minPageSize: 5, maxPageSize: 50 }
+            : false,
+          data,
+          columns: [
+            { key: "id", label: "ID" },
+            { key: "name", label: "Name" },
+            { key: "role", label: "Role" },
+            { key: "department", label: "Department" },
+          ],
+          hooks: {
+            onUpdate(processed) {
+              const state = table.state;
+              const guard = guardToggle.checked ? "on" : "off";
+              log.textContent = [
+                `guard=${guard}`,
+                `page=${processed.currentPage ?? 1}/${processed.totalPages ?? 1}`,
+                `pageSize=${state.pageSize}`,
+                `bounds=${guard === "on" ? "page 1-3, size 5-50" : "none"}`,
+                `showing=${processed.startIndex ?? 0}-${processed.endIndex ?? 0} of ${processed.totalItems ?? 0}`,
+              ].join(" | ");
+            },
+          },
+        });
+
+        table.init();
+      }
+
+      guardToggle.addEventListener("change", buildTable);
+      document.getElementById("set-page-10").addEventListener("click", () => table.setPage(10));
+      document
+        .getElementById("set-size-negative")
+        .addEventListener("click", () => table.setPageSize(-8));
+      document
+        .getElementById("set-size-3")
+        .addEventListener("click", () => table.setPageSize(3));
+      document
+        .getElementById("set-size-150")
+        .addEventListener("click", () => table.setPageSize(150));
+      document
+        .getElementById("set-size-50")
+        .addEventListener("click", () => table.setPageSize(50));
+
+      buildTable();
+    </script>
+  </body>
+</html>

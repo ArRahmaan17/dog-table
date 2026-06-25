@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Basic Demo</title>
+    <meta
+      name="description"
+      content="Dog Table basic demo showing local data, search, sorting, pagination, plus the simplest way to disable pagination."
+    />
+    <link
+      rel="canonical"
+      href="https://arrahmaan17.github.io/dog-table/demo/basic.html"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dog Table - Basic Demo" />
+    <meta
+      property="og:description"
+      content="Dog Table basic demo showing local data, search, sorting, pagination, plus the simplest way to disable pagination."
+    />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/demo/basic.html"
+    />
+    <meta
+      property="og:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <meta property="og:image:alt" content="Dog Table open graph preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dog Table - Basic Demo" />
+    <meta
+      name="twitter:description"
+      content="Dog Table basic demo showing local data, search, sorting, pagination, plus the simplest way to disable pagination."
+    />
+    <meta
+      name="twitter:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: radial-gradient(
+            circle at top left,
+            rgba(45, 125, 154, 0.18),
+            transparent 35%
+          ),
+          linear-gradient(135deg, #f4f7fb, #e6ecf3);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #0f766e;
+        font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
+      }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-card p:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #102a43;
+        color: #f8fafc;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          monospace;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+
+      .pn-disabled {
+        visibility: hidden;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Basic Demo</span>
+      </nav>
+      <h1>Basic Local Table</h1>
+      <p>
+        Vanilla JavaScript data table with sorting, search, pagination, render
+        callbacks, lifecycle hooks, and a simple opt-out path if you want all
+        rows visible.
+      </p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>
+          Start with the core stylesheet, import <code>DogTable</code>, and
+          pass local data plus your columns.
+        </p>
+        <pre
+          class="setup-snippet"
+        ><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DogTable } from "../src/data-table.js";
+
+  const table = new DogTable("#app", {
+    data,
+    pageSize: 3,
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "breed", label: "Breed" },
+      { key: "age", label: "Age" },
+    ],
+  });
+
+  table.init();
+&lt;/script&gt;</code></pre>
+        <p>
+          Want to remove pagination entirely? Add
+          <code>pagination: false</code>. If you also pass
+          <code>paginationGuard</code>, Dog Table will ignore it and print a
+          <code>console.warn</code>.
+        </p>
+        <pre
+          class="setup-snippet"
+        ><code>const fullListTable = new DogTable("#all-dogs", {
+  data,
+  pagination: false,
+  columns: [
+    { key: "name", label: "Name" },
+    { key: "breed", label: "Breed" },
+    { key: "age", label: "Age" },
+  ],
+});
+
+fullListTable.init();</code></pre>
+      </section>
+      <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <span class="pn-link pn-disabled"></span>
+        <a class="pn-link pn-next" href="./custom-cells.html"><span class="pn-dir">Next →</span><span class="pn-name">Custom Cells</span></a>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+
+      const data = [
+        { name: "Mochi", breed: "Shiba Inu", age: 3, adopted: "2024-01-12" },
+        { name: "Pepper", breed: "Beagle", age: 5, adopted: "2023-11-04" },
+        { name: "Nori", breed: "Corgi", age: 2, adopted: "2024-03-21" },
+        {
+          name: "Biscuit",
+          breed: "Golden Retriever",
+          age: 6,
+          adopted: "2022-09-30",
+        },
+        { name: "Suki", breed: "Pomeranian", age: 4, adopted: "2024-02-18" },
+        {
+          name: "Atlas",
+          breed: "German Shepherd",
+          age: 7,
+          adopted: "2021-08-08",
+        },
+        { name: "Olive", breed: "Mixed", age: 1, adopted: "2024-04-01" },
+      ];
+
+      const table = new DogTable("#app", {
+        data,
+        pageSize: 3,
+        searchDebounce: 200,
+        language: {
+          searchPlaceholder: "Search dogs by name, breed, or adoption date",
+          emptyState: "No dogs have been added yet.",
+          noResults: "No dogs match your search.",
+        },
+        initialSort: {
+          key: "name",
+          direction: "asc",
+        },
+        columns: [
+          { key: "name", label: "Name" },
+          {
+            key: "breed",
+            label: "Breed",
+            sortable: false,
+          },
+          { key: "age", label: "Age" },
+          {
+            key: "adopted",
+            label: "Adopted",
+            sortValue(value) {
+              return new Date(value).getTime();
+            },
+            render(value) {
+              return new Date(value).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              });
+            },
+          },
+        ],
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

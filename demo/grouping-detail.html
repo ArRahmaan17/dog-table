@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Grouping and Detail Demo</title>
+    <meta
+      name="description"
+      content="Dog Table grouping demo with grouped rows, lazy row detail panels, and stable row expansion behavior."
+    />
+    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/grouping-detail.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dog Table - Grouping and Detail Demo" />
+    <meta
+      property="og:description"
+      content="Dog Table grouping demo with grouped rows, lazy row detail panels, and stable row expansion behavior."
+    />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/demo/grouping-detail.html"
+    />
+    <meta
+      property="og:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <meta property="og:image:alt" content="Dog Table open graph preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dog Table - Grouping and Detail Demo" />
+    <meta
+      name="twitter:description"
+      content="Dog Table grouping demo with grouped rows, lazy row detail panels, and stable row expansion behavior."
+    />
+    <meta
+      name="twitter:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: linear-gradient(160deg, #eefdf3, #eef7ff);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #15803d;
+        font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        color: #14532d;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: #166534;
+      }
+
+      .detail-card {
+        display: grid;
+        gap: 8px;
+      }
+
+      .detail-title {
+        font-weight: 700;
+        color: #102a43;
+      }
+
+      .detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .detail-chip {
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: #d1fae5;
+        color: #065f46;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid rgba(21, 128, 61, 0.14);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(20, 83, 45, 0.07);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #14532d;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #052e16;
+        color: #ecfdf5;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+
+      .pn-disabled {
+        visibility: hidden;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Grouping and Detail</span>
+      </nav>
+      <h1>Grouping and Row Detail</h1>
+      <p>This example groups dogs by adoption region and expands details lazily only when a row is opened.</p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Grouping and expandable rows are configured with <code>groupBy</code> and a <code>rowDetail.render()</code> callback.</p>
+        <pre class="setup-snippet"><code>const table = new DogTable("#app", {
+  groupBy: "department",
+  remote: {
+    url: "https://api.rahmaanms.my.id/api/employees",
+    mapResponse: (payload, state) => { /* ... */ }
+  },
+  columns: [
+    { key: "id", label: "ID" },
+    { key: "name", label: "Name" },
+    { key: "role", label: "Role" },
+  ],
+  rowDetail: {
+    render: (row) => `&lt;div&gt;Location: \${row.location}&lt;/div&gt;`
+  }
+});</code></pre>
+      </section>
+      <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link pn-prev" href="./remote.html"><span class="pn-dir">← Previous</span><span class="pn-name">Remote</span></a>
+        <a class="pn-link pn-next" href="./localization.html"><span class="pn-dir">Next →</span><span class="pn-name">Localization</span></a>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
+
+      function makeDetailCard(row) {
+        const card = document.createElement("div");
+        card.className = "detail-card";
+        card.innerHTML = `
+          <div class="detail-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; padding: 4px 0;">
+            <div class="detail-item"><strong>Role:</strong> ${row.role || "N/A"}</div>
+            <div class="detail-item"><strong>Department:</strong> ${row.department || "N/A"}</div>
+            <div class="detail-item"><strong>Location:</strong> ${row.location || "Remote"}</div>
+            <div class="detail-item"><strong>Joined:</strong> ${row.joinDate || "N/A"}</div>
+          </div>
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; font-size: 0.9rem; color: #4b5563;">
+            Professional team member specializing in ${row.role}.
+          </div>
+        `;
+        return card;
+      }
+
+      const table = new DogTable("#app", {
+        pageSize: 10,
+        groupBy: "department",
+        remote: {
+          url: API_URL,
+          mapResponse(payload, state) {
+            let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+            const start = (state.currentPage - 1) * state.pageSize;
+            return {
+              rows: rows.slice(start, start + state.pageSize),
+              totalItems: rows.length,
+            };
+          },
+        },
+        columns: [
+          { key: "id", label: "ID" },
+          { key: "name", label: "Name" },
+          { key: "role", label: "Role" },
+          { key: "department", label: "Department" },
+          { key: "status", label: "Status" },
+        ],
+        rowDetail: {
+          render(row) {
+            return makeDetailCard(row);
+          },
+        },
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

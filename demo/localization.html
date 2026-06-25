@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Localization Demo</title>
+    <meta
+      name="description"
+      content="Dog Table localization demo showing language overrides, locale bundles, and customizable UI copy."
+    />
+    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/localization.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dog Table - Localization Demo" />
+    <meta
+      property="og:description"
+      content="Dog Table localization demo showing language overrides, locale bundles, and customizable UI copy."
+    />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/demo/localization.html"
+    />
+    <meta
+      property="og:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <meta property="og:image:alt" content="Dog Table open graph preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dog Table - Localization Demo" />
+    <meta
+      name="twitter:description"
+      content="Dog Table localization demo showing language overrides, locale bundles, and customizable UI copy."
+    />
+    <meta
+      name="twitter:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(45, 125, 154, 0.18),
+            transparent 35%
+          ),
+          linear-gradient(135deg, #f4f7fb, #e6ecf3);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #0f766e;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+        padding: 20px;
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #d1d5db;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      }
+
+      .controls button {
+        border: none;
+        border-radius: 999px;
+        padding: 10px 16px;
+        background: #f1f5f9;
+        color: #475569;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .controls button:hover {
+        background: #e2e8f0;
+      }
+
+      .controls button.active {
+        background: #0f766e;
+        color: white;
+      }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #d1d5db;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #102a43;
+        color: #f8fafc;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+
+      .pn-disabled {
+        visibility: hidden;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Localization Demo</span>
+      </nav>
+      <h1>Localization & Customization</h1>
+      <p>
+        Switch between predefined languages or provide custom text for all UI
+        elements.
+      </p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Localization uses the normal table import plus whichever locale bundles you want to switch between.</p>
+        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DogTable } from "../src/data-table.js";
+  import { en } from "../src/locale/en.js";
+  import { fr } from "../src/locale/fr.js";
+
+  const table = new DogTable("#app", {
+    data,
+    language: en,
+    columns: [
+      { key: "name", label: "Name" },
+      { key: "region", label: "Region" },
+    ],
+  });
+
+  table.init();
+  table.setLanguage(fr);
+&lt;/script&gt;</code></pre>
+      </section>
+
+      <div class="controls">
+        <button type="button" data-lang="en" class="active">English</button>
+        <button type="button" data-lang="es">Español</button>
+        <button type="button" data-lang="fr">Français</button>
+        <button type="button" data-lang="de">Deutsch</button>
+        <button type="button" data-lang="zhCN">中文</button>
+        <button type="button" data-lang="id">Bahasa Indonesia</button>
+      </div>
+
+      <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link pn-prev" href="./grouping-detail.html"><span class="pn-dir">← Previous</span><span class="pn-name">Grouping + Detail</span></a>
+        <a class="pn-link pn-next" href="./advanced-features.html"><span class="pn-dir">Next →</span><span class="pn-name">Advanced Features</span></a>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+      import { en } from "../src/locale/en.js";
+      import { es } from "../src/locale/es.js";
+      import { fr } from "../src/locale/fr.js";
+      import { de } from "../src/locale/de.js";
+      import { zhCN } from "../src/locale/zh-CN.js";
+      import { id } from "../src/locale/id.js";
+
+      const languages = { en, es, fr, de, zhCN, id };
+
+      const data = [
+        { id: 1, name: "Mochi", breed: "Shiba Inu", age: 3, region: "North" },
+        { id: 2, name: "Pepper", breed: "Beagle", age: 5, region: "South" },
+        { id: 3, name: "Nori", breed: "Corgi", age: 2, region: "North" },
+        {
+          id: 4,
+          name: "Biscuit",
+          breed: "Golden Retriever",
+          age: 6,
+          region: "East",
+        },
+        { id: 5, name: "Suki", breed: "Pomeranian", age: 4, region: "South" },
+        {
+          id: 6,
+          name: "Atlas",
+          breed: "German Shepherd",
+          age: 7,
+          region: "West",
+        },
+        { id: 7, name: "Olive", breed: "Mixed", age: 1, region: "North" },
+      ];
+
+      const table = new DogTable("#app", {
+        data,
+        pageSize: 4,
+        rowKey: "id",
+        groupBy: "region",
+        rowDetail: {
+          render(row) {
+            const div = document.createElement("div");
+            div.style.padding = "20px";
+            div.style.background = "#f8fafc";
+            div.style.borderRadius = "8px";
+            div.textContent = `Detailed view for ${row.name}. This is a ${row.breed} from the ${row.region} region.`;
+            return div;
+          },
+        },
+        language: en,
+        columns: [
+          { key: "name", label: "Name" },
+          { key: "breed", label: "Breed" },
+          { key: "age", label: "Age" },
+          { key: "region", label: "Region" },
+        ],
+      });
+
+      table.init();
+
+      const controls = document.querySelector(".controls");
+      controls.addEventListener("click", (e) => {
+        const button = e.target.closest("button[data-lang]");
+        if (!button) return;
+
+        const selectedLang = button.dataset.lang;
+        
+        // Update active state
+        controls.querySelectorAll("button").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+
+        table.setLanguage(languages[selectedLang]);
+
+        // Update document lang for accessibility
+        document.documentElement.lang =
+          selectedLang === "zhCN" ? "zh-CN" : selectedLang;
+
+        // Update page header as well just for fun
+        const h1 = document.querySelector("h1");
+        const p = document.querySelector("p");
+
+        if (selectedLang === "es") {
+          h1.textContent = "Traducción y Personalización";
+          p.textContent =
+            "Cambia entre idiomas predefinidos o proporciona texto personalizado.";
+        } else if (selectedLang === "fr") {
+          h1.textContent = "Localisation et Personnalisation";
+          p.textContent =
+            "Basculez entre les langues prédéfinies ou personnalisez tous les textes.";
+        } else if (selectedLang === "de") {
+          h1.textContent = "Lokalisierung & Anpassung";
+          p.textContent =
+            "Wechseln Sie zwischen Sprachen oder passen Sie alle Texte an.";
+        } else if (selectedLang === "zhCN") {
+          h1.textContent = "本地化与自定义";
+          p.textContent =
+            "在预定义语言之间切换或为所有界面元素提供自定义文本。";
+        } else if (selectedLang === "id") {
+          h1.textContent = "Lokalisasi & Kustomisasi";
+          p.textContent =
+            "Ganti antara bahasa yang tersedia atau sesuaikan teks untuk semua elemen UI.";
+        } else {
+          h1.textContent = "Localization & Customization";
+          p.textContent =
+            "Switch between predefined languages or provide custom text for all UI elements.";
+        }
+      });
+    </script>
+  </body>
+</html>

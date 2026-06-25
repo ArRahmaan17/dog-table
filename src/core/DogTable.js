@@ -1,4 +1,4 @@
-import { ThemeManager } from "./theme-manager.js";
+import { ThemeManager, resolveStoredTheme } from "./theme-manager.js";
 import { TableState } from "./TableState.js";
 import { DataEngine } from "./DataEngine.js";
 import { EventBinder } from "./EventBinder.js";
@@ -35,6 +35,14 @@ export class DogTable {
     if (!this.container) {
       throw new Error("DogTable container was not found.");
     }
+
+    const hasExplicitTheme = Object.prototype.hasOwnProperty.call(
+      options,
+      "theme"
+    );
+    const initialTheme = hasExplicitTheme
+      ? options.theme
+      : resolveStoredTheme() || "default";
 
     this.options = {
       data: [],
@@ -77,7 +85,7 @@ export class DogTable {
       searchDebounce: 250,
       filterDebounce: 250,
       fetchDebounce: 0,
-      theme: "default",
+      theme: initialTheme,
       classNames: {},
       remote: null,
       optimisticUpdates: false,
@@ -748,6 +756,8 @@ export class DogTable {
   }
 
   setTheme(theme, classNames = {}) {
+    this.options.theme = theme;
+    this.options.classNames = classNames;
     this.theme = new ThemeManager(theme, classNames);
     this.tableRenderer = new TableRenderer(this);
     this.paginationRenderer = new PaginationRenderer(this);

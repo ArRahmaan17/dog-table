@@ -39,8 +39,6 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "clean": "node scripts/build.mjs --clean",
-    "docs:dev": "vite --config docs/vite.config.js",
-    "docs:build": "vite build --config docs/vite.config.js",
     "prepack": "npm run build",
     "test": "npm run build && node --check dist/data-table.js && node --check dist/data-table.min.js"
   },
@@ -58,12 +56,5 @@
     "auto-refresh"
   ],
   "author": "doglex",
-  "license": "MIT",
-  "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^5.0.0",
-    "@tailwindcss/vite": "^4.0.0",
-    "svelte": "^5.0.0",
-    "tailwindcss": "^4.0.0",
-    "vite": "^6.0.0"
-  }
+  "license": "MIT"
 }

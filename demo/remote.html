@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Remote Demo</title>
+    <meta
+      name="description"
+      content="Dog Table remote demo connected to a live employees API with loading states, pagination, sorting, and search."
+    />
+    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/remote.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dog Table - Remote Demo" />
+    <meta
+      property="og:description"
+      content="Dog Table remote demo connected to a live employees API with loading states, pagination, sorting, and search."
+    />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/demo/remote.html"
+    />
+    <meta
+      property="og:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <meta property="og:image:alt" content="Dog Table open graph preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dog Table - Remote Demo" />
+    <meta
+      name="twitter:description"
+      content="Dog Table remote demo connected to a live employees API with loading states, pagination, sorting, and search."
+    />
+    <meta
+      name="twitter:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background: linear-gradient(180deg, #ecfeff, #f8fafc);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #0f766e;
+        font-weight: 600;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        color: #134e4a;
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: #0f766e;
+      }
+
+      .log {
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.8);
+        color: #115e59;
+        font-size: 0.92rem;
+      }
+
+      .setup-card {
+        margin: 0 0 18px;
+        padding: 18px 20px;
+        border: 1px solid rgba(15, 118, 110, 0.14);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(19, 78, 74, 0.07);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #134e4a;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .setup-snippet {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        border-radius: 14px;
+        background: #042f2e;
+        color: #ecfeff;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+
+      .pn-disabled {
+        visibility: hidden;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Remote Demo</span>
+      </nav>
+      <h1>Remote Data from Open API</h1>
+      <p>This demo uses a live employees endpoint and maps the API response into Dog Table.</p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Remote mode only needs the core import plus a <code>remote</code> config that maps your API response.</p>
+        <pre class="setup-snippet"><code>&lt;link rel="stylesheet" href="../src/data-table.css" /&gt;
+
+&lt;script type="module"&gt;
+  import { DogTable } from "../src/data-table.js";
+
+  const table = new DogTable("#app", {
+    pageSize: 6,
+    remote: {
+      url: "https://api.rahmaanms.my.id/api/employees",
+      mapResponse(payload, state) {
+        const rows = Array.isArray(payload?.data) ? payload.data : [];
+        const start = (state.currentPage - 1) * state.pageSize;
+        return {
+          rows: rows.slice(start, start + state.pageSize),
+          totalItems: rows.length,
+        };
+      },
+    },
+    columns: [
+      { key: "id", label: "ID" },
+      { key: "avatar", label: "Avatar", type: "picture" },
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "status", label: "Status" },
+    ],
+  });
+
+  table.init();
+&lt;/script&gt;</code></pre>
+      </section>
+      <div class="log" id="log">Waiting for first request...</div>
+      <div id="app"></div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link pn-prev" href="./themes.html"><span class="pn-dir">← Previous</span><span class="pn-name">Themes</span></a>
+        <a class="pn-link pn-next" href="./grouping-detail.html"><span class="pn-dir">Next →</span><span class="pn-name">Grouping + Detail</span></a>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
+      const log = document.getElementById("log");
+      const numberFormat = new Intl.NumberFormat("id-ID");
+      const dateFormat = new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" });
+
+      function compareValues(left, right) {
+        if (typeof left === "number" && typeof right === "number") {
+          return left - right;
+        }
+
+        return String(left ?? "").localeCompare(String(right ?? ""), undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+      }
+
+      const table = new DogTable("#app", {
+        pageSize: 6,
+        loadingText: "Fetching employees from open API...",
+        searchPlaceholder: "Search employee, email, role, department...",
+        remote: {
+          url: API_URL,
+          buildQuery(params) {
+            // params.delete("page");
+            // params.delete("pageSize");
+            // params.delete("sort");
+            // params.delete("order");
+            // params.delete("search");
+            return params;
+          },
+          mapResponse(payload, state) {
+            let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+            const query = (state.searchQuery || "").toLowerCase().trim();
+
+            if (query) {
+              rows = rows.filter((row) =>
+                `${row.id} ${row.name} ${row.email} ${row.role} ${row.department} ${row.status}`
+                  .toLowerCase()
+                  .includes(query)
+              );
+            }
+
+            if (state.sortKey) {
+              rows.sort((a, b) => {
+                const comparison = compareValues(a[state.sortKey], b[state.sortKey]);
+                return state.sortDirection === "desc" ? -comparison : comparison;
+              });
+            }
+
+            const start = (state.currentPage - 1) * state.pageSize;
+            return {
+              rows: payload.data,
+              totalItems: payload.total,
+            };
+          },
+        },
+        columns: [
+          { key: "id", label: "ID" },
+          {
+            key: "avatar",
+            label: "Avatar",
+            type: "picture",
+            imageWidth: 36,
+            imageHeight: 36,
+            imageAlt(value, row) {
+              return `Avatar of ${row.name || "employee"}`;
+            },
+          },
+          { key: "name", label: "Name" },
+          { key: "email", label: "Email" },
+          { key: "department", label: "Department" },
+          { key: "role", label: "Role" },
+          {
+            key: "salary",
+            label: "Salary (IDR)",
+            format(value) {
+              return value == null ? "-" : numberFormat.format(Number(value));
+            },
+          },
+          {
+            key: "join_date",
+            label: "Join Date",
+            format(value) {
+              if (!value) return "-";
+              const parsed = new Date(value);
+              return Number.isNaN(parsed.getTime()) ? String(value) : dateFormat.format(parsed);
+            },
+          },
+          { key: "status", label: "Status" },
+        ],
+        hooks: {
+          onFetchStart(state) {
+            const sort = state.sortKey ? `${state.sortKey}:${state.sortDirection}` : "none";
+            const search = state.searchQuery || "-";
+            log.textContent = `Requesting employees | page=${state.currentPage} | sort=${sort} | search="${search}"`;
+          },
+          onFetchSuccess(payload) {
+            log.textContent = `Loaded ${payload.rows.length} rows from API`;
+          },
+          onFetchError(error) {
+            log.textContent = `Fetch failed: ${error.message}`;
+          },
+        },
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

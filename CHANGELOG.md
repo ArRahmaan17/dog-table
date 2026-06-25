@@ -10,11 +10,12 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Structured Filters & Filter Row:** Menambahkan `setFilters()`, `setFilter()`, `clearFilters()`, `filterRow`, `filterType`, dan `filterOptions` untuk filter field-specific lokal maupun remote.
 * **Remote-Friendly APIs:** Menambahkan cursor pagination remote, `addRow()`, `updateRow()`, `removeRow()`, dan `optimisticUpdates` untuk create/edit remote.
 * **Column Layout Controls:** Menambahkan `stickyHeader`, `stickyColumns`, `resizableColumns`, dan `columnReorder` dengan state widths/order yang bisa dipersist.
+* **Light/Dark Themes:** Menambahkan preset `light` dan `dark`, auto-detection dari `localStorage` / `sessionStorage`, serta override eksplisit lewat `theme: "dark"` saat inisialisasi.
 * **Aggregates:** Menambahkan `footerAggregates` dan `groupAggregates` dengan helper `sum`, `avg`, `min`, `max`, dan `count`.
 * **Event & Plugin APIs:** Menambahkan `table.on()`, `table.off()`, standard events, `DogTable.use()`, dan `plugins: []`.
 
 ### Changed
-* **Demo Migration:** Folder `demo/` dihapus dan diganti dengan aplikasi dokumentasi `docs/` berbasis Svelte + Tailwind.
+* **Docs Runtime:** Dokumentasi utama kembali memakai halaman HTML statis tanpa runtime Svelte.
 * **Display Row Memoization:** Cache `buildDisplayRows()` sekarang mengikuti urutan row yang sedang dirender plus konfigurasi grouping, sehingga pagination lokal tidak memakai wrapper baris dari halaman sebelumnya.
 * **Request-Key Deduplication:** Remote fetch identik yang masih in-flight sekarang berbagi promise berdasarkan request URL, sementara request berbeda tetap bisa menggantikan pekerjaan lama melalui abort path.
 * **Render Queue:** `update()` sekarang memakai satu promise render terjadwal per frame. Panggilan berulang tidak lagi polling frame-to-frame, dan `updateSync()` berbagi promise update aktif untuk menjaga koordinasi state.
@@ -27,9 +28,9 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 
 ### Docs
 * **README:** Ditulis ulang sebagai front page yang merangkum API dari source code terbaru.
-* **Svelte Docs App:** Menambahkan `docs/` dengan contoh interaktif dan referensi opsi/metode/event dari implementasi saat ini.
+* **Static Docs:** `docs.html` kembali menjadi dokumentasi utama, `docs-v1.html` tetap menjadi dokumentasi legacy, dan `docs/` diarahkan ke docs statis.
 * **Wiki:** Diperbarui untuk mencakup visibility, views, URL state, filters, cursor pagination, mutations, layout controls, aggregates, events, dan plugins.
-* **Performance Examples:** Contoh query cache, fetch debounce, pagination guard, grouping, virtual scroll, data worker, dan lazy columns sekarang menjadi materi pada aplikasi docs baru.
+* **Performance Examples:** Contoh query cache, fetch debounce, pagination guard, grouping, virtual scroll, data worker, dan lazy columns sekarang menjadi materi pada docs statis.
 * **Wiki:** Menambahkan dokumentasi display-row cache, request-key deduplication, rAF render batching, `fetchDebounce`, `virtualScroll`, `dataWorker`, dan `lazyColumns`.
 * **Execution Tracker:** Menandai semua fase performance plan sebagai selesai.
 

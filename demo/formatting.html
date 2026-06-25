@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dog Table - Formatting Engine</title>
+    <meta
+      name="description"
+      content="Dog Table formatting demo showing locale-aware money, number, and date formatting across column definitions."
+    />
+    <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/demo/formatting.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Dog Table - Formatting Engine" />
+    <meta
+      property="og:description"
+      content="Dog Table formatting demo showing locale-aware money, number, and date formatting across column definitions."
+    />
+    <meta
+      property="og:url"
+      content="https://arrahmaan17.github.io/dog-table/demo/formatting.html"
+    />
+    <meta
+      property="og:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <meta property="og:image:alt" content="Dog Table open graph preview" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dog Table - Formatting Engine" />
+    <meta
+      name="twitter:description"
+      content="Dog Table formatting demo showing locale-aware money, number, and date formatting across column definitions."
+    />
+    <meta
+      name="twitter:image"
+      content="https://arrahmaan17.github.io/dog-table/assets/open-graph.png"
+    />
+    <link rel="stylesheet" href="../src/data-table.css" />
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 32px 20px;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(15, 118, 110, 0.18),
+            transparent 35%
+          ),
+          linear-gradient(135deg, #f8fbff, #f1f5f9);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      }
+
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        color: #102a43;
+      }
+
+      p {
+        margin-bottom: 24px;
+        color: #486581;
+      }
+
+      .nav {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        color: #0d9488;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .nav a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav [aria-hidden="true"] {
+        opacity: 0.45;
+      }
+
+      .card {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        margin: 20px 0;
+      }
+
+      .code-snippet {
+        background: #1e293b;
+        color: #f8fafc;
+        padding: 16px;
+        border-radius: 8px;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        margin-top: 12px;
+      }
+
+      .setup-card {
+        margin: 0 0 24px;
+        padding: 18px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+      }
+
+      .setup-card h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+        color: #102a43;
+      }
+
+      .setup-card p {
+        margin: 0 0 12px;
+        font-size: 0.92rem;
+      }
+
+      .prev-next {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 32px;
+      }
+
+      .pn-link {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 16px 20px;
+        border: 1px solid #d8e1eb;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        min-width: 160px;
+      }
+
+      .pn-link:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .pn-next {
+        text-align: right;
+        margin-left: auto;
+      }
+
+      .pn-dir {
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #0284c7;
+      }
+
+      .pn-name {
+        font-weight: 700;
+        color: #10263f;
+        font-size: 1.02rem;
+      }
+
+      .pn-disabled {
+        visibility: hidden;
+      }
+
+      @media (max-width: 540px) {
+        .prev-next {
+          flex-direction: column;
+        }
+
+        .pn-link {
+          min-width: 0;
+        }
+
+        .pn-next {
+          text-align: left;
+          margin-left: 0;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <main>
+      <nav class="nav" aria-label="Breadcrumb">
+        <a href="../index.html">Dog Table</a>
+        <span aria-hidden="true">/</span>
+        <a href="../docs.html#demos">Demos</a>
+        <span aria-hidden="true">/</span>
+        <span>Formatting Demo</span>
+      </nav>
+      <h1>Formatter Engine</h1>
+      <p>
+        Transforming raw data into human-readable formats using the native
+        <code>Intl</code> API.
+      </p>
+      <section class="setup-card" aria-labelledby="library-setup-title">
+        <h2 id="library-setup-title">Library setup</h2>
+        <p>Formatting is configured directly on each column with <code>type</code>, <code>currency</code>, <code>locale</code>, and <code>format</code>.</p>
+        <pre class="code-snippet"><code>const table = new DogTable("#app", {
+  pageSize: 5,
+  remote: {
+    url: "https://api.rahmaanms.my.id/api/employees",
+    mapResponse: (payload, state) => { /* ... */ }
+  },
+  columns: [
+    { key: "name", label: "Employee" },
+    {
+      key: "joinDate",
+      label: "Joined",
+      type: "datetime",
+      format: { dateStyle: "long" },
+    },
+    {
+      key: "salary",
+      label: "Salary (USD)",
+      type: "money",
+      currency: "USD",
+    },
+    {
+      key: "salary",
+      label: "Salary (IDR)",
+      type: "money",
+      currency: "IDR",
+      locale: "id-ID",
+    },
+  ],
+});</code></pre>
+      </section>
+
+      <div id="app"></div>
+
+      <div class="card">
+        <h3>Configuration Used</h3>
+        <p>
+          Notice how <code>type: 'money'</code> and
+          <code>type: 'datetime'</code> handle the complexity of localization
+          automatically.
+        </p>
+        <pre class="code-snippet"><code>columns: [
+  { key: "name", label: "Employee" },
+  {
+    key: "joinDate",
+    label: "Joined",
+    type: "datetime",
+    format: { dateStyle: "long" },
+  },
+  {
+    key: "salary",
+    label: "Salary (USD)",
+    type: "money",
+    currency: "USD",
+  },
+  {
+    key: "salary",
+    label: "Salary (IDR)",
+    type: "money",
+    currency: "IDR",
+    locale: "id-ID",
+  },
+]</code></pre>
+      </div>
+
+      <nav class="prev-next" aria-label="Demo navigation">
+        <a class="pn-link pn-prev" href="./advanced-features.html"><span class="pn-dir">← Previous</span><span class="pn-name">Advanced Features</span></a>
+        <a class="pn-link pn-next" href="./inline-editing.html"><span class="pn-dir">Next →</span><span class="pn-name">Inline Editing</span></a>
+      </nav>
+    </main>
+
+    <script type="module">
+      import { DogTable } from "../src/data-table.js";
+
+      const API_URL = "https://api.rahmaanms.my.id/api/employees";
+
+      const table = new DogTable("#app", {
+        pageSize: 5,
+        remote: {
+          url: API_URL,
+          mapResponse(payload, state) {
+            let rows = Array.isArray(payload?.data) ? [...payload.data] : [];
+            const start = (state.currentPage - 1) * state.pageSize;
+            return {
+              rows: rows.slice(start, start + state.pageSize),
+              totalItems: rows.length,
+            };
+          },
+        },
+        columns: [
+          { key: "name", label: "Employee" },
+          {
+            key: "joinDate",
+            label: "Joined",
+            type: "datetime",
+            format: { dateStyle: "long" },
+          },
+          {
+            key: "salary",
+            label: "Salary (USD)",
+            type: "money",
+            currency: "USD",
+          },
+          {
+            key: "salary",
+            label: "Salary (IDR)",
+            type: "money",
+            currency: "IDR",
+            locale: "id-ID",
+          },
+        ],
+      });
+
+      table.init();
+    </script>
+  </body>
+</html>

@@ -47,6 +47,7 @@ table.init();
 - Inline editing and create workflows with optional authenticated remote requests and `optimisticUpdates`.
 - State persistence through local storage, session storage, URL-style persistence, named views, and opt-in readable URL state sync.
 - Column visibility, sticky headers, sticky left columns, column resizing, and drag reordering.
+- Light and dark built-in themes, with optional `localStorage` / `sessionStorage` theme detection.
 - Footer and group aggregates: `sum`, `avg`, `min`, `max`, and `count`.
 - Standard events: `state:change`, `row:add`, `row:update`, `row:remove`, `fetch:start`, `fetch:success`, and `fetch:error`.
 - Global and per-instance plugins with `install(table)` and optional `destroy(table)`.
@@ -58,6 +59,7 @@ const table = new DogTable("#app", {
   data: rows,
   columns,
   pageSize: 25,
+  theme: "dark",
   searchable: true,
   filterRow: true,
   persistence: "local",
@@ -73,6 +75,22 @@ const table = new DogTable("#app", {
   },
 });
 ```
+
+## Themes
+
+Dog Table ships `light`, `dark`, `default`, `bootstrap`, and `tailwind` theme presets. `default` is the light theme.
+
+```js
+new DogTable("#app", {
+  data,
+  columns,
+  theme: "dark",
+}).init();
+
+table.setTheme("light");
+```
+
+If `theme` is not provided, Dog Table checks `localStorage` and then `sessionStorage` for `dog-table-theme`, `dogTableTheme`, or `theme`. Stored values must be `light` or `dark`; an explicit constructor option always wins.
 
 ## Remote Data
 
@@ -162,14 +180,14 @@ new DogTable("#app", {
 }).init();
 ```
 
-## Documentation App
-
-The old `demo/` folder has been replaced by a Svelte + Tailwind documentation app in `docs/`.
+## Documentation
 
 ```bash
 npm run docs:dev
 npm run docs:build
 ```
+
+The documentation is static HTML. `docs.html` is the current DogTable docs, `docs-v1.html` is the legacy DataTable docs, and `docs/` redirects back to the current static docs page.
 
 ## Build
 
