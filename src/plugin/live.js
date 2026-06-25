@@ -97,7 +97,7 @@ export class LivePlugin {
     this.timerId = window.setTimeout(async () => {
       this.timerId = null;
 
-      if (!this.active || this.isDocumentHidden() || this.table.state.loading) {
+      if (!this.active || this.isDocumentHidden()) {
         this.scheduleNext(this.currentInterval || this.baseInterval);
         return;
       }
