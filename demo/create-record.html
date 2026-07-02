@@ -157,6 +157,8 @@
         <h2>Configuration</h2>
         <pre class="setup-snippet"><code>const table = new DogTable("#app", {
   data,
+  searchable: false,
+  sortable: false,
   create: {
     enabled: true,
     initialValues: { status: "Available" }
@@ -195,6 +197,8 @@
       const table = new DogTable("#app", {
         data,
         pageSize: 5,
+        searchable: false,
+        sortable: false,
         create: {
           enabled: true,
           initialValues: {

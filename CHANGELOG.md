@@ -26,6 +26,9 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Lazy Column Paint Hints:** Menambahkan opsi `lazyColumns` untuk memberi browser-native lazy painting hints pada header/body cells di tabel lebar.
 * **Lookup Cache:** Column lookup dan row-id lookup sekarang memakai `Map` internal untuk menghindari repeated linear scans pada sort, visibility toggle, dan inline editing.
 
+### Fixed
+* **Global Search and Sort Flags:** Opsi setup `sortable: false` sekarang menonaktifkan sorting untuk seluruh tabel, termasuk initial/persisted/URL sort state. `searchable: false` sekarang benar-benar menyembunyikan toolbar tanpa ditimpa CSS dan mengabaikan search state. Default keduanya tetap `true` untuk backward compatibility, sementara opsi per-column tetap didukung.
+
 ### Docs
 * **README:** Ditulis ulang sebagai front page yang merangkum API dari source code terbaru.
 * **Static Docs:** `docs.html` kembali menjadi dokumentasi utama, `docs-v1.html` tetap menjadi dokumentasi legacy, dan `docs/` diarahkan ke docs statis.
@@ -98,6 +101,19 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 ### Docs
 * README, wiki architecture, dan dokumentasi terkait diperbarui agar mencerminkan struktur modular  baru.
 * `index.html` dan `docs.html` diperbarui untuk menampilkan arsitektur modular , termasuk penjelasan layer internal dan alur update baru.
+
+## [1.5.0] — 2026-04-30
+### Changed
+* **Phase 1 Modular Refactor:** `DogTable` sekarang menjadi orchestrator tipis yang mendelegasikan state, data processing, rendering, event binding, remote fetching, dan plugin bootstrap ke modul terpisah.
+* **State Layer:** Menambahkan `src/core/TableState.js` untuk menangani `currentPage`, `pageSize`, `searchQuery`, `sortKey`, dan guard pagination secara terpusat.
+* **Data Layer:** Menambahkan `src/core/DataEngine.js` untuk filtering, sorting, pagination slicing, serta cache pipeline yang sebelumnya tertanam di kelas utama.
+* **Renderer Split:** UI tabel dipisahkan ke `src/renderers/TableRenderer.js`, `src/renderers/PaginationRenderer.js`, dan `src/renderers/MetaRenderer.js` agar render lebih idempoten dan tidak tercampur dengan business logic.
+* **Remote & Events:** Menambahkan `src/data/RemoteAdapter.js` dan `src/core/EventBinder.js` untuk memisahkan fetch remote dari UI serta memusatkan bind/unbind event DOM.
+* **Plugin Bootstrap:** Inisialisasi plugin sekarang diisolasi di `src/plugin/PluginManager.js` tanpa mengubah API publik yang ada.
+
+### Docs
+* README, wiki architecture, dan dokumentasi terkait diperbarui agar mencerminkan struktur modular Phase 1 baru.
+* `index.html` dan `docs.html` diperbarui untuk menampilkan arsitektur modular Phase 1, termasuk penjelasan layer internal dan alur update baru.
 
 ## [1.4.1] — 2026-04-29
 ### Added

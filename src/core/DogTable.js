@@ -50,6 +50,7 @@ export class DogTable {
       pagination: true,
       pageSize: DEFAULT_PAGE_SIZE,
       searchable: true,
+      sortable: true,
       language: {
         search: "Search",
         searchPlaceholder: "Search...",
@@ -273,6 +274,12 @@ export class DogTable {
     return this.state.columns.filter((column) => column.visible !== false);
   }
 
+  isColumnSortable(column) {
+    return Boolean(
+      column && this.options.sortable !== false && column.sortable !== false
+    );
+  }
+
   loadState() {
     this.persistence.load();
     this.tableState.normalizeConstraints();
@@ -482,7 +489,7 @@ export class DogTable {
   toggleSort(columnKey) {
     const column = this.getColumn(columnKey);
 
-    if (!column || column.sortable === false) {
+    if (!this.isColumnSortable(column)) {
       return;
     }
 
@@ -499,7 +506,7 @@ export class DogTable {
 
     const column = this.getColumn(sortKey);
 
-    if (!column || column.sortable === false) {
+    if (!this.isColumnSortable(column)) {
       return;
     }
 

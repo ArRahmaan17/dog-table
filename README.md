@@ -61,6 +61,7 @@ const table = new DogTable("#app", {
   pageSize: 25,
   theme: "dark",
   searchable: true,
+  sortable: true,
   filterRow: true,
   persistence: "local",
   persistenceKey: "orders-table",
@@ -75,6 +76,12 @@ const table = new DogTable("#app", {
   },
 });
 ```
+
+Set `searchable: false` to remove and disable global search, or `sortable: false`
+to disable sorting for the entire table. Both options default to `true`, so
+existing tables keep their current behavior. Individual columns can still opt
+out with `{ key: "status", searchable: false }` or
+`{ key: "status", sortable: false }`.
 
 ## Themes
 

@@ -30,6 +30,10 @@
   min-width: min(100%, 280px);
 }
 
+.dt-search[hidden] {
+  display: none;
+}
+
 .dt-search__label {
   font-size: 0.8rem;
   font-weight: 600;
