@@ -108,8 +108,39 @@ export class TableState {
   normalizeConstraints() {
     this.state.pageSize = this.clampPageSize(this.state.pageSize);
     this.state.currentPage = this.clampPage(this.state.currentPage);
+    this.normalizeFeatureConstraints();
     this.syncColumnVisibility();
     this.syncColumnOrder();
+  }
+
+  isColumnSortable(columnKey) {
+    if (!columnKey || this.options.sortable === false) {
+      return false;
+    }
+
+    const key = String(columnKey);
+    const column = this.state.columns.find(
+      (item) => String(item.key || item.accessor) === key
+    );
+
+    return Boolean(column && column.sortable !== false);
+  }
+
+  normalizeFeatureConstraints() {
+    let changed = false;
+
+    if (this.options.searchable === false && this.state.searchQuery) {
+      this.state.searchQuery = "";
+      changed = true;
+    }
+
+    if (this.state.sortKey && !this.isColumnSortable(this.state.sortKey)) {
+      this.state.sortKey = null;
+      this.state.sortDirection = "asc";
+      changed = true;
+    }
+
+    return changed;
   }
 
   syncColumnOrder() {
@@ -165,7 +196,10 @@ export class TableState {
   }
 
   setSearch(query) {
-    const trimmed = String(query ?? "").trim().toLowerCase();
+    const trimmed =
+      this.options.searchable === false
+        ? ""
+        : String(query ?? "").trim().toLowerCase();
     if (this.state.searchQuery === trimmed) {
       return false;
     }
@@ -199,6 +233,10 @@ export class TableState {
   }
 
   setSort(sortKey, direction = "asc") {
+    if (sortKey && !this.isColumnSortable(sortKey)) {
+      return false;
+    }
+
     const nextDirection = direction === "desc" ? "desc" : "asc";
 
     if (
@@ -260,6 +298,7 @@ export class TableState {
 
   setColumns(columns) {
     this.state.columns = normalizeColumns(columns);
+    this.normalizeFeatureConstraints();
     this.syncColumnVisibility();
     this.syncColumnOrder();
     this.state.currentPage = 1;
@@ -450,7 +489,7 @@ export class TableState {
       changed = this.setColumnOrder(snapshot.columnOrder) || changed;
     }
 
-    return changed;
+    return this.normalizeFeatureConstraints() || changed;
   }
 
   setRemoteData(payload) {

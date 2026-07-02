@@ -1347,7 +1347,13 @@ allRowsTable.init();</code></pre>
                   <td><code>searchable</code></td>
                   <td><code>boolean</code></td>
                   <td><code>true</code></td>
-                  <td>Shows or hides the built-in search control.</td>
+                  <td>Enables global search. When false, hides the control and ignores search state.</td>
+                </tr>
+                <tr>
+                  <td><code>sortable</code></td>
+                  <td><code>boolean</code></td>
+                  <td><code>true</code></td>
+                  <td>Enables sorting for the table. Column-level <code>sortable: false</code> can still opt out individual columns.</td>
                 </tr>
                 <tr>
                   <td><code>searchDebounce</code></td>

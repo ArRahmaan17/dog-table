@@ -26,6 +26,9 @@ Semua perubahan signifikan pada proyek ini akan didokumentasikan di file ini.
 * **Lazy Column Paint Hints:** Menambahkan opsi `lazyColumns` untuk memberi browser-native lazy painting hints pada header/body cells di tabel lebar.
 * **Lookup Cache:** Column lookup dan row-id lookup sekarang memakai `Map` internal untuk menghindari repeated linear scans pada sort, visibility toggle, dan inline editing.
 
+### Fixed
+* **Global Search and Sort Flags:** Opsi setup `sortable: false` sekarang menonaktifkan sorting untuk seluruh tabel, termasuk initial/persisted/URL sort state. `searchable: false` sekarang benar-benar menyembunyikan toolbar tanpa ditimpa CSS dan mengabaikan search state. Default keduanya tetap `true` untuk backward compatibility, sementara opsi per-column tetap didukung.
+
 ### Docs
 * **README:** Ditulis ulang sebagai front page yang merangkum API dari source code terbaru.
 * **Static Docs:** `docs.html` kembali menjadi dokumentasi utama, `docs-v1.html` tetap menjadi dokumentasi legacy, dan `docs/` diarahkan ke docs statis.

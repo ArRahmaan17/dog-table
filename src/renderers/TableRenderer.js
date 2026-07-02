@@ -89,7 +89,7 @@ export class TableRenderer {
       .map((column, index) => {
         const isSorted = state.sortKey === column.key;
         const direction = isSorted ? state.sortDirection : "none";
-        const sortable = column.sortable !== false;
+        const sortable = this.table.isColumnSortable(column);
         const label = escapeHtml(column.label ?? column.key);
         const indicator =
           direction === "asc" ? " ▲" : direction === "desc" ? " ▼" : "";
