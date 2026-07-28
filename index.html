@@ -10,7 +10,7 @@
     />
     <link rel="canonical" href="https://arrahmaan17.github.io/dog-table/" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Dog Table " />
+    <meta property="og:title" content="Dog Table" />
     <meta
       property="og:description"
       content="Explore Dog Table demos for local data, remote loading, grouping, localization, formatting, inline editing, and live sync."
@@ -25,7 +25,7 @@
     />
     <meta property="og:image:alt" content="Dog Table open graph preview" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Dog Table " />
+    <meta name="twitter:title" content="Dog Table" />
     <meta
       name="twitter:description"
       content="Explore Dog Table demos for local data, remote loading, grouping, localization, formatting, inline editing, and live sync."
@@ -37,19 +37,23 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #edf7ff;
-        --bg-deep: #d3ebff;
-        --panel: rgba(247, 252, 255, 0.9);
-        --panel-strong: rgba(255, 255, 255, 0.97);
-        --border: rgba(49, 130, 206, 0.18);
-        --ink: #10263f;
-        --muted: #4c6884;
-        --accent: #38bdf8;
-        --accent-deep: #0f4c81;
-        --accent-cool: #0284c7;
-        --glow: rgba(56, 189, 248, 0.22);
-        --shadow: 0 24px 60px rgba(16, 38, 63, 0.08);
-        --code: #1f2937;
+        --paper: #f5f1e8;
+        --paper-warm: #ebe4d5;
+        --ink: #17211c;
+        --muted: #59645f;
+        --line: #cfc6b5;
+        --line-dark: #2f3a34;
+        --panel: #fffaf0;
+        --panel-cool: #edf4ee;
+        --green: #0f6b4f;
+        --green-dark: #0b3d32;
+        --yellow: #f2c14e;
+        --red: #cc4b37;
+        --blue: #315f9f;
+        --shadow: 0 24px 70px rgba(23, 33, 28, 0.15);
+        --mono: "SFMono-Regular", "IBM Plex Mono", "Cascadia Mono", monospace;
+        --body: "Inter", "Aptos", "Segoe UI", sans-serif;
+        --display: "Georgia", "Times New Roman", serif;
       }
 
       * {
@@ -64,24 +68,15 @@
         margin: 0;
         min-height: 100vh;
         background:
-          radial-gradient(
-            circle at top left,
-            rgba(125, 211, 252, 0.24),
-            transparent 24%
-          ),
-          radial-gradient(
-            circle at top right,
-            rgba(59, 130, 246, 0.18),
-            transparent 26%
-          ),
-          linear-gradient(
-            180deg,
-            #f9fdff 0%,
-            var(--bg) 55%,
-            var(--bg-deep) 100%
-          );
+          linear-gradient(rgba(47, 58, 52, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(47, 58, 52, 0.045) 1px, transparent 1px),
+          linear-gradient(180deg, var(--paper) 0%, var(--paper-warm) 100%);
+        background-size:
+          28px 28px,
+          28px 28px,
+          auto;
         color: var(--ink);
-        font-family: "Averta Std", "Nunito Sans", "Segoe UI", sans-serif;
+        font-family: var(--body);
       }
 
       a {
@@ -89,31 +84,114 @@
         text-decoration: none;
       }
 
+      a:focus-visible,
+      button:focus-visible {
+        outline: 3px solid rgba(15, 107, 79, 0.35);
+        outline-offset: 3px;
+      }
+
       code,
       pre {
-        font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+        font-family: var(--mono);
       }
 
       .page {
-        width: min(1180px, calc(100% - 32px));
+        width: min(1240px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 22px 0 72px;
+        padding: 18px 0 56px;
+      }
+
+      .nav {
+        position: sticky;
+        top: 12px;
+        z-index: 20;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 18px;
+        min-height: 68px;
+        margin-bottom: 24px;
+        padding: 10px 12px 10px 18px;
+        border: 2px solid var(--line-dark);
+        border-radius: 8px;
+        background: rgba(255, 250, 240, 0.88);
+        box-shadow: 6px 6px 0 rgba(23, 33, 28, 0.14);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        width: fit-content;
+        font-weight: 900;
+        letter-spacing: 0;
+      }
+
+      .brand-mark {
+        display: inline-grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 2px solid var(--line-dark);
+        border-radius: 7px;
+        background: var(--yellow);
+        color: var(--green-dark);
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        font-weight: 900;
+      }
+
+      .nav-links,
+      .nav-actions,
+      .hero-actions,
+      .section-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-links {
+        justify-content: center;
+      }
+
+      .nav-actions {
+        justify-content: end;
+      }
+
+      .nav-links a {
+        padding: 10px 12px;
+        border-radius: 6px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        font-weight: 800;
+      }
+
+      .nav-links a:hover,
+      .footer-links a:hover {
+        color: var(--green);
       }
 
       .icon-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        display: inline-grid;
+        place-items: center;
         width: 42px;
         height: 42px;
-        border: 1px solid rgba(14, 116, 144, 0.16);
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.78);
-        color: var(--accent-deep);
+        border: 2px solid var(--line-dark);
+        border-radius: 7px;
+        background: var(--panel);
+        color: var(--green-dark);
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease;
       }
 
-      .icon-link:hover {
-        transform: translateY(-1px);
+      .icon-link:hover,
+      .button:hover,
+      .demo-link:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 4px 4px 0 rgba(23, 33, 28, 0.16);
       }
 
       .icon-link svg {
@@ -122,472 +200,687 @@
         fill: currentColor;
       }
 
-      .nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 22px;
-        padding: 16px 20px;
-        border: 1px solid var(--border);
-        border-radius: 24px;
-        background: rgba(248, 252, 255, 0.82);
-        backdrop-filter: blur(14px);
-        box-shadow: var(--shadow);
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 800;
-        letter-spacing: -0.03em;
-      }
-
-      .brand-mark {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--accent-deep), var(--accent));
-        color: #fff;
-        box-shadow: 0 14px 24px var(--glow);
-      }
-
-      .nav-links,
-      .nav-actions,
-      .hero-actions,
-      .install-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-      }
-
-      .nav-links a,
       .button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 42px;
-        padding: 0 16px;
-        border-radius: 999px;
-        font-weight: 700;
-      }
-
-      .nav-links a {
-        color: var(--muted);
-      }
-
-      .button {
-        border: 1px solid transparent;
+        min-height: 44px;
+        padding: 0 18px;
+        border: 2px solid var(--line-dark);
+        border-radius: 7px;
+        font-weight: 900;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease;
       }
 
       .button-primary {
-        background: linear-gradient(135deg, var(--accent-deep), var(--accent));
-        color: #fff;
-        box-shadow: 0 16px 28px var(--glow);
+        background: var(--green);
+        color: #fffdf6;
       }
 
       .button-secondary {
-        border-color: rgba(14, 116, 144, 0.18);
-        background: rgba(255, 255, 255, 0.76);
+        background: var(--panel);
+        color: var(--green-dark);
       }
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+        grid-template-columns: minmax(0, 0.88fr) minmax(420px, 1.12fr);
         gap: 22px;
-        margin-bottom: 22px;
+        align-items: stretch;
+        min-height: clamp(640px, calc(100vh - 170px), 760px);
       }
 
       .hero-copy,
-      .hero-preview,
+      .hero-board,
       .section,
-      .feature-card,
-      .link-card {
-        border: 1px solid var(--border);
-        border-radius: 28px;
-        background: var(--panel);
-        backdrop-filter: blur(14px);
-        box-shadow: var(--shadow);
+      .feature,
+      .demo-link,
+      .site-footer {
+        border: 2px solid var(--line-dark);
+        border-radius: 8px;
+        background: rgba(255, 250, 240, 0.92);
+        box-shadow: 8px 8px 0 rgba(23, 33, 28, 0.12);
       }
 
-      .hero-copy,
-      .hero-preview,
-      .section {
-        padding: 28px;
+      .hero-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: clamp(28px, 5vw, 58px);
+      }
+
+      .eyebrow,
+      .small-label,
+      .column-label,
+      .demo-kicker,
+      .footer-title {
+        font-family: var(--mono);
+        font-size: 0.76rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       .eyebrow {
         display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 14px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(56, 189, 248, 0.1);
-        color: var(--accent-deep);
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
+        width: fit-content;
+        margin-bottom: 18px;
+        padding: 8px 10px;
+        border: 2px solid var(--line-dark);
+        border-radius: 6px;
+        background: var(--yellow);
+        color: var(--green-dark);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
       }
 
       h1 {
-        margin: 0 0 16px;
-        font-size: clamp(2.8rem, 6vw, 5.6rem);
-        line-height: 0.92;
-        letter-spacing: -0.06em;
+        max-width: 10ch;
+        font-family: var(--display);
+        font-size: clamp(4rem, 9vw, 8.4rem);
+        font-weight: 900;
+        line-height: 0.82;
+        letter-spacing: 0;
       }
 
       h2 {
-        margin: 0 0 12px;
-        font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-        line-height: 0.96;
-        letter-spacing: -0.04em;
+        max-width: 820px;
+        font-family: var(--display);
+        font-size: clamp(2.1rem, 5vw, 4.3rem);
+        line-height: 0.9;
+        letter-spacing: 0;
       }
 
       h3 {
-        margin: 0 0 10px;
-        font-size: 1.18rem;
-        line-height: 1.05;
+        font-size: 1.05rem;
+        line-height: 1.16;
       }
 
       p {
-        margin: 0;
         color: var(--muted);
+        line-height: 1.6;
       }
 
       .lede {
-        max-width: 680px;
-        margin-bottom: 18px;
-        font-size: 1.08rem;
+        max-width: 650px;
+        margin-top: 22px;
+        color: #33423b;
+        font-size: clamp(1rem, 2vw, 1.24rem);
       }
 
-      .hero-copy .meta {
-        margin-top: 18px;
-        color: var(--muted);
-        font-size: 0.95rem;
+      .hero-actions {
+        margin-top: 26px;
       }
 
-      .hero-preview {
-        background:
-          linear-gradient(
-            160deg,
-            rgba(255, 255, 255, 0.98),
-            rgba(235, 248, 255, 0.92)
-          ),
-          var(--panel-strong);
-      }
-
-      .preview-stack {
+      .hero-meta {
         display: grid;
-        gap: 14px;
-        margin: 10px 0;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 38px;
       }
 
-      .preview-box {
-        padding: 16px;
-        border-radius: 20px;
-        border: 1px solid rgba(14, 116, 144, 0.1);
-        background: rgba(255, 255, 255, 0.82);
+      .metric {
+        min-height: 92px;
+        padding: 14px;
+        border: 2px solid var(--line);
+        border-radius: 7px;
+        background: var(--panel-cool);
       }
 
-      .preview-box--highlight {
+      .metric strong {
+        display: block;
+        color: var(--green-dark);
+        font-family: var(--mono);
+        font-size: 1.4rem;
+        line-height: 1;
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.35;
+      }
+
+      .hero-board {
         position: relative;
         overflow: hidden;
-        border-color: rgba(2, 132, 199, 0.22);
+        display: flex;
+        min-height: 640px;
         background:
-          linear-gradient(135deg, rgba(14, 165, 233, 0.16), rgba(99, 102, 241, 0.12)),
-          rgba(255, 255, 255, 0.92);
-        box-shadow: 0 18px 36px rgba(14, 165, 233, 0.12);
+          linear-gradient(90deg, rgba(23, 33, 28, 0.08) 1px, transparent 1px),
+          linear-gradient(rgba(23, 33, 28, 0.08) 1px, transparent 1px),
+          #dfe9de;
+        background-size: 42px 42px;
       }
 
-      .preview-box--highlight::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          110deg,
-          transparent 0%,
-          rgba(255, 255, 255, 0.08) 36%,
-          rgba(255, 255, 255, 0.45) 50%,
-          rgba(255, 255, 255, 0.08) 64%,
-          transparent 100%
-        );
-        transform: translateX(-140%);
-        animation: dt-shimmer 4.2s ease-in-out infinite;
-        pointer-events: none;
-      }
-
-      .preview-box--highlight strong,
-      .preview-box--highlight p {
-        position: relative;
-        z-index: 1;
-      }
-
-      .preview-box--highlight strong {
-        color: #075985;
-      }
-
-      .preview-box--highlight p {
-        color: #1e3a5f;
-      }
-
-      .preview-box strong {
-        display: block;
-        margin-bottom: 6px;
-        color: var(--accent-deep);
-      }
-
-      @keyframes dt-shimmer {
-        0% {
-          transform: translateX(-140%);
-        }
-        55%,
-        100% {
-          transform: translateX(140%);
-        }
-      }
-
-      .preview-list {
+      .board-rail {
         display: grid;
+        align-content: start;
         gap: 10px;
+        width: 76px;
+        padding: 18px 14px;
+        border-right: 2px solid var(--line-dark);
+        background: var(--green-dark);
       }
 
-      .preview-item {
+      .rail-dot,
+      .rail-pill {
+        border: 2px solid rgba(255, 250, 240, 0.5);
+        border-radius: 6px;
+        background: rgba(255, 250, 240, 0.12);
+      }
+
+      .rail-dot {
+        width: 24px;
+        height: 24px;
+      }
+
+      .rail-pill {
+        width: 46px;
+        height: 128px;
+      }
+
+      .board-main {
+        display: grid;
+        grid-template-rows: auto auto auto;
+        align-content: center;
+        gap: 16px;
+        width: 100%;
+        padding: clamp(18px, 3vw, 34px);
+      }
+
+      .board-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .search-box {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 12px 14px;
-        border-radius: 16px;
-        background: rgba(227, 244, 255, 0.8);
+        gap: 10px;
+        width: min(360px, 100%);
+        min-height: 44px;
+        padding: 0 14px;
+        border: 2px solid var(--line-dark);
+        border-radius: 7px;
+        background: var(--panel);
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 0.82rem;
       }
 
-      .preview-item span:last-child {
-        color: var(--accent-cool);
+      .search-box::before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--green);
+        border-radius: 50%;
+        box-shadow: 7px 7px 0 -5px var(--green);
+      }
+
+      .view-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .view-tabs span {
+        min-height: 36px;
+        padding: 9px 11px;
+        border: 2px solid var(--line-dark);
+        border-radius: 6px;
+        background: rgba(255, 250, 240, 0.72);
+        color: var(--green-dark);
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .view-tabs span:first-child {
+        background: var(--yellow);
+      }
+
+      .table-frame {
+        overflow: hidden;
+        border: 2px solid var(--line-dark);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      .table-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.8fr 0.9fr 0.7fr 0.8fr;
+        width: 100%;
+      }
+
+      .table-row {
+        display: contents;
+      }
+
+      .table-row > span {
+        min-height: 64px;
+        padding: 14px 16px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        color: #29362f;
+      }
+
+      .table-row > span:last-child {
+        border-right: 0;
+      }
+
+      .table-head > span {
+        min-height: 44px;
+        background: #17211c;
+        color: #fffdf6;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .cell-main {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        font-weight: 900;
+      }
+
+      .cell-main small,
+      .cell-sub {
+        color: var(--muted);
+        font-size: 0.78rem;
         font-weight: 700;
       }
 
+      .status {
+        display: inline-flex;
+        width: fit-content;
+        padding: 5px 8px;
+        border: 2px solid currentColor;
+        border-radius: 999px;
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .status-ready {
+        color: var(--green);
+      }
+
+      .status-watch {
+        color: var(--blue);
+      }
+
+      .status-hold {
+        color: var(--red);
+      }
+
+      .inline-edit {
+        display: inline-flex;
+        width: 100%;
+        min-height: 34px;
+        padding: 7px 9px;
+        border: 2px solid var(--green);
+        border-radius: 6px;
+        background: #fff;
+        color: var(--green-dark);
+        font-weight: 900;
+      }
+
+      .board-footer {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .query-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .query-strip span,
+      .page-chip {
+        padding: 8px 10px;
+        border: 2px solid var(--line-dark);
+        border-radius: 6px;
+        background: var(--panel);
+        color: var(--green-dark);
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 900;
+      }
+
+      .page-chip {
+        background: var(--yellow);
+      }
+
       .section {
-        margin-bottom: 22px;
+        margin-top: 22px;
+        padding: clamp(24px, 4vw, 42px);
       }
 
       .section-head {
         display: flex;
         align-items: end;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 18px;
+        gap: 18px;
+        margin-bottom: 22px;
       }
 
       .section-copy {
-        max-width: 740px;
+        max-width: 760px;
+      }
+
+      .section-copy p {
+        margin-top: 12px;
+      }
+
+      .small-label,
+      .demo-kicker,
+      .footer-title,
+      .column-label {
+        display: inline-flex;
+        color: var(--green);
       }
 
       .install-grid,
       .feature-grid,
-      .examples-grid,
+      .demo-grid,
       .footer-grid {
         display: grid;
-        gap: 16px;
+        gap: 14px;
       }
 
       .install-grid {
         grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
       }
 
-      .feature-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+      .code-panel {
+        overflow: hidden;
+        border: 2px solid var(--line-dark);
+        border-radius: 8px;
+        background: #17211c;
       }
 
-      .examples-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .feature-card,
-      .link-card {
-        padding: 22px;
-      }
-
-      .feature-card strong {
-        display: block;
-        margin-bottom: 8px;
-        color: var(--accent-deep);
-        font-size: 1.02rem;
+      .code-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-bottom: 2px solid #3d4a43;
+        color: #fffdf6;
+        font-family: var(--mono);
+        font-size: 0.74rem;
+        font-weight: 900;
+        text-transform: uppercase;
       }
 
       pre {
         margin: 0;
         overflow-x: auto;
         padding: 18px;
-        border-radius: 20px;
-        background: var(--code);
-        color: #f8fafc;
-        font-size: 0.9rem;
+        color: #f8f1df;
+        font-size: 0.88rem;
         line-height: 1.55;
       }
 
-      .code-shell {
-        display: grid;
-        gap: 14px;
-      }
-
-      .code-label {
-        display: inline-flex;
-        width: fit-content;
-        padding: 7px 10px;
-        border-radius: 999px;
-        background: rgba(15, 118, 110, 0.1);
-        color: var(--accent-cool);
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .install-list,
-      .footer-links {
+      .install-notes {
         display: grid;
         gap: 10px;
       }
 
-      .install-step {
-        padding: 16px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.78);
-        border: 1px solid rgba(14, 116, 144, 0.1);
+      .note {
+        min-height: 112px;
+        padding: 18px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+        background: rgba(237, 244, 238, 0.78);
       }
 
-      .install-step strong {
+      .note strong,
+      .feature strong,
+      .demo-link h3 {
         display: block;
-        margin-bottom: 6px;
-        color: var(--accent-deep);
+        color: var(--green-dark);
       }
 
-      .eyebrow-small {
-        display: inline-flex;
-        margin-bottom: 10px;
-        color: var(--accent);
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
+      .note p,
+      .feature p,
+      .demo-link p {
+        margin-top: 8px;
+        font-size: 0.94rem;
       }
 
-      .link-card p {
-        margin-bottom: 14px;
+      .feature-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .link-meta {
-        color: var(--accent-cool);
-        font-weight: 700;
+      .feature {
+        min-height: 210px;
+        padding: 20px;
+        box-shadow: none;
       }
 
-      .site-footer {
-        margin-top: 28px;
-        padding: 28px;
-        border: 1px solid var(--border);
-        border-radius: 28px;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.92),
-          rgba(237, 247, 255, 0.88)
-        );
-        box-shadow: var(--shadow);
+      .feature:nth-child(2) {
+        background: #f6e8c5;
       }
 
-      .footer-grid {
-        grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
+      .feature:nth-child(3) {
+        background: #e8eef7;
+      }
+
+      .feature code {
+        color: var(--green-dark);
+        font-weight: 900;
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: 0.8fr 1.2fr;
+        gap: 16px;
         align-items: start;
       }
 
-      .footer-brand {
-        max-width: 360px;
+      .architecture-map {
+        display: grid;
+        gap: 10px;
       }
 
-      .footer-brand .brand {
-        margin-bottom: 14px;
+      .map-row {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .map-row span {
+        padding: 14px;
+        border: 2px solid var(--line-dark);
+        border-radius: 7px;
+        background: var(--panel);
+        font-weight: 900;
+      }
+
+      .map-row span:first-child {
+        background: var(--green-dark);
+        color: #fffdf6;
+        font-family: var(--mono);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+      }
+
+      .demo-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .demo-link {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 190px;
+        padding: 18px;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.18s ease;
+      }
+
+      .demo-link:nth-child(4n + 2) {
+        background: #edf4ee;
+      }
+
+      .demo-link:nth-child(4n + 3) {
+        background: #f6e8c5;
+      }
+
+      .demo-link:nth-child(4n + 4) {
+        background: #e8eef7;
+      }
+
+      .link-meta {
+        display: inline-flex;
+        margin-top: 16px;
+        color: var(--green);
+        font-weight: 900;
+      }
+
+      .site-footer {
+        margin-top: 22px;
+        padding: 26px;
+      }
+
+      .footer-grid {
+        grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 1fr));
+        align-items: start;
       }
 
       .footer-brand p {
-        margin-bottom: 16px;
+        max-width: 390px;
+        margin-top: 14px;
       }
 
-      .footer-title {
-        display: inline-flex;
-        margin-bottom: 12px;
-        color: var(--accent-deep);
-        font-size: 0.82rem;
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
+      .footer-links {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
       }
 
       .footer-links a {
         color: var(--muted);
-      }
-
-      .footer-links a:hover {
-        color: var(--accent-deep);
+        font-weight: 750;
       }
 
       .footer-bottom {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        margin-top: 22px;
+        gap: 18px;
+        margin-top: 24px;
         padding-top: 18px;
-        border-top: 1px solid rgba(14, 116, 144, 0.12);
+        border-top: 2px solid var(--line);
         color: var(--muted);
-        font-size: 0.95rem;
+        font-size: 0.92rem;
       }
 
-      @media (max-width: 980px) {
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition: none !important;
+        }
+      }
+
+      @media (max-width: 1040px) {
+        .nav,
         .hero,
         .install-grid,
         .feature-grid,
-        .examples-grid,
+        .architecture,
+        .demo-grid,
         .footer-grid {
           grid-template-columns: 1fr;
         }
 
-        .nav {
-          flex-direction: column;
-          align-items: stretch;
+        .nav-links,
+        .nav-actions {
+          justify-content: start;
         }
 
-        .section-head {
-          flex-direction: column;
-          align-items: start;
+        .hero {
+          min-height: auto;
+        }
+
+        .hero-board {
+          min-height: 560px;
+        }
+
+        h1 {
+          max-width: 12ch;
         }
       }
 
-      @media (max-width: 720px) {
-        .footer-bottom {
-          flex-direction: column;
-          align-items: start;
-        }
-      }
-
-      @media (max-width: 640px) {
+      @media (max-width: 760px) {
         .page {
-          width: min(100% - 20px, 1180px);
-          padding-top: 14px;
+          width: min(100% - 20px, 1240px);
+          padding-top: 10px;
         }
 
-        .nav,
-        .hero-copy,
-        .hero-preview,
-        .section,
-        .feature-card,
-        .link-card,
-        .site-footer {
-          border-radius: 22px;
+        .nav {
+          position: static;
+        }
+
+        .hero-meta,
+        .board-footer,
+        .map-row {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-board {
+          display: block;
+          min-height: auto;
+        }
+
+        .board-rail {
+          display: none;
+        }
+
+        .board-main {
+          padding: 14px;
+        }
+
+        .board-toolbar,
+        .section-head,
+        .footer-bottom {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .table-frame {
+          overflow-x: auto;
+        }
+
+        .table-grid {
+          min-width: 620px;
+        }
+
+        h1 {
+          font-size: clamp(3.35rem, 18vw, 5.8rem);
         }
       }
     </style>
@@ -595,10 +888,10 @@
   <body>
     <div class="page">
       <header class="nav">
-        <div class="brand">
+        <a class="brand" href="./index.html" aria-label="Dog Table home">
           <span class="brand-mark">DT</span>
           <span>Dog Table</span>
-        </div>
+        </a>
         <nav class="nav-links" aria-label="Primary">
           <a href="#install">Install</a>
           <a href="./docs.html">Documentation</a>
@@ -633,57 +926,131 @@
       <main>
         <section class="hero">
           <div class="hero-copy">
-            <div class="eyebrow">Dog Table v1.5.1</div>
-            <h1>Advanced table workflows without a framework-sized setup.</h1>
-            <p class="lede">
-              Dog Table is a lightweight vanilla JavaScript data table for teams
-              that need sorting, search, pagination, remote data, grouping,
-              export, editing, and live refresh in a small API surface, now
-              backed by a cleaner modular core.
-            </p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="./docs.html"
-                >Read documentation</a
-              >
-              <a class="button button-secondary" href="./demo/basic.html"
-                >Open examples</a
-              >
+            <div>
+              <span class="eyebrow">v1.5.2 / vanilla JS</span>
+              <h1>Tables that keep their shape.</h1>
+              <p class="lede">
+                Dog Table is a modular data table for product screens that need
+                search, sorting, pagination, remote data, grouping, inline
+                editing, create flows, export, and live refresh without a
+                framework-sized setup.
+              </p>
+              <div class="hero-actions">
+                <a class="button button-primary" href="./docs.html"
+                  >Read documentation</a
+                >
+                <a class="button button-secondary" href="./demo/basic.html"
+                  >Open demos</a
+                >
+              </div>
             </div>
-            <p class="meta">
-              Works with plain HTML, modern bundlers, and production UIs that
-              want table behavior without pulling in a full component framework.
-            </p>
+            <div class="hero-meta" aria-label="Dog Table highlights">
+              <div class="metric">
+                <strong>13</strong>
+                <span>Focused demos for feature-by-feature inspection.</span>
+              </div>
+              <div class="metric">
+                <strong>0</strong>
+                <span>Framework lock-in. Use plain HTML or bundlers.</span>
+              </div>
+              <div class="metric">
+                <strong>API</strong>
+                <span>Starts with <code>new DogTable()</code>.</span>
+              </div>
+            </div>
           </div>
 
-          <aside class="hero-preview">
-            <div class="preview-stack">
-              <div class="preview-box">
-                <strong>What you get</strong>
-                <p>
-                  Search, sort, pagination, remote fetching, localization,
-                  grouping, row detail, CSV export, inline editing,
-                  auto-refresh, and a clearer internal architecture.
-                </p>
-              </div>
-              <div class="preview-list">
-                <div class="preview-item">
-                  <span>Local and remote data</span>
-                  <span>Built in</span>
-                </div>
-                <div class="preview-item">
-                  <span>Modular internals</span>
-                  <span>State + render layers</span>
-                </div>
-                <div class="preview-item">
-                  <span>Examples included</span>
-                  <span>10 demos</span>
-                </div>
-              </div>
+          <aside class="hero-board" aria-label="Dog Table product preview">
+            <div class="board-rail" aria-hidden="true">
+              <span class="rail-dot"></span>
+              <span class="rail-dot"></span>
+              <span class="rail-pill"></span>
+              <span class="rail-dot"></span>
             </div>
-            <div class="preview-stack">
-              <div class="preview-box preview-box--highlight">
-                <strong>What's new in v1.5.1</strong>
-                <p>Performance optimizations: request debouncing &amp; deduplication, memoized data pipeline, DOM diffing, rAF-batched renders, precomputed sort keys, virtual scrolling support, and CSS content-visibility for grouped rows. Fixed live-sync loading stuck on identical responses.</p>
+            <div class="board-main">
+              <div class="board-toolbar">
+                <div class="search-box">search status:ready</div>
+                <div class="view-tabs" aria-label="Preview controls">
+                  <span>Local</span>
+                  <span>Remote</span>
+                  <span>Live</span>
+                </div>
+              </div>
+
+              <div class="table-frame">
+                <div class="table-grid" role="table" aria-label="Dog records">
+                  <div class="table-row table-head" role="row">
+                    <span role="columnheader">Name</span>
+                    <span role="columnheader">Group</span>
+                    <span role="columnheader">Workflow</span>
+                    <span role="columnheader">Score</span>
+                    <span role="columnheader">State</span>
+                  </div>
+                  <div class="table-row" role="row">
+                    <span role="cell">
+                      <span class="cell-main"
+                        >Mochi <small>#A-104 / local row</small></span
+                      >
+                    </span>
+                    <span role="cell">Northern</span>
+                    <span role="cell">
+                      <span class="inline-edit">inline edit</span>
+                    </span>
+                    <span role="cell">98.4</span>
+                    <span role="cell"
+                      ><span class="status status-ready">ready</span></span
+                    >
+                  </div>
+                  <div class="table-row" role="row">
+                    <span role="cell">
+                      <span class="cell-main"
+                        >Pepper <small>#B-221 / remote page</small></span
+                      >
+                    </span>
+                    <span role="cell">Coastal</span>
+                    <span role="cell">query cache</span>
+                    <span role="cell">91.7</span>
+                    <span role="cell"
+                      ><span class="status status-watch">sync</span></span
+                    >
+                  </div>
+                  <div class="table-row" role="row">
+                    <span role="cell">
+                      <span class="cell-main"
+                        >Nori <small>#C-088 / grouped</small></span
+                      >
+                    </span>
+                    <span role="cell">Central</span>
+                    <span role="cell">row detail</span>
+                    <span role="cell">86.3</span>
+                    <span role="cell"
+                      ><span class="status status-hold">hold</span></span
+                    >
+                  </div>
+                  <div class="table-row" role="row">
+                    <span role="cell">
+                      <span class="cell-main"
+                        >Basil <small>#D-330 / created</small></span
+                      >
+                    </span>
+                    <span role="cell">Metro</span>
+                    <span role="cell">modal create</span>
+                    <span role="cell">94.1</span>
+                    <span role="cell"
+                      ><span class="status status-ready">ready</span></span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="board-footer">
+                <div class="query-strip" aria-label="Enabled features">
+                  <span>sort:name</span>
+                  <span>pageSize:25</span>
+                  <span>locale:id</span>
+                  <span>export:csv</span>
+                </div>
+                <span class="page-chip">page 1 / 8</span>
               </div>
             </div>
           </aside>
@@ -692,17 +1059,16 @@
         <section class="section" id="install">
           <div class="section-head">
             <div class="section-copy">
-              <span class="eyebrow-small">Install</span>
-              <h2>Install Dog Table in a few straightforward steps.</h2>
+              <span class="small-label">Install</span>
+              <h2>Load CSS, create a table, then add only the behaviors you need.</h2>
               <p>
-                The structure here follows a simple landing-page flow: install,
-                initialize, then branch into docs or examples depending on how
-                deep you want to go.
+                The starter path is intentionally short: install the package,
+                import the stylesheet, pass rows and columns, and initialize.
               </p>
             </div>
-            <div class="install-actions">
+            <div class="section-actions">
               <a class="button button-secondary" href="./docs.html#installation"
-                >Full docs</a
+                >Full install docs</a
               >
               <a class="button button-secondary" href="./demo/remote.html"
                 >Remote demo</a
@@ -711,10 +1077,11 @@
           </div>
 
           <div class="install-grid">
-            <div class="code-shell">
-              <span class="code-label">1. Install package</span>
-              <pre><code>npm install dog-table</code></pre>
-              <span class="code-label">2. Import CSS and render</span>
+            <div class="code-panel">
+              <div class="code-top">
+                <span>quick-start.js</span>
+                <span>npm install dog-table</span>
+              </div>
               <pre><code>import { DogTable } from "dog-table";
 import "dog-table/css";
 
@@ -732,30 +1099,26 @@ const table = new DogTable("#app", {
 table.init();</code></pre>
             </div>
 
-            <div class="install-list">
-              <div class="install-step">
-                <strong>Use local data first</strong>
+            <div class="install-notes">
+              <div class="note">
+                <strong>Start local</strong>
                 <p>
-                  Start with the basic demo if you want to learn the core
-                  constructor and column setup before adding plugins or remote
-                  fetch logic.
+                  Use arrays first to confirm columns, rendering, search,
+                  sorting, and pagination before wiring remote data.
                 </p>
               </div>
-              <div class="install-step">
-                <strong>Add features incrementally</strong>
+              <div class="note">
+                <strong>Switch to remote mode</strong>
                 <p>
-                  Dog Table lets you layer in row detail, persistence,
-                  selection, export, editing, and live polling as your table
-                  needs grow without collapsing everything into one controller
-                  file.
+                  Remote requests can respond to page, page size, sort, and
+                  search state with abortable loading.
                 </p>
               </div>
-              <div class="install-step">
-                <strong>Move to remote mode when needed</strong>
+              <div class="note">
+                <strong>Layer in app workflows</strong>
                 <p>
-                  Switch to `remote` config when the dataset belongs on the
-                  server. Requests are abortable and respond to search, sort,
-                  and page state.
+                  Add selection, persistence, export, formatting, editing, live
+                  refresh, and create flows as the screen grows.
                 </p>
               </div>
             </div>
@@ -765,229 +1128,204 @@ table.init();</code></pre>
         <section class="section">
           <div class="section-head">
             <div class="section-copy">
-              <span class="eyebrow-small">Why Dog Table</span>
-              <h2>
-                Practical defaults for the table work teams actually ship.
-              </h2>
+              <span class="small-label">Capabilities</span>
+              <h2>Built for the table work that usually outgrows a snippet.</h2>
             </div>
           </div>
 
           <div class="feature-grid">
-            <article class="feature-card">
-              <strong>Easy to wire up</strong>
+            <article class="feature">
+              <span class="column-label">Data</span>
+              <strong>Local arrays and server-backed views</strong>
               <p>
-                The constructor API stays small: pass a container, data,
-                columns, and optional feature configs. Then call `init()`.
+                Use static rows for small screens, or move to remote mode when
+                pagination and filtering belong on the server.
               </p>
             </article>
-            <article class="feature-card">
-              <strong>Extensible without ceremony</strong>
+            <article class="feature">
+              <span class="column-label">Interaction</span>
+              <strong>Search, sort, paginate, select, edit</strong>
               <p>
-                Persistence, selection, export, formatting, editing, and live
-                refresh are already organized as internal modules you can build
-                on.
+                Common controls are already wired into the table instance so
+                product screens do not need a custom state machine.
               </p>
             </article>
-            <article class="feature-card">
-              <strong>Made for real app flows</strong>
+            <article class="feature">
+              <span class="column-label">Operations</span>
+              <strong>Export, persist, refresh, localize</strong>
               <p>
-                Remote pagination, localization, expandable rows, and detail
-                panels cover the higher-friction use cases that simple table
-                examples usually skip.
+                App-level needs such as CSV export, saved preferences, live
+                polling, and language bundles live beside the core table API.
               </p>
             </article>
           </div>
         </section>
 
         <section class="section">
-          <div class="section-head">
+          <div class="architecture">
             <div class="section-copy">
-              <span class="eyebrow-small">Architecture</span>
-              <h2> splits the table into focused layers.</h2>
+              <span class="small-label">Architecture</span>
+              <h2>Dog Table splits behavior into focused layers.</h2>
               <p>
                 The public API still starts with
-                <code>new DogTable(container, options)</code>, but the internals
-                now separate state, data processing, rendering, remote loading,
-                events, and plugin bootstrapping.
+                <code>new DogTable(container, options)</code>, while the
+                internals separate state, data processing, rendering, remote
+                loading, events, and plugin bootstrapping.
               </p>
             </div>
-            <div class="install-actions">
-              <a class="button button-secondary" href="./docs.html#architecture"
-                >Architecture docs</a
-              >
-              <a class="button button-secondary" href="./demo/query-cache.html"
-                >Query cache guide</a
-              >
+            <div class="architecture-map" aria-label="Architecture layers">
+              <div class="map-row">
+                <span>State</span>
+                <span>Page, page size, search, sorting, and guard constraints.</span>
+              </div>
+              <div class="map-row">
+                <span>Data</span>
+                <span>Filtering, sorting, slicing, grouping, and cache reuse.</span>
+              </div>
+              <div class="map-row">
+                <span>Render</span>
+                <span>Table structure, pagination UI, meta states, and row detail.</span>
+              </div>
+              <div class="map-row">
+                <span>Plugins</span>
+                <span>Persistence, selection, export, formatter, editor, live, create.</span>
+              </div>
             </div>
-          </div>
-
-          <div class="feature-grid">
-            <article class="feature-card">
-              <strong>State manager</strong>
-              <p>
-                <code>TableState</code> owns page, page size, search, sorting,
-                and pagination guard constraints.
-              </p>
-            </article>
-            <article class="feature-card">
-              <strong>Data engine</strong>
-              <p>
-                <code>DataEngine</code> handles filtering, sorting, pagination
-                slicing, grouping, and cache reuse without touching the DOM.
-              </p>
-            </article>
-            <article class="feature-card">
-              <strong>Renderer layer</strong>
-              <p>
-                Dedicated renderers handle table structure, pagination UI, and
-                meta states so UI work stays separate from business logic.
-              </p>
-            </article>
           </div>
         </section>
 
         <section class="section" id="examples">
           <div class="section-head">
             <div class="section-copy">
-              <span class="eyebrow-small">Examples</span>
-              <h2>Browse the feature set through focused examples.</h2>
+              <span class="small-label">Examples</span>
+              <h2>Open a focused demo instead of unpacking one giant sample.</h2>
               <p>
-                Instead of one massive demo, each page isolates a workflow so it
-                is easier to inspect, copy, and test.
+                Each page isolates one workflow so the configuration is easier
+                to inspect, test, and adapt.
               </p>
             </div>
           </div>
 
-          <div class="examples-grid">
-            <a class="link-card" href="./docs.html">
-              <span class="eyebrow-small">Reference</span>
-              <h3>Documentation</h3>
-              <p>
-                Installation, options, methods, hooks, plugins, and the current
-                modular architecture behind the public API.
-              </p>
+          <div class="demo-grid">
+            <a class="demo-link" href="./docs.html">
+              <span class="demo-kicker">Reference</span>
+              <div>
+                <h3>Documentation</h3>
+                <p>Installation, options, methods, hooks, plugins, and architecture.</p>
+              </div>
               <span class="link-meta">Open docs</span>
             </a>
-            <a class="link-card" href="./demo/query-cache.html">
-              <span class="eyebrow-small">Architecture</span>
-              <h3>Query Cache Guide</h3>
-              <p>
-                Understand dataset aliasing, per-query pagination state, and the
-                remote cache rules.
-              </p>
+            <a class="demo-link" href="./demo/basic.html">
+              <span class="demo-kicker">Core</span>
+              <div>
+                <h3>Basic Local Table</h3>
+                <p>Local rows, search, sorting, pagination, and starter config.</p>
+              </div>
+              <span class="link-meta">View demo</span>
+            </a>
+            <a class="demo-link" href="./demo/remote.html">
+              <span class="demo-kicker">Remote</span>
+              <div>
+                <h3>Remote Fetch</h3>
+                <p>Server-style paging, sorting, abortable loading, and search.</p>
+              </div>
+              <span class="link-meta">View demo</span>
+            </a>
+            <a class="demo-link" href="./demo/query-cache.html">
+              <span class="demo-kicker">Cache</span>
+              <div>
+                <h3>Query Cache Guide</h3>
+                <p>Dataset aliasing, per-query pagination state, and cache rules.</p>
+              </div>
               <span class="link-meta">Open guide</span>
             </a>
-            <a class="link-card" href="./demo/basic.html">
-              <span class="eyebrow-small">Core</span>
-              <h3>Basic Local Table</h3>
-              <p>
-                Start with local rows, search, sorting, pagination, and a clean
-                starter configuration.
-              </p>
-              <span class="link-meta">View basic demo</span>
+            <a class="demo-link" href="./demo/custom-cells.html">
+              <span class="demo-kicker">Rendering</span>
+              <div>
+                <h3>Custom Cells</h3>
+                <p>DOM nodes, row metadata, and custom filter logic.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/custom-cells.html">
-              <span class="eyebrow-small">Rendering</span>
-              <h3>Custom Cells</h3>
-              <p>
-                Mix DOM nodes, richer row metadata, and custom filter logic in a
-                straightforward column definition.
-              </p>
-              <span class="link-meta">View custom cells</span>
+            <a class="demo-link" href="./demo/themes.html">
+              <span class="demo-kicker">Styling</span>
+              <div>
+                <h3>Theme Presets</h3>
+                <p>Default, Bootstrap, and Tailwind-oriented class mappings.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/themes.html">
-              <span class="eyebrow-small">Styling</span>
-              <h3>Theme Presets</h3>
-              <p>
-                Compare the default, Bootstrap, and Tailwind-oriented class
-                mappings against the same table model.
-              </p>
-              <span class="link-meta">View themes</span>
+            <a class="demo-link" href="./demo/advanced-features.html">
+              <span class="demo-kicker">Tools</span>
+              <div>
+                <h3>Advanced Features</h3>
+                <p>Selection, CSV export, persistence, and column visibility.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/remote.html">
-              <span class="eyebrow-small">Remote</span>
-              <h3>Remote Fetch</h3>
-              <p>
-                See server-style paging, sorting, abortable loading, and search
-                against a live public API.
-              </p>
-              <span class="link-meta">View remote demo</span>
+            <a class="demo-link" href="./demo/grouping-detail.html">
+              <span class="demo-kicker">Rows</span>
+              <div>
+                <h3>Grouping and Detail</h3>
+                <p>Grouped sections with expandable row detail panels.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/advanced-features.html">
-              <span class="eyebrow-small">Power Tools</span>
-              <h3>Advanced Features</h3>
-              <p>
-                Selection, CSV export, persistence, and column visibility
-                controls in one place.
-              </p>
-              <span class="link-meta">View advanced demo</span>
+            <a class="demo-link" href="./demo/localization.html">
+              <span class="demo-kicker">Locale</span>
+              <div>
+                <h3>Localization</h3>
+                <p>Language bundles and interface copy overrides.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <div class="section-copy">
-              <span class="eyebrow-small">More demos</span>
-              <h2>Keep going into specialized workflows.</h2>
-            </div>
-          </div>
-
-          <div class="examples-grid">
-            <a class="link-card" href="./demo/grouping-detail.html">
-              <h3>Grouping and Detail</h3>
-              <p>Grouped sections with expandable row detail panels.</p>
-              <span class="link-meta">Open demo</span>
+            <a class="demo-link" href="./demo/formatting.html">
+              <span class="demo-kicker">Display</span>
+              <div>
+                <h3>Formatting</h3>
+                <p>Currency, date, and number formatting with locale-aware output.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/localization.html">
-              <h3>Localization</h3>
-              <p>Swap language bundles and override interface copy.</p>
-              <span class="link-meta">Open demo</span>
+            <a class="demo-link" href="./demo/inline-editing.html">
+              <span class="demo-kicker">Input</span>
+              <div>
+                <h3>Inline Editing</h3>
+                <p>Editable cells and direct row update flows.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/formatting.html">
-              <h3>Formatting</h3>
-              <p>
-                Currency, date, and number formatting examples with locale-aware
-                output.
-              </p>
-              <span class="link-meta">Open demo</span>
+            <a class="demo-link" href="./demo/create-record.html">
+              <span class="demo-kicker">Create</span>
+              <div>
+                <h3>Create Record</h3>
+                <p>Modal workflows for adding rows with field validation.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/inline-editing.html">
-              <span class="eyebrow-small">Input</span>
-              <h3>Inline Editing</h3>
-              <p>Editable cells and direct row update flows.</p>
-              <span class="link-meta">Open demo</span>
+            <a class="demo-link" href="./demo/live-sync.html">
+              <span class="demo-kicker">Live</span>
+              <div>
+                <h3>Live Sync</h3>
+                <p>Adaptive polling, visible status, and mocked live updates.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-
-            <a class="link-card" href="./demo/create-record.html">
-              <span class="eyebrow-small">Input</span>
-              <h3>Create Record</h3>
-              <p>
-                Built-in modal workflows for adding new rows with field
-                validation and custom inputs.
-              </p>
-              <span class="link-meta">Open demo</span>
+            <a class="demo-link" href="./demo/pagination-guard.html">
+              <span class="demo-kicker">Guard</span>
+              <div>
+                <h3>Pagination Guard</h3>
+                <p>Max page and page-size guardrails with clamp examples.</p>
+              </div>
+              <span class="link-meta">View demo</span>
             </a>
-            <a class="link-card" href="./demo/live-sync.html">
-              <span class="eyebrow-small">Real-time</span>
-              <h3>Live Sync</h3>
-              <p>Adaptive polling, visible status, and mocked live updates.</p>
-              <span class="link-meta">Open demo</span>
-            </a>
-            <a class="link-card" href="./demo/pagination-guard.html">
-              <h3>Pagination Guard</h3>
-              <p>
-                Optional max page and page-size guardrails with clamp examples.
-              </p>
-              <span class="link-meta">Open demo</span>
-            </a>
-            <a class="link-card" href="./docs.html#api-methods">
-              <h3>API Methods</h3>
-              <p>
-                Jump straight to the method reference for programmatic control
-                of the table instance.
-              </p>
-              <span class="link-meta">Read API reference</span>
+            <a class="demo-link" href="./docs.html#api-methods">
+              <span class="demo-kicker">API</span>
+              <div>
+                <h3>API Methods</h3>
+                <p>Jump straight to the method reference for table control.</p>
+              </div>
+              <span class="link-meta">Read reference</span>
             </a>
           </div>
         </section>
@@ -996,39 +1334,15 @@ table.init();</code></pre>
       <footer class="site-footer">
         <div class="footer-grid">
           <div class="footer-brand">
-            <div class="brand">
+            <a class="brand" href="./index.html" aria-label="Dog Table home">
               <span class="brand-mark">DT</span>
               <span>Dog Table</span>
-            </div>
+            </a>
             <p>
-              Vanilla JavaScript data tables with practical features for real
-              app flows: search, sorting, remote data, editing, create
-              workflows, export, and live refresh.
+              Vanilla JavaScript data tables for real app flows: search,
+              sorting, remote data, editing, create workflows, export, and live
+              refresh.
             </p>
-            <div class="nav-actions">
-              <a
-                class="icon-link"
-                href="https://github.com/ArRahmaan17/dog-table"
-                aria-label="Dog Table on GitHub"
-                title="GitHub"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.455-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.481A10.02 10.02 0 0 0 22 12.017C22 6.484 17.523 2 12 2z"
-                  />
-                </svg>
-              </a>
-              <a
-                class="icon-link"
-                href="https://www.npmjs.com/package/dog-table"
-                aria-label="Dog Table on npm"
-                title="npm"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M2 22V2h20v20h-6V8h-4v14h-4V8H6v14H2z" />
-                </svg>
-              </a>
-            </div>
           </div>
 
           <div>
@@ -1063,10 +1377,7 @@ table.init();</code></pre>
         </div>
 
         <div class="footer-bottom">
-          <span
-            >Built for teams that want practical table features without a
-            framework-sized dependency.</span
-          >
+          <span>Built for table-heavy screens without framework lock-in.</span>
           <span>MIT Licensed</span>
         </div>
       </footer>
